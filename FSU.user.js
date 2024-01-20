@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【FSU】EAFC FUT WEB 增强器
 // @namespace    https://futcd.com/
-// @version      24.10
+// @version      24.11
 // @description  EAFCFUT模式SBC任务便捷操作增强器👍👍👍，额外信息展示、近期低价自动查询、一键挂出球员、跳转FUTBIN、快捷搜索、拍卖行优化等等...👍👍👍
 // @author       Futcd_kcka
 // @match        https://www.ea.com/ea-sports-fc/ultimate-team/web-app/*
@@ -2346,9 +2346,9 @@
                 a._fsuConceptBuy.player = e.item;
                 a._fsuConceptBuy.setSubtext(events.getCachePrice(pid,1));
                 a._fsuConceptBuy.displayCurrencyIcon(!0);
-                a._fsuConceptBuy.setInteractionState(!0);
-                a._fsuConceptBuy.show();
+                a._fsuConceptBuy.setInteractionState(!0);                
             }
+            a._fsuConceptBuy.show();
             //假想球员购买直接发送到俱乐部并返回阵容
             if(a.hasOwnProperty("_sendClubButton") && w._squadContext && a._sendClubButton.isInteractionEnabled() && e.item.definitionId == w._squadContext.squad.getPlayer(w._squadContext.slotIndex).item.definitionId && w._squadContext.squad.getPlayer(w._squadContext.slotIndex).item.concept && info.set.sbc_cback){
                 events.conceptBuyBack(w);
