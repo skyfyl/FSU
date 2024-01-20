@@ -651,6 +651,8 @@
         "readauction.loadingclose":["正在读取最新FUT价格","正在讀取最新FUT價格","Reading the latest FUT prices"],
         "readauction.loadingclose2":["正在读取拍卖信息","正在讀取拍賣資訊","Reading auction information"],
         "buyplayer.loadingclose":["正在尝试购买球员","正在嘗試購買球員","Trying to buy players"],
+        "buyplayer.pauseloadingclose":["正在等待购买球员","正在等待购买球员","Pause to buy players"],
+        "buyplayer.missplayerbuy.success":["购买缺失球员完成","购买缺失球员完成","Success to buy players"],
         "conceptbuy.btntext":["直接购买此球员","直接購買此球員","Buy this player directly"],
         "set.sbc.conceptbuy":["假想球员直接购买","概念球員直接購買","Concept player direct purchase"],
         "set.player.transfertoclub":["转会发送俱乐部","轉會傳送俱樂部","Transfer sending club"],
@@ -2342,13 +2344,21 @@
         if(e.item.isPlayer()){
             let pid = e.item.definitionId || 0;
             //假想球员购买按钮
-            if(pid && e.item.concept && "_fsuConceptBuy" in a && events.getCachePrice(pid) && info.set.sbc_conceptbuy){
+            console.log("pid: " + pid);
+            console.log("e.item.concept: " + e.item.concept);
+            let price =  "_fsuConceptBuy" in a;
+            console.log("getCachePrice(pid): " + price);
+            console.log("events.getCachePrice(pid): " + events.getCachePrice(pid))
+            console.log("info.set.sbc_conceptbuy: " + info.set.sbc_conceptbuy);
+            // if(pid && e.item.concept && "_fsuConceptBuy" in a && events.getCachePrice(pid) && info.set.sbc_conceptbuy){
+            if(pid && e.item.concept && "_fsuConceptBuy" in a && info.set.sbc_conceptbuy){
                 a._fsuConceptBuy.player = e.item;
-                a._fsuConceptBuy.setSubtext(events.getCachePrice(pid,1));
+                //a._fsuConceptBuy.setSubtext(events.getCachePrice(pid,1));
                 a._fsuConceptBuy.displayCurrencyIcon(!0);
-                a._fsuConceptBuy.setInteractionState(!0);                
+                a._fsuConceptBuy.setInteractionState(!0);
+                a._fsuConceptBuy.show();            
             }
-            a._fsuConceptBuy.show();
+            
             //假想球员购买直接发送到俱乐部并返回阵容
             if(a.hasOwnProperty("_sendClubButton") && w._squadContext && a._sendClubButton.isInteractionEnabled() && e.item.definitionId == w._squadContext.squad.getPlayer(w._squadContext.slotIndex).item.definitionId && w._squadContext.squad.getPlayer(w._squadContext.slotIndex).item.concept && info.set.sbc_cback){
                 events.conceptBuyBack(w);
@@ -3924,8 +3934,8 @@
  
  
     //假想球员购买
-    events.buyPlayer = async (player) => {
-        events.showLoader();
+    events.buyPlayer = async (player, isShowLoader = true) => {
+        isShowLoader && events.showLoader();
         let defId = 0,playerName ="";
         if(Number.isInteger(player)){
             defId = player;
@@ -3943,7 +3953,7 @@
             let priceList = await events.readAuctionPrices(player);
             priceList.sort((a, b) => b._auction.buyNowPrice - a._auction.buyNowPrice);
             console.log(priceList)
-            events.changeLoadingText("buyplayer.loadingclose");
+            isShowLoader && events.changeLoadingText("buyplayer.loadingclose");
             if(!priceList || priceList.length == 0){
                 events.notice(["buyplayer.error",playerName,fy("buyplayer.error.child3")],2);
             }else{
@@ -3970,12 +3980,12 @@
                                         }else{
                                             events.notice(["buyplayer.sendclub.error",playerName],2);
                                         }
-                                        events.hideLoader();
+                                        isShowLoader && events.hideLoader();
                                     })
                                 }else{
                                     let denied = data.error && data.error.code === UtasErrorCode.PERMISSION_DENIED
                                     events.notice(["buyplayer.error",playerName,`${denied ? fy("buyplayer.error.child1") : ""}`],2);
-                                    events.hideLoader();
+                                    isShowLoader && events.hideLoader();
                                 }
                             })
                             resolve();
@@ -3987,7 +3997,7 @@
             }
             
         }
-        events.hideLoader();
+        isShowLoader && events.hideLoader();
     };
     events.readAuctionPrices = async(player,price) => {
         events.changeLoadingText("readauction.loadingclose");
@@ -4106,6 +4116,34 @@
             this._fsuSquad = b;
             this._fsuSquad.challenge = e;
             this._btnSquadBuilder.__root.after(this._fsuSquad.__root);
+        }
+
+        if(!this._fsuMissBuy && info.set.sbc_template){
+            let b = events.createButton(
+                new UTStandardButtonControl(),
+                "购买缺失球员",
+                async (e) => {
+                    //console.log(cntlr.current()._squad);
+                    //console.log(cntlr.current()._squad.getFieldPlayers());
+                    let players = cntlr.current()._squad.getFieldPlayers().map(i => i.getItem()).filter(i => i.concept);
+                    console.log(players);
+                    events.showLoader();
+                    info.base.template = true;
+                    for (const player of players) {
+                        if(!info.base.template){return};
+                        console.log(player);     
+                        await events.buyPlayer(player, false);                 
+                        events.changeLoadingText("buyplayer.pauseloadingclose");
+                        await events.wait(5, 8);
+                                                                                            
+                    }   
+                    events.hideLoader();  
+                    events.notice("buyplayer.missplayerbuy.success",0);               
+                },
+                "call-to-action"
+            )
+            this._fsuMissBuy = b;
+            this._btnSquadBuilder.__root.after(this._fsuMissBuy.__root);
         }
  
         //计算所需条件
