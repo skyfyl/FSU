@@ -1896,80 +1896,6 @@
         }
     }
 
-    //SBC阵容填充指定联赛评分 需要元素携带data-r(评分)，切换球员填充状态为3
-    events.SBCSetRatingPlayers = async(e) => {
-        if(e.__root.getAttribute('data-r') == "eligibilitysearch" && isPhone()){
-            if(cntlr.current().className == "UTSBCSquadDetailPanelViewController"){
-                cntlr.current().getNavigationController()._eBackButtonTapped()
-            }else if(cntlr.current().className == "UTSBCSquadOverviewViewController"){
-                gPopupClickShield.onRequestBack()
-            }
-            await events.wait(0.3,0.3);
-        }
-        let r = e.__root.getAttribute('data-r'),
-            x = e.__text ? e.__text.textContent : "",
-            w = isPhone() ? cntlr.current() : cntlr.left(),
-            pi = w._squad.getNonBrickSlots().length ? w._squad.getNonBrickSlots()[0].getIndex() : 0,
-            curP,fSort = "asc";
- 
-        if(r == "d"){
-            curP = services.Item.itemDao.itemRepo.getUnassignedItems().map( i => { if(i.isDuplicate() && !i.isLoaned() && i.isPlayer()){return i.definitionId}});
-        }else if(r == "GOLD"){
-            curP = events.getItemBy(2,{"rs":2});
-        }else if(r == "eligibilitysearch"){
-            console.log(e)
-            curP = events.getItemBy(2,e.criteria);
-        }else{
-            let jq = {"rating":Number(r)};
-            if(/GT/.test(r)){
-                jq = {"GTrating":Number(r.replace(/GT$/, ""))}
-            }else if(/LT/.test(r)){
-                jq = {"LTrating":Number(r.replace(/LT$/, ""))}
-                fSort = "desc";
-            }
-            curP = events.getItemBy(2,jq)
-        } 
-        let p = events.getDedupPlayers(curP,w._squad.getPlayers());
-        if(!p.length){
-            events.notice("notice.noplayer",2)
-            return;
-        }
-        if(x !== fy("sbc.swaprating")){
-            if(w.getView().getSelectedSlot() !== null){
-                pi = w.getView().getSelectedSlot().getIndex();
-            }
-            if(w._squad._getSlotByIndex(pi).isBrick() || w._squad._getSlotByIndex(pi).isValid()){
-                let pl = w._squad.getNonBrickSlots()
-                for (const i of pl) {
-                    if(!i.isValid()){
-                        pi = i.getIndex();
-                        break;
-                    }
-                }
-            }
-            await w.getView().selectSlot(pi);
-            await w.getView().getSelectedSlot()._tapDetected(this);
-        }
-        let b = isPhone() ? cntlr.current()._rootController : cntlr.right();
-        if(r == "d"){
-            console.log(b)
-            if(b._panelView._fsuUn._interactionState){
-                await b._panelView._fsuUn._tapDetected(this);
-            }else{
-                events.notice("notice.noduplicate",2);
-            }
-        }else{
-            b._parentViewController._fsuFillType = 5;
-            b._parentViewController._fsuFillArray = p;
-            let ratingList = p.map(i => {return i.rating});
-            b._parentViewController._fsuFillRange = [Math.min(...ratingList),Math.max(...ratingList)];
-            b._parentViewController._fsuFillSort = fSort;
-            if(b?._panelView){
-                await b._panelView._btnAddSwap._tapDetected(this);
-            }
-        }
-    }
-
     //取出排重后的ID列表
     events.getDedupPlayers = (s,p) => {
         let dp = p.map( i => {
@@ -2758,6 +2684,28 @@
             events.notice("meetsreq.error",2);
         }
     }
+
+    //满足条件球员读取程序 返回列表
+    events.SBCSetMeetsPlayersResult = async(e) => {
+        let newChallenge = events.createVirtualChallenge(cntlr.current()._challengeDetailsController._rootController._challenge);
+        let defList = cntlr.current()._squad.getPlayers().map(i => {return i.getItem().definitionId}).filter(Boolean);
+        let search = {"NEdatabaseId":defList};
+        let shortlist = events.getItemBy(2,search);
+        let playerIndex = e.getIndex();
+        let currentList = newChallenge.squad.getPlayers().map(i => {return i.getItem()});
+        let originPlayer = currentList[playerIndex];
+        let resultList = [];
+        for (let player of shortlist) {
+            currentList[playerIndex] = player;
+            newChallenge.squad.setPlayers(currentList);
+            if(newChallenge.meetsRequirements()){
+                resultList.push(player)
+            }
+        }
+
+        return resultList.length === 0 ? resultList : _.cloneDeep(resultList.filter(i => { return i.rating >= originPlayer.rating}));
+    }
+
     //默契球员读取程序
     events.SBCSetChemPlayers = async(e) => {
         let needChem = Number(e.__root.getAttribute('data-c'));
@@ -4146,6 +4094,66 @@
             )
             this._fsuMissBuy = b;
             this._btnSquadBuilder.__root.after(this._fsuMissBuy.__root);
+        }
+
+        if(!this._fsuMeetsFill && info.set.sbc_template){
+            let b = events.createButton(
+                new UTStandardButtonControl(),
+                "替换满足需求球员",
+                async (e) => {
+                    // console.log(cntlr);
+                    // console.log(cntlr.current()._challengeDetailsController._challenge);
+                    // console.log(cntlr.current()._squad);
+                    // console.log(cntlr.current()._squad.getFieldPlayers());
+                    // console.log(e);
+                    let players = _.cloneDeep(e._parent.squad.getFieldPlayers().filter(i => i.getItem().concept));
+                    let currentSquad = _.cloneDeep(e._parent.squad._players.map((p) => p._item));
+                    // console.log("currentSquad: ")
+                    // console.log(currentSquad)
+                    let oldSquad = _.cloneDeep(e._parent.squad._players.map((p) => p._item));
+                    // console.log(players);
+                    events.showLoader();
+                    info.base.template = true;
+                    for (const player of players) {
+                        if(!info.base.template){return};
+                        // console.log(player);   
+                        let playerIndex = player.getIndex();
+                        // console.log(playerIndex);
+                        let newplayers = await events.SBCSetMeetsPlayersResult(player);  
+                        // console.log(newplayers);
+                        if (newplayers.length > 0) {
+
+                            let currentPlayersId = currentSquad.filter(i => i.definitionId > 0).map((p) => p.definitionId);
+                            // console.log(currentPlayersId);
+                            let newPlayersId = newplayers.map((p) => p.definitionId);
+                            // console.log(newPlayersId);
+                            let difference = _.difference(newPlayersId, currentPlayersId);
+                            // console.log(difference);
+                            if (difference.length > 0) {
+                                let newplayerDiffs =  newplayers.filter(i => difference.indexOf(i.definitionId) !== -1);
+                                // console.log(newplayerDiffs);
+                                let newplayer = newplayerDiffs[0];
+                                // console.log(newplayer);
+                                currentSquad[playerIndex] = newplayer;     
+                                // console.log("currentSquad: change")
+                                // console.log(currentSquad)      
+                            }                                            
+                        }              
+                        events.changeLoadingText("buyplayer.pauseloadingclose");
+                        await events.wait(0.2, 1);
+                                                                                            
+                    }   
+                    events.hideLoader();  
+                    console.log(currentSquad);
+                    events.saveSquad(e._parent,  e._parent.squad, currentSquad, []);
+                    events.saveOldSquad(e._parent.squad, false);
+                    events.notice("buyplayer.missplayerbuy.success",0);               
+                },
+                "call-to-action"
+            )
+            b._parent = e;
+            this._fsuMeetsFill = b;
+            this._btnSquadBuilder.__root.after(this._fsuMeetsFill.__root);
         }
  
         //计算所需条件
