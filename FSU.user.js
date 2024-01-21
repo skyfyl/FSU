@@ -2359,6 +2359,18 @@
                 a._fsuLeag.show();
             }
 
+            if(a.hasOwnProperty("_fsuLeagRat") && e.item.leagueId > 0 && e.item.rating > 0){
+                a._fsuLeagRat.__root.setAttribute("data-r",`eligibilitysearch`);
+                let originalCriteria = {};
+                let criteria = JSON.parse(JSON.stringify(originalCriteria));
+                criteria.leagueId = e.item.leagueId;
+                criteria.rating = e.item.rating;
+                criteria.lock = false;
+                a._fsuLeagRat.criteria = criteria;
+                a._fsuLeagRat.setInteractionState(1);
+                a._fsuLeagRat.show();
+            }
+
             if(a.hasOwnProperty("_fsuClu") && e.item.teamId > 0){
                 a._fsuClu.__root.setAttribute("data-r",`eligibilitysearch`);
                 let originalCriteria = {};
@@ -2615,6 +2627,18 @@
             fle.hide();
             e._fsuLeag = fle;
             fbg.appendChild(e._fsuLeag.__root);
+
+            // 联赛同分
+            let fler = events.createButton(
+                new UTGroupButtonControl(),
+                "替换为同联赛同分",
+                (e) => {events.SBCSetRatingPlayers(e);},
+                ""
+            )
+            fler.setInteractionState(!1);
+            fler.hide();
+            e._fsuLeagRat = fler;
+            fbg.appendChild(e._fsuLeagRat.__root);
 
             // 俱乐部
             let fcl = events.createButton(
