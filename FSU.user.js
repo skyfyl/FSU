@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【FSU】EAFC FUT WEB 增强器 Kobe
 // @namespace    https://futcd.com/
-// @version      24.10.6
+// @version      24.10.7
 // @description  EAFCFUT模式SBC任务便捷操作增强器👍👍👍，额外信息展示、近期低价自动查询、一键挂出球员、跳转FUTBIN、快捷搜索、拍卖行优化等等...👍👍👍
 // @author       Futcd_kcka
 // @match        https://www.ea.com/ea-sports-fc/ultimate-team/web-app/*
@@ -1899,7 +1899,8 @@
     events.filterRatingPlayers = async(r) => {
         let jq = {"rating":Number(r)};            
         let curP = events.getItemBy(2, jq)
-        let p = events.getDedupPlayers(curP, cntlr.left()._squad.getPlayers());
+        let w = isPhone() ? cntlr.current() : cntlr.left();
+        let p = events.getDedupPlayers(curP, w._squad.getPlayers());
         if(!p.length){
             events.notice("notice.noplayer",2)
             return [];
