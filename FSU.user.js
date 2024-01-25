@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【FSU】EAFC FUT WEB 增强器 Kobe
 // @namespace    https://futcd.com/
-// @version      24.10.7
+// @version      24.10.8
 // @description  EAFCFUT模式SBC任务便捷操作增强器👍👍👍，额外信息展示、近期低价自动查询、一键挂出球员、跳转FUTBIN、快捷搜索、拍卖行优化等等...👍👍👍
 // @author       Futcd_kcka
 // @match        https://www.ea.com/ea-sports-fc/ultimate-team/web-app/*
@@ -1896,11 +1896,11 @@
         }
     }
 
-    events.filterRatingPlayers = async(r) => {
+    events.filterRatingPlayers = async(r, ps) => {
         let jq = {"rating":Number(r)};            
         let curP = events.getItemBy(2, jq)
-        let w = isPhone() ? cntlr.current() : cntlr.left();
-        let p = events.getDedupPlayers(curP, w._squad.getPlayers());
+        // let w = isPhone() ? cntlr.current() : cntlr.left();
+        let p = events.getDedupPlayers(curP, ps);
         if(!p.length){
             events.notice("notice.noplayer",2)
             return [];
@@ -2723,9 +2723,9 @@
     }
 
     //满足条件球员读取程序 返回列表
-    events.SBCSetMeetsPlayersResult = async(e) => {
-        let newChallenge = events.createVirtualChallenge(cntlr.current()._challengeDetailsController._rootController._challenge);
-        let defList = cntlr.current()._squad.getPlayers().map(i => {return i.getItem().definitionId}).filter(Boolean);
+    events.SBCSetMeetsPlayersResult = async(e, p) => {
+        let newChallenge = events.createVirtualChallenge(p._parent);
+        let defList = p._parent.squad.getPlayers().map(i => {return i.getItem().definitionId}).filter(Boolean);
         let search = {"NEdatabaseId":defList};
         let shortlist = events.getItemBy(2,search);
         let playerIndex = e.getIndex();
@@ -4112,7 +4112,7 @@
                 async (e) => {
                     //console.log(cntlr.current()._squad);
                     //console.log(cntlr.current()._squad.getFieldPlayers());
-                    let players = cntlr.current()._squad.getFieldPlayers().map(i => i.getItem()).filter(i => i.concept);
+                    let players = e._parent.squad.getFieldPlayers().map(i => i.getItem()).filter(i => i.concept);
                     console.log(players);
                     events.showLoader();
                     info.base.template = true;
@@ -4129,6 +4129,7 @@
                 },
                 "call-to-action"
             )
+            b._parent = e;
             this._fsuMissBuy = b;
             this._btnSquadBuilder.__root.after(this._fsuMissBuy.__root);
         }
@@ -4142,7 +4143,7 @@
                     // console.log(cntlr.current()._challengeDetailsController._challenge);
                     // console.log(cntlr.current()._squad);
                     // console.log(cntlr.current()._squad.getFieldPlayers());
-                    // console.log(e);
+                    console.log(e);
                     let players = _.cloneDeep(e._parent.squad.getFieldPlayers().filter(i => i.getItem().concept));
                     let currentSquad = _.cloneDeep(e._parent.squad._players.map((p) => p._item));
                     // console.log("currentSquad: ")
@@ -4153,10 +4154,10 @@
                     info.base.template = true;
                     for (const player of players) {
                         if(!info.base.template){return};
-                        // console.log(player);   
+                        console.log(player);   
                         let playerIndex = player.getIndex();
                         // console.log(playerIndex);
-                        let newplayers = await events.SBCSetMeetsPlayersResult(player);  
+                        let newplayers = await events.SBCSetMeetsPlayersResult(player, e);  
                         // console.log(newplayers);
                         if (newplayers.length > 0) {
 
@@ -4217,7 +4218,7 @@
                         // console.log(player);   
                         let playerIndex = player.getIndex();
                         // console.log(playerIndex);
-                        let newplayers = await events.filterRatingPlayers(player.getItem().rating);  
+                        let newplayers = await events.filterRatingPlayers(player.getItem().rating, e._parent.squad.getPlayers());  
                         // console.log(newplayers);
                         if (newplayers.length > 0) {
 
