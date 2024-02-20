@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【FSU】EAFC FUT WEB 增强器 Kobe
 // @namespace    https://futcd.com/
-// @version      24.13.1
+// @version      24.13.2
 // @description  EAFCFUT模式SBC任务便捷操作增强器👍👍👍，额外信息展示、近期低价自动查询、一键挂出球员、跳转FUTBIN、快捷搜索、拍卖行优化等等...👍👍👍
 // @author       Futcd_kcka
 // @match        https://www.ea.com/ea-sports-fc/ultimate-team/web-app/*
@@ -4342,6 +4342,78 @@ if(a.hasOwnProperty("_fsuLeag") && e.item.leagueId > 0){
         }
         events.hideLoader();
     };
+
+    events.buyPlayerList = async (player, isShowLoader = true) => {
+        isShowLoader && events.showLoader();
+        let defId = 0,playerName ="";
+        if(Number.isInteger(player)){
+            defId = player;
+            playerName = repositories.Item.getStaticDataByDefId(defId).name;
+        }else if(typeof player == "object" && player.isPlayer()){
+            defId = player.definitionId;
+            playerName = player.getStaticData().name
+        }
+        if(!defId){
+            return;
+        }
+        if(repositories.Item.numItemsInCache(ItemPile.PURCHASED) >= MAX_NEW_ITEMS){
+            events.notice(["buyplayer.error",playerName,fy("buyplayer.error.child5")],2);
+            events.cardAddBuyErrorTips(defId);
+        }else{
+            let priceList = await events.readAuctionPrices(player);
+            priceList.sort((a, b) => b._auction.buyNowPrice - a._auction.buyNowPrice);
+            console.log(priceList)
+            isShowLoader && events.changeLoadingText("buyplayer.loadingclose");
+            if(!priceList || priceList.length == 0){
+                events.notice(["buyplayer.error",playerName,fy("buyplayer.error.child3")],2);
+                events.cardAddBuyErrorTips(defId);
+            }else{
+                let currentPlayer = priceList[priceList.length - 1];
+                let currentData = currentPlayer.getAuctionData();
+                if(!currentData.canBuy(services.User.getUser().getCurrency(GameCurrency.COINS).amount)){
+                    events.notice(["buyplayer.error",playerName,fy("buyplayer.error.child2")],2);
+                    events.cardAddBuyErrorTips(defId);
+                }else{
+                    if(0 < currentData.getSecondsRemaining()){
+                        return new Promise(async (resolve) => {
+                            events.sendPinEvents("Item - Detail View");
+                            services.Item.bid(currentPlayer,currentPlayer._auction.buyNowPrice).observe(this, async function (sender, data) {
+                                if(data.success){
+                                    events.notice(["buyplayer.success",playerName,currentPlayer._auction.buyNowPrice],0);
+                                    services.Item.move(currentPlayer, ItemPile.CLUB).observe(this, (e,t) => {
+                                        if (e.unobserve(this),t.success) {
+                                            events.notice(["buyplayer.sendclub.success",playerName],0);
+                                            if(isPhone()){
+                                                let controller = cntlr.current();
+                                                if(controller.className ==  'UTSquadItemDetailsNavigationController'){
+                                                    controller.getParentViewController()._eBackButtonTapped()
+                                                }
+                                            }
+                                        }else{
+                                            events.notice(["buyplayer.sendclub.error",playerName],2);
+                                            events.cardAddBuyErrorTips(defId);
+                                        }
+                                        isShowLoader && events.hideLoader();
+                                    })
+                                }else{
+                                    let denied = data.error && data.error.code === UtasErrorCode.PERMISSION_DENIED
+                                    events.notice(["buyplayer.error",playerName,`${denied ? fy("buyplayer.error.child1") : ""}`],2);
+                                    events.cardAddBuyErrorTips(defId);
+                                    isShowLoader && events.hideLoader();
+                                }
+                            })
+                            resolve();
+                        })
+                    }else{
+                        events.notice(["buyplayer.error",playerName,fy("buyplayer.error.child4")],2);
+                        events.cardAddBuyErrorTips(defId);
+                    }
+                }
+            }
+            
+        }
+        isShowLoader && events.hideLoader();
+    };
  
     //购买失败添加标识
     events.cardAddBuyErrorTips = (defId) => {
@@ -4515,7 +4587,7 @@ if(a.hasOwnProperty("_fsuLeag") && e.item.leagueId > 0){
                     for (const player of players) {
                         if(!info.base.template){return};
                         console.log(player);     
-                        await events.buyPlayer(player, e._parent);                 
+                        await events.buyPlayerList(player, true);                 
                         events.changeLoadingText("buyplayer.pauseloadingclose");
                         await events.wait(5, 8);
                                                                                             
