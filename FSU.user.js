@@ -4440,7 +4440,8 @@
                         console.log(player);     
                         await events.buyPlayer(player, false);                 
                         events.changeLoadingText("buyplayer.pauseloadingclose");
-                        await events.wait(5, 8);
+                        events.showLoader();
+                        await events.wait(2, 3);                       
                                                                                             
                     }   
                     events.hideLoader();  
@@ -4493,7 +4494,11 @@
                                 // console.log(newplayer);
                                 currentSquad[playerIndex] = newplayer;     
                                 // console.log("currentSquad: change")
-                                // console.log(currentSquad)      
+                                // console.log(currentSquad)   
+                                
+                                events.saveSquad(e._parent,  e._parent.squad, currentSquad, []);
+                                events.saveOldSquad(e._parent.squad, false);
+                                events.showLoader();
                             }                                            
                         }              
                         events.changeLoadingText("buyplayer.pauseloadingclose");
