@@ -4587,9 +4587,8 @@ if(a.hasOwnProperty("_fsuLeag") && e.item.leagueId > 0){
                     for (const player of players) {
                         if(!info.base.template){return};
                         console.log(player);     
-                        await events.buyPlayerList(player, true);                 
+                        await events.buyPlayerList(player, false);                 
                         events.changeLoadingText("buyplayer.pauseloadingclose");
-                        events.showLoader();
                         await events.wait(2, 3);                       
                                                                                             
                     }   
@@ -4622,7 +4621,10 @@ if(a.hasOwnProperty("_fsuLeag") && e.item.leagueId > 0){
                     events.showLoader();
                     info.base.template = true;
                     for (const player of players) {
-                        if(!info.base.template){return};
+                        if(!info.base.template){
+                            console.log("info.base.template");
+                            return
+                        };
                         console.log(player);   
                         let playerIndex = player.getIndex();
                         // console.log(playerIndex);
@@ -5172,6 +5174,47 @@ if(a.hasOwnProperty("_fsuLeag") && e.item.leagueId > 0){
         );
         
     }
+
+    events.saveSquadLoader = async(c,s,l,a) => {
+        info.base.savesquad = true;
+        s.removeAllItems();
+        s.setPlayers(l, true);
+        await services.SBC.saveChallenge(c).observe(
+            this,
+            async function (z, d) {
+                if (!d.success) {
+                    events.notice("notice.templateerror",2);
+                    s.removeAllItems();
+                    info.base.savesquad = false;
+                    //events.hideLoader();
+                }
+                services.SBC.loadChallengeData(c).observe(
+                    this,
+                    async function (z, {response:{squad}}) {
+                        //events.hideLoader();
+                        let ps = squad._players.map((p) => p._item);
+                        c.squad.setPlayers(ps, true);
+                        c.onDataChange.notify({squad});
+                        info.base.savesquad = false;
+                        if(isPhone() && cntlr.current().className !== "UTSBCSquadOverviewViewController"){
+                            setTimeout(() => {
+                                cntlr.current()._parentViewController._eBackButtonTapped()
+                            },500);
+                        }
+                        events.notice("notice.templatesuccess",0);
+                        events.loadPlayerPrice(a);
+                        let view = isPhone() ? cntlr.current().getView() : cntlr.left().getView();
+                        console.log(view._interactionState)
+                        if(!view._interactionState){
+                            view.setInteractionState(!0)
+                        }
+                    }
+                );
+            }
+        );
+        
+    }
+
     UTSBCService.prototype.loadChallengeData = function (r) {
         var s = this,
             a = new EAObservable();
