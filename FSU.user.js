@@ -4067,7 +4067,7 @@ if(a.hasOwnProperty("_fsuLeag") && e.item.leagueId > 0){
                                     let a = v.split(',').map(i => {return Number(i)}).filter(Boolean);
                                     set.save("shield_league",a)
                                 }else if(v == ""){
-                                    set.save("shield_league",[31,16,13,19,53])
+                                    set.save("shield_league",[13,16,19,31,53,10,1003,1014,68,2012,350,4,14,39])
                                 }else{
                                     events.notice(fy("notice.seterror"),2)
                                 }
@@ -4170,7 +4170,7 @@ if(a.hasOwnProperty("_fsuLeag") && e.item.leagueId > 0){
             }
         }
         if(!b.hasOwnProperty("shield_league")){
-            b["shield_league"] = [31,16,13,19,53];
+            b["shield_league"] = [13,16,19,31,53,10,1003,1014,68,2012,350,4,14,39];
         }
         if(!b.hasOwnProperty("queries_number")){
             b["queries_number"] = 5;
