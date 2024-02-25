@@ -2493,13 +2493,22 @@ events.filterRatingPlayers = async(r, ps) => {
         }
         if(e.item.isPlayer()){
             let pid = e.item.definitionId || 0;
+            if (!events.getCachePrice(pid)) {
+                events.loadPlayerPrice([pid]);
+            }
             //假想球员购买按钮
-            if(pid && e.item.concept && "_fsuConceptBuy" in a && events.getCachePrice(pid) && info.set.sbc_conceptbuy){
-                a._fsuConceptBuy.player = e.item;
-                a._fsuConceptBuy.setSubtext(events.getCachePrice(pid,1));
-                a._fsuConceptBuy.displayCurrencyIcon(!0);
-                a._fsuConceptBuy.setInteractionState(!0);
-                a._fsuConceptBuy.show();
+            if(pid && e.item.concept && "_fsuConceptBuy" in a && info.set.sbc_conceptbuy){
+                if (!events.getCachePrice(pid)) {
+                    events.loadPlayerPrice([pid]);
+                }
+                
+                if(events.getCachePrice(pid)){
+                    a._fsuConceptBuy.player = e.item;
+                    a._fsuConceptBuy.setSubtext(events.getCachePrice(pid,1));
+                    a._fsuConceptBuy.displayCurrencyIcon(!0);
+                    a._fsuConceptBuy.setInteractionState(!0);
+                    a._fsuConceptBuy.show();
+                }              
             }
             //假想球员购买直接发送到俱乐部并返回阵容
             if(a.hasOwnProperty("_sendClubButton") && w._squadContext && a._sendClubButton.isInteractionEnabled() && e.item.definitionId == w._squadContext.squad.getPlayer(w._squadContext.slotIndex).item.definitionId && w._squadContext.squad.getPlayer(w._squadContext.slotIndex).item.concept && info.set.sbc_cback){
@@ -4659,7 +4668,7 @@ if(a.hasOwnProperty("_fsuLeag") && e.item.leagueId > 0){
                     }   
                     events.hideLoader();  
                     console.log(currentSquad);
-                    events.saveSquad(e._parent,  e._parent.squad, currentSquad, []);
+                    events.saveSquad(e._parent,  e._parent.squad, currentSquad, currentSquad.map(i => {if(i && !info.roster.data.hasOwnProperty(i.definitionId)){return i.definitionId}}).filter(Boolean));
                     events.saveOldSquad(e._parent.squad, false);
                     events.notice("buyplayer.missplayerbuy.success",0);               
                 },
@@ -4730,6 +4739,7 @@ if(a.hasOwnProperty("_fsuLeag") && e.item.leagueId > 0){
             this._fsuRatFill = b;
             this._btnSquadBuilder.__root.after(this._fsuRatFill.__root);
         }
+        
  
         //计算所需条件
         let sc = 11 - e.squad.getAllBrickIndices().length,gf = [],gfall = {},targetRting = 0,needChem = false;
