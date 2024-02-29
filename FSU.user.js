@@ -4657,8 +4657,8 @@ if(a.hasOwnProperty("_fsuLeag") && e.item.leagueId > 0){
                                 // console.log("currentSquad: change")
                                 // console.log(currentSquad)   
                                 
-                                events.saveSquadLoader(e._parent,  e._parent.squad, currentSquad, []);
-                                events.saveOldSquad(e._parent.squad, false);
+                                events.saveSquad(e._parent,  e._parent.squad, currentSquad, []);
+                                //events.saveOldSquad(e._parent.squad, false);
                                 events.showLoader();
                             }                                            
                         }              
