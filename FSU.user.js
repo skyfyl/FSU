@@ -3028,7 +3028,7 @@ if(a.hasOwnProperty("_fsuLeag") && e.item.leagueId > 0){
         }
 
         // return resultList.length === 0 ? resultList : _.cloneDeep(resultList.filter(i => { return i.rating >= originPlayer.rating}));
-        return resultList.length === 0 ? resultList : _.cloneDeep(resultList.sort((a, b) => a.rating - b.rating));
+        return resultList.length === 0 ? resultList : _.cloneDeep(resultList.filter(i => { return i.rating <= 81}).sort((a, b) => a.rating - b.rating));
     }
     //默契球员读取程序
     events.SBCSetChemPlayers = async(e) => {
@@ -4658,7 +4658,7 @@ if(a.hasOwnProperty("_fsuLeag") && e.item.leagueId > 0){
                                 // console.log(currentSquad)   
                                 
                                 events.saveSquadLoader(e._parent,  e._parent.squad, currentSquad, []);
-                                events.saveOldSquad(e._parent.squad, false);
+                                //events.saveOldSquad(e._parent.squad, false);
                                 events.showLoader();
                             }                                            
                         }              
