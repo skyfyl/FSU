@@ -4621,12 +4621,14 @@ if(a.hasOwnProperty("_fsuLeag") && e.item.leagueId > 0){
                     // console.log(cntlr.current()._challengeDetailsController._challenge);
                     // console.log(cntlr.current()._squad);
                     // console.log(cntlr.current()._squad.getFieldPlayers());
-                    console.log(e);
-                    let players = _.cloneDeep(e._parent.squad.getFieldPlayers().filter(i => i.getItem().concept));
-                    let currentSquad = _.cloneDeep(e._parent.squad._players.map((p) => p._item));
+                    // console.log(e);
+                    // let players = _.cloneDeep(e._parent.squad.getFieldPlayers().filter(i => i.getItem().concept));
+                    // let currentSquad = _.cloneDeep(e._parent.squad._players.map((p) => p._item));
+                    let players = e._parent.squad.getFieldPlayers().filter(i => i.getItem().concept);
+                    let currentSquad = e._parent.squad._players.map((p) => p._item);
                     // console.log("currentSquad: ")
                     // console.log(currentSquad)
-                    let oldSquad = _.cloneDeep(e._parent.squad._players.map((p) => p._item));
+                    // let oldSquad = _.cloneDeep(e._parent.squad._players.map((p) => p._item));
                     // console.log(players);
                     events.showLoader();
                     info.base.template = true;
@@ -4659,11 +4661,11 @@ if(a.hasOwnProperty("_fsuLeag") && e.item.leagueId > 0){
                                 
                                 events.saveSquadLoader(e._parent,  e._parent.squad, currentSquad, []);
                                 //events.saveOldSquad(e._parent.squad, false);
-                                events.showLoader();
+                                //events.showLoader();
                             }                                            
                         }              
                         events.changeLoadingText("buyplayer.pauseloadingclose");
-                        await events.wait(1.5, 2.5);
+                        await events.wait(0.2, 0.5);
                                                                                             
                     }   
                     events.hideLoader();  
