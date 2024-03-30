@@ -29,19 +29,248 @@
     info.localization = {
         "price.btntext":["查询价格","查詢價格","Check Price"],
         
-    }
+    }   
 
-    events.filterRatingPlayers = async(r, ps) => {
-        let jq = {"rating":Number(r)};            
-        let curP = events.getItemBy(2, jq)
-        let p = events.getDedupPlayers(curP, ps);
-        if(!p.length){
-            events.notice("notice.noplayer",2)
-            return [];
+
+
+    UTSBCSquadDetailPanelView.prototype.render = function(e, t, i, o) {
+        call.panel.sbc.call(this,e, t, i, o)
+        let rh = document.createElement("div");
+        rh.classList.add("sbc-quick","top");
+        this._sbcQuickOther = rh;
+
+        let to = document.createElement("div");
+        to.classList.add("sbc-quick-list","other");
+        this._sbcQuickOtherList = to
+
+        info.set.sbc_template = true;
+        info.set.sbc_templatemode = false;
+
+        if(!this._fsuSquad && info.set.sbc_template){
+            let b = events.createButton(
+                new UTStandardButtonControl(),
+                fy("sbc.squadfill"),
+                (e) => {
+                    if(info.set.sbc_templatemode){
+                        events.popup(
+                            fy("consult.popupt"),
+                            fy("consult.popupm"),
+                            (t,i) => {
+                                if(t === 2){
+                                    let v = i.getValue();
+                                    if(v == ""){
+                                        events.getTemplate(e,1);
+                                    }else{
+                                        let futBinRegex = /www.futbin.com\/\d{2}\/squad\/\d{9}|^\d{9}$/;
+                                        let futGGRegex = /www.fut.gg\/\d{2}\/squad-builder\/\S{8}-\S{4}-\S{4}-\S{4}-\S{12}|^\S{8}-\S{4}-\S{4}-\S{4}-\S{12}$/;
+                                        if(futGGRegex.test(v)){
+                                            let pattern = /\S{8}-\S{4}-\S{4}-\S{4}-\S{12}/;
+                                            let sId = v.match(pattern);
+                                            events.getTemplate(e,3,sId[0]);
+                                        }else if(futBinRegex.test(v)){
+                                            let pattern = /\d{9}/;
+                                            let sId = v.match(pattern);
+                                            events.getTemplate(e,2,sId[0]);
+                                        }else{
+                                            events.notice("consult.error",2);
+                                        }
+                                    }
+                                }
+                            }
+                            ,false,
+                            [fy("consult.placeholder"),""],
+                            true
+                        )
+                    }else{
+                        events.getTemplate(e,1);
+                    }
+                },
+                "call-to-action"
+            )
+            b.__root.setAttribute("data-id",e.id);
+            this._fsuSquad = b;
+            this._fsuSquad.challenge = e;
+            this._btnSquadBuilder.__root.after(this._fsuSquad.__root);
         }
 
-        return p;
+        // Kobe Add
+        if(!this._fsuMissBuy && info.set.sbc_template){
+            let b = events.createButton(
+                new UTStandardButtonControl(),
+                "购买球员",
+                async (e) => {
+                    //console.log(cntlr.current()._squad);
+                    //console.log(cntlr.current()._squad.getFieldPlayers());
+                    let players = e._parent.squad.getFieldPlayers().map(i => i.getItem()).filter(i => i.concept);
+                    //console.log(players);
+                    events.showLoader();
+                    info.base.template = true;
+                    for (const player of players) {
+                        if(!info.base.template){return};
+                        //console.log(player);     
+                        await events.buyPlayerList(player, false);                 
+                        events.changeLoadingText("buyplayer.pauseloadingclose");
+                        await events.wait(2, 3);                       
+                                                                                            
+                    }   
+                    events.hideLoader();  
+                    events.notice("buyplayer.missplayerbuy.success",0);               
+                },
+                "mini call-to-action"
+            )
+            b._parent = e;
+            this._fsuMissBuy = b;
+            //this._btnSquadBuilder.__root.after(this._fsuMissBuy.__root);
+            this._sbcQuickOtherList.append(this._fsuMissBuy.__root);
+        }
+
+        // Kobe Add
+        if(!this._fsuMeetsFill && info.set.sbc_template){
+            let b = events.createButton(
+                new UTStandardButtonControl(),
+                "替换满足",
+                async (e) => {
+                    // console.log(cntlr);
+                    // console.log(cntlr.current()._challengeDetailsController._challenge);
+                    // console.log(cntlr.current()._squad);
+                    // console.log(cntlr.current()._squad.getFieldPlayers());
+                    // console.log(e);
+                    // let players = _.cloneDeep(e._parent.squad.getFieldPlayers().filter(i => i.getItem().concept));
+                    // let currentSquad = _.cloneDeep(e._parent.squad._players.map((p) => p._item));
+                    let players = e._parent.squad.getFieldPlayers().filter(i => i.getItem().concept);
+                    let currentSquad = e._parent.squad._players.map((p) => p._item);
+                    // console.log("currentSquad: ")
+                    // console.log(currentSquad)
+                    // let oldSquad = _.cloneDeep(e._parent.squad._players.map((p) => p._item));
+                    // console.log(players);
+                    events.showLoader();
+                    info.base.template = true;
+                    for (const player of players) {
+                        if(!info.base.template){
+                            console.log("info.base.template");
+                            return
+                        };
+                        console.log(player);   
+                        let playerIndex = player.getIndex();
+                        // console.log(playerIndex);
+                        let newplayers = await events.SBCSetMeetsPlayersResult(player, e);  
+                        // console.log(newplayers);
+                        if (newplayers.length > 0) {
+
+                            let currentPlayersId = currentSquad.filter(i => i.definitionId > 0).map((p) => p.definitionId);
+                            // console.log(currentPlayersId);
+                            let newPlayersId = newplayers.map((p) => p.definitionId);
+                            // console.log(newPlayersId);
+                            let difference = _.difference(newPlayersId, currentPlayersId);
+                            // console.log(difference);
+                            if (difference.length > 0) {
+                                let newplayerDiffs =  newplayers.filter(i => difference.indexOf(i.definitionId) !== -1);
+                                // console.log(newplayerDiffs);
+                                let newplayer = newplayerDiffs[0];
+                                // console.log(newplayer);
+                                currentSquad[playerIndex] = newplayer;     
+                                // console.log("currentSquad: change")
+                                // console.log(currentSquad)   
+                                
+                                events.saveSquadLoader(e._parent,  e._parent.squad, currentSquad, []);
+                                //events.saveOldSquad(e._parent.squad, false);
+                                //events.showLoader();
+                            }                                            
+                        }              
+                        events.changeLoadingText("buyplayer.pauseloadingclose");
+                        await events.wait(0.2, 0.5);
+                                                                                            
+                    }   
+                    events.hideLoader();  
+                    console.log(currentSquad);
+                    events.saveSquad(e._parent,  e._parent.squad, currentSquad, currentSquad.map(i => {if(i && !info.roster.data.hasOwnProperty(i.definitionId)){return i.definitionId}}).filter(Boolean));
+                    events.saveOldSquad(e._parent.squad, false);
+                    events.notice("buyplayer.missplayerbuy.success",0);               
+                },
+                "mini call-to-action"
+            )
+            b._parent = e;
+            //b.__root.style.width = '100%';
+            //b.__root.style.marginTop = '.675rem';
+            this._fsuMeetsFill = b;
+            this._sbcQuickOtherList.append(this._fsuMeetsFill.__root);
+            //this._btnSquadBuilder.__root.after(this._fsuMeetsFill.__root);
+            //this._challengeDetails._requirements.__root.appendChild(this._sbcQuickOther.__root);            
+        }
+
+
+        // Kobe Add
+        if(!this._fsuRatFill && info.set.sbc_template){
+            let b = events.createButton(
+                new UTStandardButtonControl(),
+                "替换同分",
+                async (e) => {
+                    // console.log(cntlr);
+                    // console.log(cntlr.current()._challengeDetailsController._challenge);
+                    // console.log(cntlr.current()._squad);
+                    // console.log(cntlr.current()._squad.getFieldPlayers());
+                    // console.log(e);
+                    let players = _.cloneDeep(e._parent.squad.getFieldPlayers().filter(i => i.getItem().concept));
+                    let currentSquad = _.cloneDeep(e._parent.squad._players.map((p) => p._item));
+                    // console.log("currentSquad: ")
+                    // console.log(currentSquad)
+                    // let oldSquad = _.cloneDeep(e._parent.squad._players.map((p) => p._item));
+                    // console.log(players);
+                    events.showLoader();
+                    info.base.template = true;
+                    for (const player of players) {
+                        if(!info.base.template){return};
+                        // console.log(player);   
+                        let playerIndex = player.getIndex();
+                        // console.log(playerIndex);
+                        let newplayers = await events.filterRatingPlayers(player.getItem().rating, e._parent.squad.getPlayers());  
+                        // console.log(newplayers);
+                        if (newplayers.length > 0) {
+
+                            let currentPlayersId = currentSquad.filter(i => i.definitionId > 0).map((p) => p.definitionId);
+                            // console.log(currentPlayersId);
+                            let newPlayersId = newplayers.map((p) => p.definitionId);
+                            // console.log(newPlayersId);
+                            let difference = _.difference(newPlayersId, currentPlayersId);
+                            // console.log(difference);
+                            if (difference.length > 0) {
+                                let newplayerDiffs =  newplayers.filter(i => difference.indexOf(i.definitionId) !== -1);
+                                // console.log(newplayerDiffs);
+                                let newplayer = newplayerDiffs[0];
+                                // console.log(newplayer);
+                                currentSquad[playerIndex] = newplayer;     
+                                // console.log("currentSquad: change")
+                                // console.log(currentSquad)      
+                            }                                            
+                        }              
+                        events.changeLoadingText("buyplayer.pauseloadingclose");
+                        await events.wait(0.2, 1);
+                                                                                            
+                    }   
+                    events.hideLoader();  
+                    // console.log(currentSquad);
+                    events.saveSquad(e._parent,  e._parent.squad, currentSquad, []);
+                    events.saveOldSquad(e._parent.squad, false);
+                    events.notice("buyplayer.missplayerbuy.success",0);               
+                },
+                "mini call-to-action"
+            )
+            b._parent = e;
+            //b.__root.style.width = '100%';
+            //b.__root.style.marginTop = '.675rem';
+            this._fsuRatFill = b;
+            this._sbcQuickOtherList.append(this._fsuRatFill.__root);
+            //this._btnSquadBuilder.__root.after(this._fsuRatFill.__root);
+            //this._challengeDetails._requirements.__root.appendChild(this._fsuRatFill.__root);
+        }
+
+        this._sbcQuickOther.append(this._sbcQuickOtherList);
+        
+        this._challengeDetails._requirements.__root.append(this._sbcQuickOther);
+
     }
+
+    // ==Kobe Addition==
 
     events.detailsButtonSet = (e) => {
         if(!isPhone() && !cntlr.current()._rightController) return;
@@ -292,8 +521,7 @@
             a._fsuButtons.insertAdjacentElement('afterend', btnBox);
         }
     }
-    
- 
+
     events.detailsButtonAction = (e) =>{
         let fb = events.createButton(
             new UTGroupButtonControl(),
@@ -458,16 +686,15 @@
             
         }
     }
- 
+
     //满足条件球员读取程序 返回列表
-    events.SBCSetMeetsPlayersResult = async(e, p) => {
+    events.kobe_SBCSetMeetsPlayersResult = async(e, p) => {
         let newChallenge = events.createVirtualChallenge(p._parent);
         let defList = p._parent.squad.getPlayers().map(i => {return i.getItem().definitionId}).filter(Boolean);
         let search = {"NEdatabaseId":defList};
         let shortlist = events.getItemBy(2,search);
         let playerIndex = e.getIndex();
         let currentList = newChallenge.squad.getPlayers().map(i => {return i.getItem()});
-        let originPlayer = currentList[playerIndex];
         let resultList = [];
         for (let player of shortlist) {
             currentList[playerIndex] = player;
@@ -477,245 +704,22 @@
             }
         }
 
-        // return resultList.length === 0 ? resultList : _.cloneDeep(resultList.filter(i => { return i.rating >= originPlayer.rating}));
         return resultList.length === 0 ? resultList : _.cloneDeep(resultList.filter(i => { return i.rating <= 81}).sort((a, b) => a.rating - b.rating));
     }
 
-    UTSBCSquadDetailPanelView.prototype.render = function(e, t, i, o) {
-        call.panel.sbc.call(this,e, t, i, o)
-        let rh = document.createElement("div");
-        rh.classList.add("sbc-quick","top");
-        this._sbcQuickOther = rh;
-
-        let to = document.createElement("div");
-        to.classList.add("sbc-quick-list","other");
-        this._sbcQuickOtherList = to
-
-        info.set.sbc_template = true;
-        info.set.sbc_templatemode = false;
-
-        if(!this._fsuSquad && info.set.sbc_template){
-            let b = events.createButton(
-                new UTStandardButtonControl(),
-                fy("sbc.squadfill"),
-                (e) => {
-                    if(info.set.sbc_templatemode){
-                        events.popup(
-                            fy("consult.popupt"),
-                            fy("consult.popupm"),
-                            (t,i) => {
-                                if(t === 2){
-                                    let v = i.getValue();
-                                    if(v == ""){
-                                        events.getTemplate(e,1);
-                                    }else{
-                                        let futBinRegex = /www.futbin.com\/\d{2}\/squad\/\d{9}|^\d{9}$/;
-                                        let futGGRegex = /www.fut.gg\/\d{2}\/squad-builder\/\S{8}-\S{4}-\S{4}-\S{4}-\S{12}|^\S{8}-\S{4}-\S{4}-\S{4}-\S{12}$/;
-                                        if(futGGRegex.test(v)){
-                                            let pattern = /\S{8}-\S{4}-\S{4}-\S{4}-\S{12}/;
-                                            let sId = v.match(pattern);
-                                            events.getTemplate(e,3,sId[0]);
-                                        }else if(futBinRegex.test(v)){
-                                            let pattern = /\d{9}/;
-                                            let sId = v.match(pattern);
-                                            events.getTemplate(e,2,sId[0]);
-                                        }else{
-                                            events.notice("consult.error",2);
-                                        }
-                                    }
-                                }
-                            }
-                            ,false,
-                            [fy("consult.placeholder"),""],
-                            true
-                        )
-                    }else{
-                        events.getTemplate(e,1);
-                    }
-                },
-                "call-to-action"
-            )
-            b.__root.setAttribute("data-id",e.id);
-            this._fsuSquad = b;
-            this._fsuSquad.challenge = e;
-            this._btnSquadBuilder.__root.after(this._fsuSquad.__root);
+    events.kobe_filterRatingPlayers = async(r, ps) => {
+        let jq = {"rating":Number(r)};            
+        let curP = events.getItemBy(2, jq)
+        let p = events.getDedupPlayers(curP, ps);
+        if(!p.length){
+            events.notice("notice.noplayer",2)
+            return [];
         }
 
-        if(!this._fsuMissBuy && info.set.sbc_template){
-            let b = events.createButton(
-                new UTStandardButtonControl(),
-                "购买球员",
-                async (e) => {
-                    //console.log(cntlr.current()._squad);
-                    //console.log(cntlr.current()._squad.getFieldPlayers());
-                    let players = e._parent.squad.getFieldPlayers().map(i => i.getItem()).filter(i => i.concept);
-                    //console.log(players);
-                    events.showLoader();
-                    info.base.template = true;
-                    for (const player of players) {
-                        if(!info.base.template){return};
-                        //console.log(player);     
-                        await events.buyPlayerList(player, false);                 
-                        events.changeLoadingText("buyplayer.pauseloadingclose");
-                        await events.wait(2, 3);                       
-                                                                                            
-                    }   
-                    events.hideLoader();  
-                    events.notice("buyplayer.missplayerbuy.success",0);               
-                },
-                "mini call-to-action"
-            )
-            b._parent = e;
-            this._fsuMissBuy = b;
-            //this._btnSquadBuilder.__root.after(this._fsuMissBuy.__root);
-            this._sbcQuickOtherList.append(this._fsuMissBuy.__root);
-        }
-
-        if(!this._fsuMeetsFill && info.set.sbc_template){
-            let b = events.createButton(
-                new UTStandardButtonControl(),
-                "替换满足",
-                async (e) => {
-                    // console.log(cntlr);
-                    // console.log(cntlr.current()._challengeDetailsController._challenge);
-                    // console.log(cntlr.current()._squad);
-                    // console.log(cntlr.current()._squad.getFieldPlayers());
-                    // console.log(e);
-                    // let players = _.cloneDeep(e._parent.squad.getFieldPlayers().filter(i => i.getItem().concept));
-                    // let currentSquad = _.cloneDeep(e._parent.squad._players.map((p) => p._item));
-                    let players = e._parent.squad.getFieldPlayers().filter(i => i.getItem().concept);
-                    let currentSquad = e._parent.squad._players.map((p) => p._item);
-                    // console.log("currentSquad: ")
-                    // console.log(currentSquad)
-                    // let oldSquad = _.cloneDeep(e._parent.squad._players.map((p) => p._item));
-                    // console.log(players);
-                    events.showLoader();
-                    info.base.template = true;
-                    for (const player of players) {
-                        if(!info.base.template){
-                            console.log("info.base.template");
-                            return
-                        };
-                        console.log(player);   
-                        let playerIndex = player.getIndex();
-                        // console.log(playerIndex);
-                        let newplayers = await events.SBCSetMeetsPlayersResult(player, e);  
-                        // console.log(newplayers);
-                        if (newplayers.length > 0) {
-
-                            let currentPlayersId = currentSquad.filter(i => i.definitionId > 0).map((p) => p.definitionId);
-                            // console.log(currentPlayersId);
-                            let newPlayersId = newplayers.map((p) => p.definitionId);
-                            // console.log(newPlayersId);
-                            let difference = _.difference(newPlayersId, currentPlayersId);
-                            // console.log(difference);
-                            if (difference.length > 0) {
-                                let newplayerDiffs =  newplayers.filter(i => difference.indexOf(i.definitionId) !== -1);
-                                // console.log(newplayerDiffs);
-                                let newplayer = newplayerDiffs[0];
-                                // console.log(newplayer);
-                                currentSquad[playerIndex] = newplayer;     
-                                // console.log("currentSquad: change")
-                                // console.log(currentSquad)   
-                                
-                                events.saveSquadLoader(e._parent,  e._parent.squad, currentSquad, []);
-                                //events.saveOldSquad(e._parent.squad, false);
-                                //events.showLoader();
-                            }                                            
-                        }              
-                        events.changeLoadingText("buyplayer.pauseloadingclose");
-                        await events.wait(0.2, 0.5);
-                                                                                            
-                    }   
-                    events.hideLoader();  
-                    console.log(currentSquad);
-                    events.saveSquad(e._parent,  e._parent.squad, currentSquad, currentSquad.map(i => {if(i && !info.roster.data.hasOwnProperty(i.definitionId)){return i.definitionId}}).filter(Boolean));
-                    events.saveOldSquad(e._parent.squad, false);
-                    events.notice("buyplayer.missplayerbuy.success",0);               
-                },
-                "mini call-to-action"
-            )
-            b._parent = e;
-            //b.__root.style.width = '100%';
-            //b.__root.style.marginTop = '.675rem';
-            this._fsuMeetsFill = b;
-            this._sbcQuickOtherList.append(this._fsuMeetsFill.__root);
-            //this._btnSquadBuilder.__root.after(this._fsuMeetsFill.__root);
-            //this._challengeDetails._requirements.__root.appendChild(this._sbcQuickOther.__root);            
-        }
-
-
-        if(!this._fsuRatFill && info.set.sbc_template){
-            let b = events.createButton(
-                new UTStandardButtonControl(),
-                "替换同分",
-                async (e) => {
-                    // console.log(cntlr);
-                    // console.log(cntlr.current()._challengeDetailsController._challenge);
-                    // console.log(cntlr.current()._squad);
-                    // console.log(cntlr.current()._squad.getFieldPlayers());
-                    // console.log(e);
-                    let players = _.cloneDeep(e._parent.squad.getFieldPlayers().filter(i => i.getItem().concept));
-                    let currentSquad = _.cloneDeep(e._parent.squad._players.map((p) => p._item));
-                    // console.log("currentSquad: ")
-                    // console.log(currentSquad)
-                    // let oldSquad = _.cloneDeep(e._parent.squad._players.map((p) => p._item));
-                    // console.log(players);
-                    events.showLoader();
-                    info.base.template = true;
-                    for (const player of players) {
-                        if(!info.base.template){return};
-                        // console.log(player);   
-                        let playerIndex = player.getIndex();
-                        // console.log(playerIndex);
-                        let newplayers = await events.filterRatingPlayers(player.getItem().rating, e._parent.squad.getPlayers());  
-                        // console.log(newplayers);
-                        if (newplayers.length > 0) {
-
-                            let currentPlayersId = currentSquad.filter(i => i.definitionId > 0).map((p) => p.definitionId);
-                            // console.log(currentPlayersId);
-                            let newPlayersId = newplayers.map((p) => p.definitionId);
-                            // console.log(newPlayersId);
-                            let difference = _.difference(newPlayersId, currentPlayersId);
-                            // console.log(difference);
-                            if (difference.length > 0) {
-                                let newplayerDiffs =  newplayers.filter(i => difference.indexOf(i.definitionId) !== -1);
-                                // console.log(newplayerDiffs);
-                                let newplayer = newplayerDiffs[0];
-                                // console.log(newplayer);
-                                currentSquad[playerIndex] = newplayer;     
-                                // console.log("currentSquad: change")
-                                // console.log(currentSquad)      
-                            }                                            
-                        }              
-                        events.changeLoadingText("buyplayer.pauseloadingclose");
-                        await events.wait(0.2, 1);
-                                                                                            
-                    }   
-                    events.hideLoader();  
-                    // console.log(currentSquad);
-                    events.saveSquad(e._parent,  e._parent.squad, currentSquad, []);
-                    events.saveOldSquad(e._parent.squad, false);
-                    events.notice("buyplayer.missplayerbuy.success",0);               
-                },
-                "mini call-to-action"
-            )
-            b._parent = e;
-            //b.__root.style.width = '100%';
-            //b.__root.style.marginTop = '.675rem';
-            this._fsuRatFill = b;
-            this._sbcQuickOtherList.append(this._fsuRatFill.__root);
-            //this._btnSquadBuilder.__root.after(this._fsuRatFill.__root);
-            //this._challengeDetails._requirements.__root.appendChild(this._fsuRatFill.__root);
-        }
-
-        this._sbcQuickOther.append(this._sbcQuickOtherList);
-        
-        this._challengeDetails._requirements.__root.append(this._sbcQuickOther);
-
+        return p;
     }
 
-    events.saveSquadLoader = async(c,s,l,a) => {
+    events.kobe_SaveSquadLoader = async(c,s,l,a) => {
         info.base.savesquad = true;
         s.removeAllItems();
         s.setPlayers(l, true);
@@ -726,12 +730,10 @@
                     events.notice("notice.templateerror",2);
                     s.removeAllItems();
                     info.base.savesquad = false;
-                    //events.hideLoader();
                 }
                 services.SBC.loadChallengeData(c).observe(
                     this,
                     async function (z, {response:{squad}}) {
-                        //events.hideLoader();
                         let ps = squad._players.map((p) => p._item);
                         c.squad.setPlayers(ps, true);
                         c.onDataChange.notify({squad});
@@ -754,4 +756,7 @@
         );
         
     }
+
+    // ==/Kobe Addition==
+
 })();

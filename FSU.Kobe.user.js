@@ -1,15 +1,15 @@
 // ==UserScript==
 // @name         【FSU】EAFC FUT WEB 增强器 Kobe
 // @namespace    https://futcd.com/
-// @version      24.13.5
+// @version      24.15.1
 // @description  EAFCFUT模式SBC任务便捷操作增强器👍👍👍，额外信息展示、近期低价自动查询、一键挂出球员、跳转FUTBIN、快捷搜索、拍卖行优化等等...👍👍👍
 // @author       Futcd_kcka Kobe
 // @match        https://www.ea.com/ea-sports-fc/ultimate-team/web-app/*
 // @match        https://www.easports.com/*/ea-sports-fc/ultimate-team/web-app/*
 // @match        https://www.ea.com/*/ea-sports-fc/ultimate-team/web-app/*
 // @require      https://cdn.staticfile.org/lodash.js/4.17.21/lodash.min.js
-// @updateURL    https://github.com/skyfyl/FSU/releases/latest/download/FSU.user.js
-// @downloadURL  https://github.com/skyfyl/FSU/releases/latest/download/FSU.user.js
+// @updateURL    https://github.com/skyfyl/FSU/releases/latest/download/FSU.Kobe.user.js
+// @downloadURL  https://github.com/skyfyl/FSU/releases/latest/download/FSU.Kobe.user.js
 // @grant        GM_addStyle
 // @grant        GM_openInTab
 // @grant        GM_xmlhttpRequest
@@ -90,7 +90,7 @@
             new UTButtonControl(),
             fy("loadingclose.text"),
             async(e) => {
-                events.hideLoader()
+                events.kobe_hideLoader()
             },
             "fsu-loading-close"
         )
@@ -98,8 +98,8 @@
         document.querySelector(".ut-click-shield").append(info.base.close.__root);
         info.base.localization = services.Localization.repository._collection;
         
-        await events.reloadPlayers();
-        events.notice("notice.succeeded",0);
+        // await events.reloadPlayers();
+        // events.notice("notice.succeeded",0);
     };
 
     //获取缓存球员数据
@@ -202,13 +202,13 @@
     }
 
     //加载loading界面
-    events.showLoader = () => {
+    events.kobe_showLoader = () => {
         document.querySelector(".ut-click-shield").classList.add("showing","fsu-loading");
         document.querySelector(".loaderIcon").style.display = "block";
     };
     
     //隐藏loading界面
-    events.hideLoader = () => {
+    events.kobe_hideLoader = () => {
         document.querySelector(".ut-click-shield").classList.remove("showing","fsu-loading");
         document.querySelector(".loaderIcon").style.display = "none";
         if(info.base.template){
@@ -221,7 +221,7 @@
                 events.notice("notice.phoneloas",0)
             }
         }
-        events.changeLoadingText("loadingclose.text");
+        events.kobe_changeLoadingText("loadingclose.text");
     };
     //本地化文本显示程序
     const fy = function(p){
@@ -542,7 +542,7 @@
                     if(response.status == 404){
                         events.notice("notice.loaderror",2);
                         if(document.querySelector(".ut-click-shield").classList.contains("showing")){
-                            events.hideLoader()
+                            events.kobe_hideLoader()
                         }
                         return;
                     }
@@ -551,7 +551,7 @@
                 onerror:function(){
                     events.notice("notice.loaderror",2);
                     if(document.querySelector(".ut-click-shield").classList.contains("showing")){
-                        events.hideLoader()
+                        events.kobe_hideLoader()
                     }
                 }
             })
@@ -646,233 +646,233 @@
     }
  
  
-    UTSquadOverviewViewController.prototype.viewDidAppear = function() {
-        call.plist.squad.call(this);
-        let p = this._squad._players.map(function (i) {if(i._item.type == "player" && !info.roster.data.hasOwnProperty(i._item.definitionId)){return i._item.definitionId}}).filter(i => i > 0);
-        events.loadPlayerPrice(p);
+    // UTSquadOverviewViewController.prototype.viewDidAppear = function() {
+    //     call.plist.squad.call(this);
+    //     let p = this._squad._players.map(function (i) {if(i._item.type == "player" && !info.roster.data.hasOwnProperty(i._item.definitionId)){return i._item.definitionId}}).filter(i => i > 0);
+    //     events.loadPlayerPrice(p);
  
  
-        if(this._squad.isSBC()){
-            let sp = this._view;
-            if(sp.hasOwnProperty("_fsuQuickRight")){
-                sp._fsuQuickRight.remove()
-            }
-            if(sp.hasOwnProperty("_fsuQuickTop")){
-                sp._fsuQuickTop.remove()
-            }
-            if(sp.hasOwnProperty("_detailsButton") && isPhone()){
-                sp._detailsButton.__root.style.zIndex = 999;
-            }
-            let e = this._challenge.eligibilityRequirements;
-            let t = 0;
-            let th = document.createElement("div");
-            th.classList.add("fsu-quick","top")
-            sp._fsuQuickTop = th;
-            let to = document.createElement("div");
-            to.classList.add("fsu-quick-list","other");
-            sp._fsuQuickOther = to;
-            sp._fsuRlist = {};
+    //     if(this._squad.isSBC()){
+    //         let sp = this._view;
+    //         if(sp.hasOwnProperty("_fsuQuickRight")){
+    //             sp._fsuQuickRight.remove()
+    //         }
+    //         if(sp.hasOwnProperty("_fsuQuickTop")){
+    //             sp._fsuQuickTop.remove()
+    //         }
+    //         if(sp.hasOwnProperty("_detailsButton") && isPhone()){
+    //             sp._detailsButton.__root.style.zIndex = 999;
+    //         }
+    //         let e = this._challenge.eligibilityRequirements;
+    //         let t = 0;
+    //         let th = document.createElement("div");
+    //         th.classList.add("fsu-quick","top")
+    //         sp._fsuQuickTop = th;
+    //         let to = document.createElement("div");
+    //         to.classList.add("fsu-quick-list","other");
+    //         sp._fsuQuickOther = to;
+    //         sp._fsuRlist = {};
             
-            for (let i of e) {
-                if(i.kvPairs._collection.hasOwnProperty(19)){
-                    t = i.kvPairs._collection[19][0];
-                    sp._fsuCount = events.createButton(
-                        new UTButtonControl(),
-                        fy("sbc.count"),
-                        (e) => {events.squadCount(e);},
-                        "im"
-                    )
-                    sp._fsuCount.__root.setAttribute("data-r",t);
-                    sp._fsuQuickOther.append(sp._fsuCount.__root);
-                }
-                if(i.kvPairs._collection.hasOwnProperty(35)){
-                    sp._fsuConsult = events.createButton(
-                        new UTButtonControl(),
-                        fy("sbc.consult"),
-                        (e) => {events.squadConsult(e);},
-                        "im"
-                    )
-                    sp._fsuConsult.__root.setAttribute("data-id",this._challenge.id);
-                    sp._fsuQuickOther.append(sp._fsuConsult.__root);
-                }
-            }
+    //         for (let i of e) {
+    //             if(i.kvPairs._collection.hasOwnProperty(19)){
+    //                 t = i.kvPairs._collection[19][0];
+    //                 sp._fsuCount = events.createButton(
+    //                     new UTButtonControl(),
+    //                     fy("sbc.count"),
+    //                     (e) => {events.squadCount(e);},
+    //                     "im"
+    //                 )
+    //                 sp._fsuCount.__root.setAttribute("data-r",t);
+    //                 sp._fsuQuickOther.append(sp._fsuCount.__root);
+    //             }
+    //             if(i.kvPairs._collection.hasOwnProperty(35)){
+    //                 sp._fsuConsult = events.createButton(
+    //                     new UTButtonControl(),
+    //                     fy("sbc.consult"),
+    //                     (e) => {events.squadConsult(e);},
+    //                     "im"
+    //                 )
+    //                 sp._fsuConsult.__root.setAttribute("data-id",this._challenge.id);
+    //                 sp._fsuQuickOther.append(sp._fsuConsult.__root);
+    //             }
+    //         }
  
-            let y = t !== 0 ? t : 75;
-            let rh = document.createElement("div");
-            rh.classList.add("fsu-quick","right");
-            rh.innerHTML = `<div class="fsu-quick-list"></div>`;
-            sp._fsuQuickRight = rh;
-            let yl = [],
-            ylLimit = isPhone() ? [4,8] : [5,10];
-            for (let i = 1; i < 11; i++) {
-                if(events.getDedupPlayers(events.getItemBy(1,{"rating":y-i}),this._squad.getPlayers()).length){
-                    yl.push(y-i);
-                }
-                if(yl.length == ylLimit[0]){
-                    break;
-                }
-            }
-            for (let i = 0; i < 99-y; i++) {
-                if(events.getDedupPlayers(events.getItemBy(1,{"rating":y+i}),this._squad.getPlayers()).length){
-                    yl.unshift(y+i);
-                }
-                if(yl.length == ylLimit[1]){
-                    break;
-                }
-            }
-            if(t !== 0 && yl.length){
-                let ts = document.createElement("div");
-                ts.classList.add("fsu-quick-list","left");
-                sp._fsuQuickTop.append(ts);
-                // sp._fsuQuickTop.append(events.createDF(`<div class="fsu-quick-inr">OR</div>`));
-                let ratPlus = `${Number(yl[0]) + 1}`,
-                ratPlusBut = events.createButton(
-                    new UTButtonControl(),
-                    "",
-                    (e) => {events.SBCSetRatingPlayers(e);},
-                    "im"
-                )
-                ratPlusBut.__root.innerHTML = `<span> >= </span>${ratPlus}`;
-                ratPlusBut.__root.setAttribute("data-r",`${ratPlus}GT`);
-                sp._fsuRlist[`t_${ratPlus}+`] = ratPlusBut;
-                sp._fsuQuickTop.querySelector(`.left`).append(ratPlusBut.__root);
+    //         let y = t !== 0 ? t : 75;
+    //         let rh = document.createElement("div");
+    //         rh.classList.add("fsu-quick","right");
+    //         rh.innerHTML = `<div class="fsu-quick-list"></div>`;
+    //         sp._fsuQuickRight = rh;
+    //         let yl = [],
+    //         ylLimit = isPhone() ? [4,8] : [5,10];
+    //         for (let i = 1; i < 11; i++) {
+    //             if(events.getDedupPlayers(events.getItemBy(1,{"rating":y-i}),this._squad.getPlayers()).length){
+    //                 yl.push(y-i);
+    //             }
+    //             if(yl.length == ylLimit[0]){
+    //                 break;
+    //             }
+    //         }
+    //         for (let i = 0; i < 99-y; i++) {
+    //             if(events.getDedupPlayers(events.getItemBy(1,{"rating":y+i}),this._squad.getPlayers()).length){
+    //                 yl.unshift(y+i);
+    //             }
+    //             if(yl.length == ylLimit[1]){
+    //                 break;
+    //             }
+    //         }
+    //         if(t !== 0 && yl.length){
+    //             let ts = document.createElement("div");
+    //             ts.classList.add("fsu-quick-list","left");
+    //             sp._fsuQuickTop.append(ts);
+    //             // sp._fsuQuickTop.append(events.createDF(`<div class="fsu-quick-inr">OR</div>`));
+    //             let ratPlus = `${Number(yl[0]) + 1}`,
+    //             ratPlusBut = events.createButton(
+    //                 new UTButtonControl(),
+    //                 "",
+    //                 (e) => {events.SBCSetRatingPlayers(e);},
+    //                 "im"
+    //             )
+    //             ratPlusBut.__root.innerHTML = `<span> >= </span>${ratPlus}`;
+    //             ratPlusBut.__root.setAttribute("data-r",`${ratPlus}GT`);
+    //             sp._fsuRlist[`t_${ratPlus}+`] = ratPlusBut;
+    //             sp._fsuQuickTop.querySelector(`.left`).append(ratPlusBut.__root);
  
-                let ratMinus = `${Number(yl[yl.length - 1]) - 1}`,
-                ratMinusBut = events.createButton(
-                    new UTButtonControl(),
-                    "",
-                    (e) => {events.SBCSetRatingPlayers(e);},
-                    "im"
-                )
-                ratMinusBut.__root.innerHTML = `<span> <= </span>${ratMinus}`;
-                ratMinusBut.__root.setAttribute("data-r",`${ratMinus}LT`);
-                sp._fsuRlist[`t_${ratMinus}-`] = ratMinusBut;
-                sp._fsuQuickTop.querySelector(`.left`).append(ratMinusBut.__root);
-                if(ratMinus > 80 && t > 80){
-                    let ratGold = `GOLD`,
-                    ratGoldBut = events.createButton(
-                        new UTButtonControl(),
-                        "",
-                        (e) => {events.SBCSetRatingPlayers(e);},
-                        "im"
-                    )
-                    ratGoldBut.__root.innerHTML = `75<span>-</span>80`;
-                    ratGoldBut.__root.setAttribute("data-r",`GOLD`);
-                    sp._fsuRlist[`t_${ratGold}`] = ratGoldBut;
-                    sp._fsuQuickTop.querySelector(`.left`).append(ratGoldBut.__root);
-                }
-            }
-            if(sp._fsuQuickOther.innerHTML !== ""){
-                sp._fsuQuickTop.append(sp._fsuQuickOther);
-            }
-            sp._summaryPanel.__root.append(sp._fsuQuickTop)
-            //初始载入保存阵容
-            if(!isPhone() || !this._squad.hasOwnProperty("_fsuOldSquad")){
-                events.saveOldSquad(this._squad,false,true);
-            }
-            info.douagain.sbc = this._set.id;
-            for (let i of yl) {
-                let n = `r_${i}`
-                let r = events.createButton(
-                    new UTButtonControl(),
-                    i,
-                    (e) => {events.SBCSetRatingPlayers(e);},
-                    "im"
-                );
-                r.__root.setAttribute("data-r",i);
-                sp._fsuRlist[n] = r;
-                sp._fsuQuickRight.querySelector(".fsu-quick-list").append(sp._fsuRlist[n].__root);
-            }
+    //             let ratMinus = `${Number(yl[yl.length - 1]) - 1}`,
+    //             ratMinusBut = events.createButton(
+    //                 new UTButtonControl(),
+    //                 "",
+    //                 (e) => {events.SBCSetRatingPlayers(e);},
+    //                 "im"
+    //             )
+    //             ratMinusBut.__root.innerHTML = `<span> <= </span>${ratMinus}`;
+    //             ratMinusBut.__root.setAttribute("data-r",`${ratMinus}LT`);
+    //             sp._fsuRlist[`t_${ratMinus}-`] = ratMinusBut;
+    //             sp._fsuQuickTop.querySelector(`.left`).append(ratMinusBut.__root);
+    //             if(ratMinus > 80 && t > 80){
+    //                 let ratGold = `GOLD`,
+    //                 ratGoldBut = events.createButton(
+    //                     new UTButtonControl(),
+    //                     "",
+    //                     (e) => {events.SBCSetRatingPlayers(e);},
+    //                     "im"
+    //                 )
+    //                 ratGoldBut.__root.innerHTML = `75<span>-</span>80`;
+    //                 ratGoldBut.__root.setAttribute("data-r",`GOLD`);
+    //                 sp._fsuRlist[`t_${ratGold}`] = ratGoldBut;
+    //                 sp._fsuQuickTop.querySelector(`.left`).append(ratGoldBut.__root);
+    //             }
+    //         }
+    //         if(sp._fsuQuickOther.innerHTML !== ""){
+    //             sp._fsuQuickTop.append(sp._fsuQuickOther);
+    //         }
+    //         sp._summaryPanel.__root.append(sp._fsuQuickTop)
+    //         //初始载入保存阵容
+    //         if(!isPhone() || !this._squad.hasOwnProperty("_fsuOldSquad")){
+    //             events.saveOldSquad(this._squad,false,true);
+    //         }
+    //         info.douagain.sbc = this._set.id;
+    //         for (let i of yl) {
+    //             let n = `r_${i}`
+    //             let r = events.createButton(
+    //                 new UTButtonControl(),
+    //                 i,
+    //                 (e) => {events.SBCSetRatingPlayers(e);},
+    //                 "im"
+    //             );
+    //             r.__root.setAttribute("data-r",i);
+    //             sp._fsuRlist[n] = r;
+    //             sp._fsuQuickRight.querySelector(".fsu-quick-list").append(sp._fsuRlist[n].__root);
+    //         }
  
-            let quickUnassignedBtn = events.createButton(
-                new UTButtonControl(),
-                fy("sbc.qucikdupes"),
-                (e) => {events.SBCSetRatingPlayers(e);},
-                "im"
-            );
-            quickUnassignedBtn.__root.setAttribute("data-r","d");
-            sp._fsuRlist["r_d"] = quickUnassignedBtn;
-            quickUnassignedBtn.setInteractionState(!1)
-            sp._fsuQuickRight.querySelector(".fsu-quick-list").append(quickUnassignedBtn.getRootElement());
+    //         let quickUnassignedBtn = events.createButton(
+    //             new UTButtonControl(),
+    //             fy("sbc.qucikdupes"),
+    //             (e) => {events.SBCSetRatingPlayers(e);},
+    //             "im"
+    //         );
+    //         quickUnassignedBtn.__root.setAttribute("data-r","d");
+    //         sp._fsuRlist["r_d"] = quickUnassignedBtn;
+    //         quickUnassignedBtn.setInteractionState(!1)
+    //         sp._fsuQuickRight.querySelector(".fsu-quick-list").append(quickUnassignedBtn.getRootElement());
             
-            //开始判断是否需要屏蔽重复按钮
-            let unassignedIds = _.uniq(_.map(repositories.Item.getUnassignedItems(), `definitionId`));
-            if(unassignedIds.length){
-                if(events.getDedupPlayers(events.getItemBy(2,{definitionId:unassignedIds}),this._squad.getPlayers()).length){
-                    quickUnassignedBtn.setInteractionState(1)
-                }
-            }
+    //         //开始判断是否需要屏蔽重复按钮
+    //         let unassignedIds = _.uniq(_.map(repositories.Item.getUnassignedItems(), `definitionId`));
+    //         if(unassignedIds.length){
+    //             if(events.getDedupPlayers(events.getItemBy(2,{definitionId:unassignedIds}),this._squad.getPlayers()).length){
+    //                 quickUnassignedBtn.setInteractionState(1)
+    //             }
+    //         }
  
-            //转会名单搜索功能
-            let quickTransfersBtn = events.createButton(
-                new UTButtonControl(),
-                fy("sbc.quciktransfers"),
-                (e) => {
-                    events.SBCSetRatingPlayers(e);
-                },
-                "im"
-            );
-            quickTransfersBtn.__root.setAttribute("data-r","t");
-            sp._fsuRlist["r_t"] = quickTransfersBtn;
-            quickTransfersBtn.setInteractionState(!1)
-            sp._fsuQuickRight.querySelector(".fsu-quick-list").append(quickTransfersBtn.getRootElement());
-            console.log(quickTransfersBtn,p)
+    //         //转会名单搜索功能
+    //         let quickTransfersBtn = events.createButton(
+    //             new UTButtonControl(),
+    //             fy("sbc.quciktransfers"),
+    //             (e) => {
+    //                 events.SBCSetRatingPlayers(e);
+    //             },
+    //             "im"
+    //         );
+    //         quickTransfersBtn.__root.setAttribute("data-r","t");
+    //         sp._fsuRlist["r_t"] = quickTransfersBtn;
+    //         quickTransfersBtn.setInteractionState(!1)
+    //         sp._fsuQuickRight.querySelector(".fsu-quick-list").append(quickTransfersBtn.getRootElement());
+    //         console.log(quickTransfersBtn,p)
             
-            //开始判断是否需要屏蔽搜索按钮
-            let transferIds = _.uniq(_.map(repositories.Item.getTransferItems(),i => {if(i.getAuctionData().isInactive()){ return i.definitionId}}).filter(Boolean));
-            if(transferIds.length){
-                if(events.getDedupPlayers(events.getItemBy(2,{definitionId:transferIds}),this._squad.getPlayers()).length){
-                    quickTransfersBtn.setInteractionState(1)
-                }
-            }
+    //         //开始判断是否需要屏蔽搜索按钮
+    //         let transferIds = _.uniq(_.map(repositories.Item.getTransferItems(),i => {if(i.getAuctionData().isInactive()){ return i.definitionId}}).filter(Boolean));
+    //         if(transferIds.length){
+    //             if(events.getDedupPlayers(events.getItemBy(2,{definitionId:transferIds}),this._squad.getPlayers()).length){
+    //                 quickTransfersBtn.setInteractionState(1)
+    //             }
+    //         }
  
-            //阵容回退按钮
-            if(info.set.sbc_sback){
-                let rb = events.createButton(
-                    new UTButtonControl(),
-                    fy("sbc.squadback"),
-                    (e) => {
-                        let c = e._challenge.squad._fsuOldSquadCount;
-                        if(c){
-                            events.popup(
-                                fy("squadback.popupt"),
-                                fy(["squadback.popupm",c]),
-                                (t) => {
-                                    if(t === 2){
-                                        events.showLoader();
-                                        let s = e._challenge.squad._fsuOldSquad[c - 1]
-                                        events.saveSquad(e._challenge,e._challenge.squad,s,[]);
-                                        e._challenge.squad._fsuOldSquadCount--;
-                                        e._challenge.squad._fsuOldSquad.pop();
-                                    }
-                                }
-                            )
-                        }else{
-                            events.notice("notice.nosquad",2);
-                        }
-                    },
-                    "im"
-                );
-                rb._challenge = this._challenge;
-                sp._fsuRlist["r_b"] = rb;
-                sp._fsuQuickRight.querySelector(".fsu-quick-list").append(sp._fsuRlist["r_b"].__root);
-            }
+    //         //阵容回退按钮
+    //         if(info.set.sbc_sback){
+    //             let rb = events.createButton(
+    //                 new UTButtonControl(),
+    //                 fy("sbc.squadback"),
+    //                 (e) => {
+    //                     let c = e._challenge.squad._fsuOldSquadCount;
+    //                     if(c){
+    //                         events.popup(
+    //                             fy("squadback.popupt"),
+    //                             fy(["squadback.popupm",c]),
+    //                             (t) => {
+    //                                 if(t === 2){
+    //                                     events.kobe_showLoader();
+    //                                     let s = e._challenge.squad._fsuOldSquad[c - 1]
+    //                                     events.saveSquad(e._challenge,e._challenge.squad,s,[]);
+    //                                     e._challenge.squad._fsuOldSquadCount--;
+    //                                     e._challenge.squad._fsuOldSquad.pop();
+    //                                 }
+    //                             }
+    //                         )
+    //                     }else{
+    //                         events.notice("notice.nosquad",2);
+    //                     }
+    //                 },
+    //                 "im"
+    //             );
+    //             rb._challenge = this._challenge;
+    //             sp._fsuRlist["r_b"] = rb;
+    //             sp._fsuQuickRight.querySelector(".fsu-quick-list").append(sp._fsuRlist["r_b"].__root);
+    //         }
  
-            sp._summaryPanel.__root.after(sp._fsuQuickRight);
-            if(!info.set.sbc_top){
-                sp._fsuQuickTop.remove();
-            }
-            if(!info.set.sbc_right){
-                sp._fsuQuickRight.remove();
-            }
-        }
-    }
+    //         sp._summaryPanel.__root.after(sp._fsuQuickRight);
+    //         if(!info.set.sbc_top){
+    //             sp._fsuQuickTop.remove();
+    //         }
+    //         if(!info.set.sbc_right){
+    //             sp._fsuQuickRight.remove();
+    //         }
+    //     }
+    // }
 
     events.wait = (min,max) => {
         let delay = Math.floor(Math.random() * (max * 1000 - min * 1000 + 1)) + min * 1000;
         return new Promise(resolve => setTimeout(resolve, delay));
     }
-    events.changeLoadingText = (t) =>{
+    events.kobe_changeLoadingText = (t) =>{
         document.querySelector('.fsu-loading-close').innerHTML = fy(t);
     }
 
@@ -1042,9 +1042,9 @@
                     }
                 }
             }
-            if(document.getElementById("squadTotal")){
-                events.squadTotal(cntlr.current()._squad.getFieldPlayers().map(function (i) {return i._item.definitionId}).filter(i => i > 0));
-            }
+            // if(document.getElementById("squadTotal")){
+            //     events.squadTotal(cntlr.current()._squad.getFieldPlayers().map(function (i) {return i._item.definitionId}).filter(i => i > 0));
+            // }
         }
         if(el){
             events.losAuctionCount(el,0)
@@ -1163,15 +1163,15 @@
  
         let detailsController = phone ? cntlr.current()._rootController : cntlr.right();
         if(queryType == "d"){
-            if(detailsController._panelView._fsuUn._interactionState){
-                await detailsController._panelView._fsuUn._tapDetected();
+            if(detailsController.panelView._fsuUn._interactionState){
+                await detailsController.panelView._fsuUn._tapDetected();
             }else{
                 events.notice("notice.noduplicate",2);
             }
         }else{
             events.sbcQuerySetFillAttr(detailsController._parentViewController,queryType == "conceptsearch" ? 9 : 5,resultPlayers,querySort)
-            if(detailsController?._panelView){
-                await detailsController._panelView._btnAddSwap._tapDetected(this);
+            if(detailsController?.panelView){
+                await detailsController.panelView._btnAddSwap._tapDetected(this);
             }
         }
     }
@@ -1295,7 +1295,7 @@
     }
 
     events.conceptBuyBack = (w) =>{
-        let a = w._panelView || w._panel;
+        let a = w.panelView || w.panel;
         a._sendClubButton._tapDetected(this);
         if(isPhone()){
             let p = w._parentViewController,cv,cn;
@@ -1310,11 +1310,17 @@
             cntlr.current()._ePitchTapped()
         }
     }
+
+    UTQuickListPanelViewController.prototype.renderView = function () {
+        call.panel.quickRender.call(this);
+        events.detailsButtonSet(this)
+    };
+
     events.detailsButtonSet = (e) => {
         if(!isPhone() && !cntlr.current()._rightController) return;
         let w = isPhone() ? cntlr.current() : cntlr.right();
         if(w.hasOwnProperty("_rootController")) w = w._rootController;
-        let a = w._panelView || w._panel;
+        let a = w.panelView || w.panel;
         if(!a){
             return;
         }
@@ -1323,60 +1329,65 @@
             if (!events.getCachePrice(pid)) {
                 events.loadPlayerPrice([pid]);
             }
-            //假想球员购买按钮
-            if(pid && e.item.concept && "_fsuConceptBuy" in a && info.set.sbc_conceptbuy){
-                if (!events.getCachePrice(pid)) {
-                    events.loadPlayerPrice([pid]);
-                }
+
+            // //假想球员购买按钮
+            // if(pid && e.item.concept && "_fsuConceptBuy" in a && info.set.sbc_conceptbuy){
+            //     if (!events.getCachePrice(pid)) {
+            //         events.loadPlayerPrice([pid]);
+            //     }
                 
-                if(events.getCachePrice(pid)){
-                    a._fsuConceptBuy.player = e.item;
-                    a._fsuConceptBuy.setSubtext(events.getCachePrice(pid,1));
-                    a._fsuConceptBuy.displayCurrencyIcon(!0);
-                    a._fsuConceptBuy.setInteractionState(!0);
-                    a._fsuConceptBuy.show();
-                }              
-            }
-            //假想球员购买直接发送到俱乐部并返回阵容
-            if(a.hasOwnProperty("_sendClubButton") && w._squadContext && a._sendClubButton.isInteractionEnabled() && e.item.definitionId == w._squadContext.squad.getPlayer(w._squadContext.slotIndex).item.definitionId && w._squadContext.squad.getPlayer(w._squadContext.slotIndex).item.concept && info.set.sbc_cback){
-                events.conceptBuyBack(w);
-                return;
-            }
-            if(pid && a.hasOwnProperty("_fsuPlayer")){
-                a._fsuPlayer.__root.setAttribute("data-id",pid);
-                a._fsuPlayer.__root.setAttribute("data-name",`${e.item._staticData.name}`);
-                a._fsuPlayer.setDisplay(1);
-                if(!info.set.player_futbin){
-                    a._fsuPlayer.hide();
-                }
-            }
-            if(pid && a.hasOwnProperty("_fsuGP")){
-                a._fsuGP.__root.setAttribute("data-id",pid);
-                if(pdb.hasOwnProperty(pid)){
-                    a._fsuGP.setText(fy("quicklist.getpricey"));
-                    a._fsuGP.setSubtext(pdb[pid]);
-                    a._fsuGP.displayCurrencyIcon(!0);
-                }
-            }
-            e._view._fsuAuction.__subtext.setAttribute('data-id',pid);
-            e._view._fsuAuction.__subtext.setAttribute('data-i',e.item.id || 0);
-            if(events.getCachePrice(pid)){
-                let lp = info.roster.data[pid].prices[info.base.platform].LCPrice;
-                if(lp && lp !== "0"){
-                    e._view._fsuAuction.setSubtext(lp);
-                    e._view._fsuAuction.setInteractionState(1);
-                    if(a.hasOwnProperty("_fsuGP")){
-                        a._fsuGP.__root.setAttribute("data-p",lp);
-                        a._fsuGP.show();
-                    }
-                }else{
-                    e._view._fsuAuction.setSubtext(lp);
-                    e._view._fsuAuction.setInteractionState(0);
-                }
-            }
-            if(!info.set.player_auction){
-                e._view._fsuAuction.hide();
-            }
+            //     if(events.getCachePrice(pid)){
+            //         a._fsuConceptBuy.player = e.item;
+            //         a._fsuConceptBuy.setSubtext(events.getCachePrice(pid,1));
+            //         a._fsuConceptBuy.displayCurrencyIcon(!0);
+            //         a._fsuConceptBuy.setInteractionState(!0);
+            //         a._fsuConceptBuy.show();
+            //     }              
+            // }
+
+            // //假想球员购买直接发送到俱乐部并返回阵容
+            // if(a.hasOwnProperty("_sendClubButton") && w._squadContext && a._sendClubButton.isInteractionEnabled() && e.item.definitionId == w._squadContext.squad.getPlayer(w._squadContext.slotIndex).item.definitionId && w._squadContext.squad.getPlayer(w._squadContext.slotIndex).item.concept && info.set.sbc_cback){
+            //     events.conceptBuyBack(w);
+            //     return;
+            // }
+
+            // if(pid && a.hasOwnProperty("_fsuPlayer")){
+            //     a._fsuPlayer.__root.setAttribute("data-id",pid);
+            //     a._fsuPlayer.__root.setAttribute("data-name",`${e.item._staticData.name}`);
+            //     a._fsuPlayer.setDisplay(1);
+            //     if(!info.set.player_futbin){
+            //         a._fsuPlayer.hide();
+            //     }
+            // }
+
+            // if(pid && a.hasOwnProperty("_fsuGP")){
+            //     a._fsuGP.__root.setAttribute("data-id",pid);
+            //     if(pdb.hasOwnProperty(pid)){
+            //         a._fsuGP.setText(fy("quicklist.getpricey"));
+            //         a._fsuGP.setSubtext(pdb[pid]);
+            //         a._fsuGP.displayCurrencyIcon(!0);
+            //     }
+            // }
+
+            // e._view._fsuAuction.__subtext.setAttribute('data-id',pid);
+            // e._view._fsuAuction.__subtext.setAttribute('data-i',e.item.id || 0);
+            // if(events.getCachePrice(pid)){
+            //     let lp = info.roster.data[pid].prices[info.base.platform].LCPrice;
+            //     if(lp && lp !== "0"){
+            //         e._view._fsuAuction.setSubtext(lp);
+            //         e._view._fsuAuction.setInteractionState(1);
+            //         if(a.hasOwnProperty("_fsuGP")){
+            //             a._fsuGP.__root.setAttribute("data-p",lp);
+            //             a._fsuGP.show();
+            //         }
+            //     }else{
+            //         e._view._fsuAuction.setSubtext(lp);
+            //         e._view._fsuAuction.setInteractionState(0);
+            //     }
+            // }
+            // if(!info.set.player_auction){
+            //     e._view._fsuAuction.hide();
+            // }
             if(a.hasOwnProperty("_fsuRat") && e.item.rating > 0){
                 a._fsuRat.__root.setAttribute("data-r",e.item.rating);
                 a._fsuRat.setInteractionState(1);
@@ -1432,132 +1443,132 @@
         if(!info.set.player_getprice || services.User.getUser().tradeAccess !== TradeAccessLevel.ALLOWED){
             a._fsuGP.hide();
         }
-        if(a.hasOwnProperty("_fsuSwap") && a.hasOwnProperty("_fsuUn")){
-            if(e.item.id){
-                a._fsuSwap.__text.innerText = fy("sbc.swapquick");
-                a._fsuUn.__text.innerText = fy("sbc.swapduplicate");
-                a._fsuChem.__text.innerText = fy("sbc.swapchem");
-            }else{
-                a._fsuSwap.__text.innerText = fy("sbc.addquick");
-                a._fsuUn.__text.innerText = fy("sbc.addduplicate");
-                a._fsuChem.__text.innerText = fy("sbc.addchem");
-            }
-            if(Object.keys(info.criteria).length){
-                a._fsuSwap.setInteractionState(1);
-            }
+        // if(a.hasOwnProperty("_fsuSwap") && a.hasOwnProperty("_fsuUn")){
+        //     if(e.item.id){
+        //         a._fsuSwap.__text.innerText = fy("sbc.swapquick");
+        //         a._fsuUn.__text.innerText = fy("sbc.swapduplicate");
+        //         a._fsuChem.__text.innerText = fy("sbc.swapchem");
+        //     }else{
+        //         a._fsuSwap.__text.innerText = fy("sbc.addquick");
+        //         a._fsuUn.__text.innerText = fy("sbc.addduplicate");
+        //         a._fsuChem.__text.innerText = fy("sbc.addchem");
+        //     }
+        //     if(Object.keys(info.criteria).length){
+        //         a._fsuSwap.setInteractionState(1);
+        //     }
  
  
-            let ul = cntlr.current()._squad._players.map(function (i) {if(i.item.definitionId > 0){return i.item.definitionId}}).filter(Boolean);
-            let rul = services.Item.itemDao.itemRepo.getUnassignedItems().map(i => {
-                if (i.isDuplicate() && !i.isLoaned() && i.isPlayer()) {
-                    if(ul.length){
-                        if(ul.indexOf(i.definitionId) == -1){
-                            return i.definitionId
-                        }
-                    }else{
-                        return i.definitionId
-                    }
-                }
-            }).filter(Boolean);
-            if(rul.length){
-                a._fsuUn.setInteractionState(1);
-            }else{
-                a._fsuUn.__text.innerText = fy("sbc.notduplicate")
-            }
-            if(!info.set.sbc_quick){
-                a._fsuSwap.hide();
-            }
-            if(!info.set.sbc_duplicate){
-                a._fsuUn.hide();
-            }
+        //     let ul = cntlr.current()._squad._players.map(function (i) {if(i.item.definitionId > 0){return i.item.definitionId}}).filter(Boolean);
+        //     let rul = services.Item.itemDao.itemRepo.getUnassignedItems().map(i => {
+        //         if (i.isDuplicate() && !i.isLoaned() && i.isPlayer()) {
+        //             if(ul.length){
+        //                 if(ul.indexOf(i.definitionId) == -1){
+        //                     return i.definitionId
+        //                 }
+        //             }else{
+        //                 return i.definitionId
+        //             }
+        //         }
+        //     }).filter(Boolean);
+        //     if(rul.length){
+        //         a._fsuUn.setInteractionState(1);
+        //     }else{
+        //         a._fsuUn.__text.innerText = fy("sbc.notduplicate")
+        //     }
+        //     if(!info.set.sbc_quick){
+        //         a._fsuSwap.hide();
+        //     }
+        //     if(!info.set.sbc_duplicate){
+        //         a._fsuUn.hide();
+        //     }
  
-            //SBC状态置为0
-            if(w.hasOwnProperty("_parentViewController") && w._parentViewController){
-                events.sbcQuerySetFillAttr(w._parentViewController,0,false,3)
-            }
+        //     //SBC状态置为0
+        //     if(w.hasOwnProperty("_parentViewController") && w._parentViewController){
+        //         events.sbcQuerySetFillAttr(w._parentViewController,0,false,3)
+        //     }
             
-            //默契球员按钮判断
-            if(w.hasOwnProperty("_challenge") && w._viewmodel.getIndex() < 11 && w._squad.getFieldPlayers().filter(i => i.getItem().rating > 0).length){
-                let c = 0,r = 0,q = 0;
-                for (let se of w._challenge.eligibilityRequirements) {
-                    if(se.getFirstKey() === 35){
-                        c = se.getFirstValue(35)
-                    }
-                    if(se.getFirstKey() === 19){
-                        r = se.getFirstValue(19)
-                    }
-                    if(se.getFirstKey() === 3){
-                        q = `${se.scope == 0 ? ">=" : se.scope == 1 ? "<=" : "="}${se.getFirstValue(3)}`
+        //     //默契球员按钮判断
+        //     if(w.hasOwnProperty("_challenge") && w._viewmodel.getIndex() < 11 && w._squad.getFieldPlayers().filter(i => i.getItem().rating > 0).length){
+        //         let c = 0,r = 0,q = 0;
+        //         for (let se of w._challenge.eligibilityRequirements) {
+        //             if(se.getFirstKey() === 35){
+        //                 c = se.getFirstValue(35)
+        //             }
+        //             if(se.getFirstKey() === 19){
+        //                 r = se.getFirstValue(19)
+        //             }
+        //             if(se.getFirstKey() === 3){
+        //                 q = `${se.scope == 0 ? ">=" : se.scope == 1 ? "<=" : "="}${se.getFirstValue(3)}`
                         
-                    }
-                }
-                if(c){
-                    a._fsuChem.show();
-                    a._fsuChem.__root.setAttribute("data-c",c);
-                    a._fsuChem.__root.setAttribute("data-r",r);
-                    a._fsuChem.__root.setAttribute("data-q",q);
-                    a._fsuChem._parent = w;
-                }
-            }
-            if(w.hasOwnProperty("_challenge") && w._challenge.meetsRequirements() && info.set.sbc_meetsreq && w._viewmodel.getIndex() < 11){
-                a._fsuMeets.show();
-                a._fsuMeets._parent = w;
-            }
-        }
+        //             }
+        //         }
+        //         if(c){
+        //             a._fsuChem.show();
+        //             a._fsuChem.__root.setAttribute("data-c",c);
+        //             a._fsuChem.__root.setAttribute("data-r",r);
+        //             a._fsuChem.__root.setAttribute("data-q",q);
+        //             a._fsuChem._parent = w;
+        //         }
+        //     }
+        //     if(w.hasOwnProperty("_challenge") && w._challenge.meetsRequirements() && info.set.sbc_meetsreq && w._viewmodel.getIndex() < 11){
+        //         a._fsuMeets.show();
+        //         a._fsuMeets._parent = w;
+        //     }
+        // }
  
-        //插入假想球员搜索按钮
-        if(!("_fsuConceptSearch" in a) && "_squad" in w && w._squad.isSBC() && e.item.isPlayer() && e.item.concept){
-            let btnBox = events.createElementWithConfig("div",{
-                classList:["ut-button-group"]
-            })
-            a._fsuConceptSearch = [];
-            let btnSetting = {club:[`teamId:club`,`leagueId:league`],league:[`leagueId:league`,`nationId:nation`]};
-            _.map(btnSetting,function(value, key) {
-                let btn = events.createButton(
-                    new UTGroupButtonControl(),
-                    fy(`searchconcept.same${key}`),
-                    async(e) => {
-                        events.SBCSetRatingPlayers(e);
-                    },
-                    ""
-                )
-                btn.getRootElement().setAttribute("data-r","conceptsearch");
-                btn.criteria = {}
-                _.map(value,attrKey => {
-                    let cKey = attrKey.split(":");
-                    btn.criteria[cKey[1]] = e.item[cKey[0]];
-                })
-                a._fsuConceptSearch.push(btn);
-                btnBox.appendChild(btn.getRootElement());
-            });
-            a._fsuConceptSearchBox = btnBox;
-            a._fsuButtons.insertAdjacentElement('afterend', btnBox);
-        }
+        // //插入假想球员搜索按钮
+        // if(!("_fsuConceptSearch" in a) && "_squad" in w && w._squad.isSBC() && e.item.isPlayer() && e.item.concept){
+        //     let btnBox = events.createElementWithConfig("div",{
+        //         classList:["ut-button-group"]
+        //     })
+        //     a._fsuConceptSearch = [];
+        //     let btnSetting = {club:[`teamId:club`,`leagueId:league`],league:[`leagueId:league`,`nationId:nation`]};
+        //     _.map(btnSetting,function(value, key) {
+        //         let btn = events.createButton(
+        //             new UTGroupButtonControl(),
+        //             fy(`searchconcept.same${key}`),
+        //             async(e) => {
+        //                 events.SBCSetRatingPlayers(e);
+        //             },
+        //             ""
+        //         )
+        //         btn.getRootElement().setAttribute("data-r","conceptsearch");
+        //         btn.criteria = {}
+        //         _.map(value,attrKey => {
+        //             let cKey = attrKey.split(":");
+        //             btn.criteria[cKey[1]] = e.item[cKey[0]];
+        //         })
+        //         a._fsuConceptSearch.push(btn);
+        //         btnBox.appendChild(btn.getRootElement());
+        //     });
+        //     a._fsuConceptSearchBox = btnBox;
+        //     a._fsuButtons.insertAdjacentElement('afterend', btnBox);
+        // }
  
-        //插入挑战需求购买按钮
-        if(!("_fsuRequests" in a) && "_squad" in w && w._squad.isSBC() && "_fsuRequests" in w._squad && e.item.isPlayer()){
-            let btnBox = events.createElementWithConfig("div",{
-                classList:["ut-button-group"]
-            })
-            a._fsuRequests = [];
-            _.map(w._squad._fsuRequests,(i) => {
-                let btn = events.createButton(
-                    new UTGroupButtonControl(),
-                    fy([`requirements.${e.item.id ? "swap" : "add"}btn`,i.name]),
-                    async(e) => {
-                        events.SBCSetRatingPlayers(e);
-                    },
-                    ""
-                )
-                btn.criteria = i.criteria;
-                btn.getRootElement().setAttribute("data-r","eligibilitysearch");
-                btn.setSubtext(`${w._challenge.getRequirementCounter(i.value)}/${i.value.count}`);
-                a._fsuRequests.push(btn);
-                btnBox.appendChild(btn.getRootElement());
-            })
-            a._fsuRequestsBox = btnBox;
-            a._fsuButtons.insertAdjacentElement('afterend', btnBox);
-        }
+        // //插入挑战需求购买按钮
+        // if(!("_fsuRequests" in a) && "_squad" in w && w._squad.isSBC() && "_fsuRequests" in w._squad && e.item.isPlayer()){
+        //     let btnBox = events.createElementWithConfig("div",{
+        //         classList:["ut-button-group"]
+        //     })
+        //     a._fsuRequests = [];
+        //     _.map(w._squad._fsuRequests,(i) => {
+        //         let btn = events.createButton(
+        //             new UTGroupButtonControl(),
+        //             fy([`requirements.${e.item.id ? "swap" : "add"}btn`,i.name]),
+        //             async(e) => {
+        //                 events.SBCSetRatingPlayers(e);
+        //             },
+        //             ""
+        //         )
+        //         btn.criteria = i.criteria;
+        //         btn.getRootElement().setAttribute("data-r","eligibilitysearch");
+        //         btn.setSubtext(`${w._challenge.getRequirementCounter(i.value)}/${i.value.count}`);
+        //         a._fsuRequests.push(btn);
+        //         btnBox.appendChild(btn.getRootElement());
+        //     })
+        //     a._fsuRequestsBox = btnBox;
+        //     a._fsuButtons.insertAdjacentElement('afterend', btnBox);
+        // }
     }
     
     events.requirementsToText = (e) => {
@@ -1602,10 +1613,10 @@
             new UTGroupButtonControl(),
             fy("quicklist.auction"),
             (e) => {
-                events.showLoader();
+                events.kobe_showLoader();
                 let p = Number(e.__subtext.innerText.replace(/,/g, '')),i = Number(e.__subtext.getAttribute("data-i"));
                 events.playerToAuction(i,p);
-                events.hideLoader();
+                events.kobe_hideLoader();
             },
             "accordian fsuBuy"
         )
@@ -1636,92 +1647,126 @@
         te.setLabel(t);
         return te;
     }
+
+    UTDefaultActionPanelView.prototype._generate = function (...args) {
+        if (!this._generated) {
+            call.panel.default.call(this, ...args);
+            events.detailsButtonAction(this)
+        }
+    };
+
+    UTDuplicateLoanActionPanelView.prototype._generate = function (...args) {
+        if (!this._generated) {
+            call.panel.loan.call(this, ...args);
+            events.detailsButtonAction(this)
+        }
+    }
+    UTAuctionActionPanelView.prototype._generate = function (...args) {
+        if (!this._generated) {
+            call.panel.auction.call(this, ...args);
+            events.detailsButtonAction(this)
+        }
+    };
+    UTSlotActionPanelView.prototype._generate = function (...args) {
+        if (!this._generated) {
+            call.panel.slot.call(this, ...args);
+            events.detailsButtonAction(this)
+        }
+    };
+    UTTransferActionPanelView.prototype._generate = function (...args) {
+        if (!this._generated) {
+            call.panel.transfer.call(this, ...args);
+            events.detailsButtonAction(this)
+        }
+    };
  
     events.detailsButtonAction = (e) =>{
-        let fb = events.createButton(
-            new UTGroupButtonControl(),
-            fy("quicklist.gotofutbin"),
-            (e) => {events.openFutbinPlayerUrl(e);},
-            "more"
-        )
-        fb.setDisplay(!1)
-        e._fsuPlayer = fb;
-        let pb = e._playerBioButton || e._btnPlayerBio;
-        pb.__root.after(e._fsuPlayer.__root);
-        let fg = events.createButton(
-            new UTGroupButtonControl(),
-            fy("quicklist.getprice"),
-            (e) => {events.getAuction(e);},
-            "accordian fsuGP"
-        )
-        fg.hide();
-        e._fsuGP = fg;
-        let pg = e._btnDiscard || e._findRelatedButton || e._btnSearchMarket || e._discardButton;
-        if(pg){
-            pg.__root.after(e._fsuGP.__root);
-        }
+        // let fb = events.createButton(
+        //     new UTGroupButtonControl(),
+        //     fy("quicklist.gotofutbin"),
+        //     (e) => {events.openFutbinPlayerUrl(e);},
+        //     "more"
+        // )
+        // fb.setDisplay(!1)
+        // e._fsuPlayer = fb;
+
+        // let pb = e._playerBioButton || e._btnPlayerBio;
+        // pb.__root.after(e._fsuPlayer.__root);
+
+        // let fg = events.createButton(
+        //     new UTGroupButtonControl(),
+        //     fy("quicklist.getprice"),
+        //     (e) => {events.getAuction(e);},
+        //     "accordian fsuGP"
+        // )
+        // fg.hide();
+        // e._fsuGP = fg;
+        // let pg = e._btnDiscard || e._findRelatedButton || e._btnSearchMarket || e._discardButton;
+        // if(pg){
+        //     pg.__root.after(e._fsuGP.__root);
+        // }
         if(e.hasOwnProperty("_btnAddSwap") && cntlr.current()._squad.isSBC()){
             let fbg = document.createElement("div");
             fbg.classList.add("ut-button-group");
  
-            e._fsuConceptBuy = events.createButton(
-                new UTGroupButtonControl(),
-                fy("conceptbuy.btntext"),
-                async(e) => {
-                    events.buyPlayer(e.player,e._parent);
-                },
-                ""
-            )
-            e._fsuConceptBuy._parent = e;
-            e._fsuConceptBuy.setInteractionState(!1);
-            e._fsuConceptBuy.hide();
-            fbg.appendChild(e._fsuConceptBuy.__root);
+            // e._fsuConceptBuy = events.createButton(
+            //     new UTGroupButtonControl(),
+            //     fy("conceptbuy.btntext"),
+            //     async(e) => {
+            //         events.buyPlayer(e.player,e._parent);
+            //     },
+            //     ""
+            // )
+            // e._fsuConceptBuy._parent = e;
+            // e._fsuConceptBuy.setInteractionState(!1);
+            // e._fsuConceptBuy.hide();
+            // fbg.appendChild(e._fsuConceptBuy.__root);
  
  
-            let fq = events.createButton(
-                new UTGroupButtonControl(),
-                "quickSwap",
-                async() => {
-                    let b = isPhone() ? cntlr.current()._rootController : cntlr.right();
-                    events.sbcQuerySetFillAttr(b._parentViewController,1,[],3)
-                    b._panelView._btnAddSwap._tapDetected(this);
-                    console.log("快捷添加状态变为",1)
-                },
-                ""
-            )
-            fq.setInteractionState(!1);
-            e._fsuSwap = fq;
-            fbg.appendChild(e._fsuSwap.__root);
+            // let fq = events.createButton(
+            //     new UTGroupButtonControl(),
+            //     "quickSwap",
+            //     async() => {
+            //         let b = isPhone() ? cntlr.current()._rootController : cntlr.right();
+            //         events.sbcQuerySetFillAttr(b._parentViewController,1,[],3)
+            //         b.panelView._btnAddSwap._tapDetected(this);
+            //         console.log("快捷添加状态变为",1)
+            //     },
+            //     ""
+            // )
+            // fq.setInteractionState(!1);
+            // e._fsuSwap = fq;
+            // fbg.appendChild(e._fsuSwap.__root);
  
-            let fu = events.createButton(
-                new UTGroupButtonControl(),
-                "unassigned",
-                async() => {
-                    let b = isPhone() ? cntlr.current()._rootController : cntlr.right();
-                    let p = events.getDedupPlayers(events.getItemBy(2,{"definitionId":services.Item.itemDao.itemRepo.getUnassignedItems().map( i => { if(i.isDuplicate() && !i.isLoaned() && i.isPlayer()){return i.definitionId}})}),b._squad.getPlayers());
-                    if(p.length){
-                        events.sbcQuerySetFillAttr(b._parentViewController,3,p,3)
-                        b._panelView._btnAddSwap._tapDetected(this);
-                    }else{
-                        events.notice("notice.noplayer",2);
-                    }
-                },
-                ""
-            )
-            fu.setInteractionState(!1);
-            e._fsuUn = fu;
-            fbg.appendChild(e._fsuUn.__root);
+            // let fu = events.createButton(
+            //     new UTGroupButtonControl(),
+            //     "unassigned",
+            //     async() => {
+            //         let b = isPhone() ? cntlr.current()._rootController : cntlr.right();
+            //         let p = events.getDedupPlayers(events.getItemBy(2,{"definitionId":services.Item.itemDao.itemRepo.getUnassignedItems().map( i => { if(i.isDuplicate() && !i.isLoaned() && i.isPlayer()){return i.definitionId}})}),b._squad.getPlayers());
+            //         if(p.length){
+            //             events.sbcQuerySetFillAttr(b._parentViewController,3,p,3)
+            //             b.panelView._btnAddSwap._tapDetected(this);
+            //         }else{
+            //             events.notice("notice.noplayer",2);
+            //         }
+            //     },
+            //     ""
+            // )
+            // fu.setInteractionState(!1);
+            // e._fsuUn = fu;
+            // fbg.appendChild(e._fsuUn.__root);
  
-            let fr = events.createButton(
-                new UTGroupButtonControl(),
-                fy("sbc.swaprating"),
-                (e) => {events.SBCSetRatingPlayers(e);},
-                ""
-            )
-            fr.setInteractionState(!1);
-            fr.hide();
-            e._fsuRat = fr;
-            fbg.appendChild(e._fsuRat.__root);
+            // let fr = events.createButton(
+            //     new UTGroupButtonControl(),
+            //     fy("sbc.swaprating"),
+            //     (e) => {events.SBCSetRatingPlayers(e);},
+            //     ""
+            // )
+            // fr.setInteractionState(!1);
+            // fr.hide();
+            // e._fsuRat = fr;
+            // fbg.appendChild(e._fsuRat.__root);
 
              // 联赛
              let fle = events.createButton(
@@ -1771,27 +1816,27 @@
             e._fsuNat = fcn;
             fbg.appendChild(e._fsuNat.__root);
  
-            let fcm = events.createButton(
-                new UTGroupButtonControl(),
-                fy("sbc.swapchem"),
-                (e) => {events.SBCSetChemPlayers(e);},
-                ""
-            )
-            fcm.hide();
-            e._fsuChem = fcm;
-            fbg.appendChild(e._fsuChem.__root);
+            // let fcm = events.createButton(
+            //     new UTGroupButtonControl(),
+            //     fy("sbc.swapchem"),
+            //     (e) => {events.SBCSetChemPlayers(e);},
+            //     ""
+            // )
+            // fcm.hide();
+            // e._fsuChem = fcm;
+            // fbg.appendChild(e._fsuChem.__root);
             
  
  
-            let fcmr = events.createButton(
-                new UTGroupButtonControl(),
-                fy("meetsreq.btntext"),
-                (e) => {events.SBCSetMeetsPlayers(e);},
-                ""
-            )
-            fcmr.hide();
-            e._fsuMeets = fcmr;
-            fbg.appendChild(e._fsuMeets.__root);
+            // let fcmr = events.createButton(
+            //     new UTGroupButtonControl(),
+            //     fy("meetsreq.btntext"),
+            //     (e) => {events.SBCSetMeetsPlayers(e);},
+            //     ""
+            // )
+            // fcmr.hide();
+            // e._fsuMeets = fcmr;
+            // fbg.appendChild(e._fsuMeets.__root);
  
  
             e._fsuButtons = fbg;
@@ -1842,7 +1887,7 @@
             t.success ? t.response.stats.forEach(async function(e) {
                 if(e.type == 'players'){
                     if(e.count !== services.Club.clubDao.clubRepo.items.length){
-                        events.showLoader();
+                        events.kobe_showLoader();
                         let playersCount = isPhone() ? 200 : 200;
                         let playersPage = Math.ceil(e.count / playersCount);
                         for (let i = 0; i < playersPage; i++) {
@@ -1852,7 +1897,7 @@
                             playersCriteria.sort = "desc";
                             playersCriteria.count = playersCount;
                             playersCriteria.offset = i * playersCount;
-                            events.changeLoadingText(["loadingclose.ldata",`${i}`,`${playersPage}`]);
+                            events.kobe_changeLoadingText(["loadingclose.ldata",`${i}`,`${playersPage}`]);
                             try {
                                 const searchResult = await new Promise((resolve, reject) => {
                                     services.Club.search(playersCriteria).observe(e, (p, t) => {
@@ -1873,7 +1918,7 @@
                                 }
                             }
                         }
-                        events.hideLoader();
+                        events.kobe_hideLoader();
                         info.base.state = true;
                         events.notice("notice.ldatasuccess",0);
                         if(cntlr.current().className == "UTHomeHubViewController" && info.task.obj.html && !cntlr.current()._view._objectivesTile.__root.querySelector(".fsu-task") && cntlr.current()._view._objectivesTile.__tileContent.querySelector(".ut-tile-view--subtitle")){
@@ -1888,7 +1933,7 @@
                         }
                     }
                 }
-            }) : NetworkErrorManager.checkCriticalStatus(response.status) && NetworkErrorManager.handleStatus(response.status) && events.hideLoader() && events.notice("notice.ldataerror",2);
+            }) : NetworkErrorManager.checkCriticalStatus(response.status) && NetworkErrorManager.handleStatus(response.status) && events.kobe_hideLoader() && events.notice("notice.ldataerror",2);
         }); 
     }
 
@@ -1922,7 +1967,7 @@
 
     //假想球员批量购买
     events.buyPlayerList = async (player, isShowLoader = true) => {
-        isShowLoader && events.showLoader();
+        isShowLoader && events.kobe_showLoader();
         let defId = 0,playerName ="";
         if(Number.isInteger(player)){
             defId = player;
@@ -1941,7 +1986,7 @@
             let priceList = await events.readAuctionPrices(player);
             priceList.sort((a, b) => b._auction.buyNowPrice - a._auction.buyNowPrice);
             console.log(priceList)
-            isShowLoader && events.changeLoadingText("buyplayer.loadingclose");
+            isShowLoader && events.kobe_changeLoadingText("buyplayer.loadingclose");
             if(!priceList || priceList.length == 0){
                 events.notice(["buyplayer.error",playerName,fy("buyplayer.error.child3")],2);
                 events.cardAddBuyErrorTips(defId);
@@ -1971,13 +2016,13 @@
                                             events.notice(["buyplayer.sendclub.error",playerName],2);
                                             events.cardAddBuyErrorTips(defId);
                                         }
-                                        isShowLoader && events.hideLoader();
+                                        isShowLoader && events.kobe_hideLoader();
                                     })
                                 }else{
                                     let denied = data.error && data.error.code === UtasErrorCode.PERMISSION_DENIED
                                     events.notice(["buyplayer.error",playerName,`${denied ? fy("buyplayer.error.child1") : ""}`],2);
                                     events.cardAddBuyErrorTips(defId);
-                                    isShowLoader && events.hideLoader();
+                                    isShowLoader && events.kobe_hideLoader();
                                 }
                             })
                             resolve();
@@ -1990,7 +2035,7 @@
             }
             
         }
-        isShowLoader && events.hideLoader();
+        isShowLoader && events.kobe_hideLoader();
     };
  
     //购买失败添加标识
@@ -2035,7 +2080,7 @@
     }
 
     events.readAuctionPrices = async(player,price) => {
-        events.changeLoadingText("readauction.loadingclose");
+        events.kobe_changeLoadingText("readauction.loadingclose");
         let attempts = "queries_number" in info.set ? info.set.queries_number : 5;
         let defId = Number.isInteger(player) ? player : typeof player == "object" && "definitionId" in player ? player.definitionId : Number(player);
         let searchCriteria = new UTSearchCriteriaDTO();
@@ -2061,9 +2106,9 @@
                 searchCriteria.maxBuy = events.getCachePrice(defId,1);
             }
             searchModel.updateSearchCriteria(searchCriteria);
-            events.changeLoadingText("readauction.loadingclose2");
+            events.kobe_changeLoadingText("readauction.loadingclose2");
             while (attempts --> 0) {
-                events.changeLoadingText(["readauction.loadingclose3",`${searchModel.searchCriteria.maxBuy.toLocaleString()}`]);
+                events.kobe_changeLoadingText(["readauction.loadingclose3",`${searchModel.searchCriteria.maxBuy.toLocaleString()}`]);
                 if(queried.includes(searchModel.searchCriteria.maxBuy)){
                     break;
                 }
@@ -2176,17 +2221,17 @@
                     //console.log(cntlr.current()._squad.getFieldPlayers());
                     let players = e._parent.squad.getFieldPlayers().map(i => i.getItem()).filter(i => i.concept);
                     //console.log(players);
-                    events.showLoader();
+                    events.kobe_showLoader();
                     info.base.template = true;
                     for (const player of players) {
                         if(!info.base.template){return};
                         //console.log(player);     
                         await events.buyPlayerList(player, false);                 
-                        events.changeLoadingText("buyplayer.pauseloadingclose");
+                        events.kobe_changeLoadingText("buyplayer.pauseloadingclose");
                         await events.wait(2, 3);                       
                                                                                             
                     }   
-                    events.hideLoader();  
+                    events.kobe_hideLoader();  
                     events.notice("buyplayer.missplayerbuy.success",0);               
                 },
                 "mini call-to-action"
@@ -2215,7 +2260,7 @@
                     // console.log(currentSquad)
                     // let oldSquad = _.cloneDeep(e._parent.squad._players.map((p) => p._item));
                     // console.log(players);
-                    events.showLoader();
+                    events.kobe_showLoader();
                     info.base.template = true;
                     for (const player of players) {
                         if(!info.base.template){
@@ -2246,14 +2291,14 @@
                                 
                                 events.saveSquadLoader(e._parent,  e._parent.squad, currentSquad, []);
                                 //events.saveOldSquad(e._parent.squad, false);
-                                //events.showLoader();
+                                //events.kobe_showLoader();
                             }                                            
                         }              
-                        events.changeLoadingText("buyplayer.pauseloadingclose");
+                        events.kobe_changeLoadingText("buyplayer.pauseloadingclose");
                         await events.wait(0.2, 0.5);
                                                                                             
                     }   
-                    events.hideLoader();  
+                    events.kobe_hideLoader();  
                     console.log(currentSquad);
                     events.saveSquad(e._parent,  e._parent.squad, currentSquad, currentSquad.map(i => {if(i && !info.roster.data.hasOwnProperty(i.definitionId)){return i.definitionId}}).filter(Boolean));
                     events.saveOldSquad(e._parent.squad, false);
@@ -2287,7 +2332,7 @@
                     // console.log(currentSquad)
                     // let oldSquad = _.cloneDeep(e._parent.squad._players.map((p) => p._item));
                     // console.log(players);
-                    events.showLoader();
+                    events.kobe_showLoader();
                     info.base.template = true;
                     for (const player of players) {
                         if(!info.base.template){return};
@@ -2314,11 +2359,11 @@
                                 // console.log(currentSquad)      
                             }                                            
                         }              
-                        events.changeLoadingText("buyplayer.pauseloadingclose");
+                        events.kobe_changeLoadingText("buyplayer.pauseloadingclose");
                         await events.wait(0.2, 1);
                                                                                             
                     }   
-                    events.hideLoader();  
+                    events.kobe_hideLoader();  
                     // console.log(currentSquad);
                     events.saveSquad(e._parent,  e._parent.squad, currentSquad, []);
                     events.saveOldSquad(e._parent.squad, false);
@@ -2345,8 +2390,8 @@
     events.getTemplate = async function(e,type,sId){
         e.setInteractionState(0);
         let squadPos = e.challenge.squad.getFieldPlayers().map(i => { return i.isBrick() ? null : i.getGeneralPosition()});
-        events.showLoader();
-        events.changeLoadingText("loadingclose.template1");
+        events.kobe_showLoader();
+        events.kobe_changeLoadingText("loadingclose.template1");
         info.base.template = true;
         events.notice("notice.templateload",1);
         let planCount = 0;
@@ -2367,7 +2412,7 @@
         }
         for (let planId of refePlan) {
             planCount++;
-            events.changeLoadingText(["loadingclose.template2",`${planCount}`,`${refePlan.length - planCount}`]);
+            events.kobe_changeLoadingText(["loadingclose.template2",`${planCount}`,`${refePlan.length - planCount}`]);
             if(!info.base.template){return};
             let planSquad = await getSbcSquad(planId,type == 1 ? 2 : type);
             let ownedPlayer = 0;
@@ -2451,12 +2496,12 @@
                     events.notice("notice.templateerror",2);
                     s.removeAllItems();
                     info.base.savesquad = false;
-                    events.hideLoader();
+                    events.kobe_hideLoader();
                 }
                 services.SBC.loadChallengeData(c).observe(
                     this,
                     async function (z, {response:{squad}}) {
-                        events.hideLoader();
+                        events.kobe_hideLoader();
                         let ps = squad._players.map((p) => p._item);
                         c.squad.setPlayers(ps, true);
                         c.onDataChange.notify({squad});
@@ -2469,7 +2514,7 @@
                         events.notice("notice.templatesuccess",0);
                         events.loadPlayerPrice(a);
                         let view = isPhone() ? cntlr.current().getView() : cntlr.left().getView();
-                        console.log(view._interactionState)
+                        // console.log(view._interactionState)
                         if(!view._interactionState){
                             view.setInteractionState(!0)
                         }
@@ -2491,12 +2536,12 @@
                     events.notice("notice.templateerror",2);
                     s.removeAllItems();
                     info.base.savesquad = false;
-                    //events.hideLoader();
+                    //events.kobe_hideLoader();
                 }
                 services.SBC.loadChallengeData(c).observe(
                     this,
                     async function (z, {response:{squad}}) {
-                        //events.hideLoader();
+                        //events.kobe_hideLoader();
                         let ps = squad._players.map((p) => p._item);
                         c.squad.setPlayers(ps, true);
                         c.onDataChange.notify({squad});
@@ -2547,21 +2592,21 @@
                 onload:function(response){
                     if(response.status == 404 || response.status == 401){
                         events.notice("notice.loaderror",2);
-                        events.hideLoader();
+                        events.kobe_hideLoader();
                     }else{
                         let data = JSON.parse(response.response)[t == 2 ? "squad_data" : "data"];
                         if(data){
                             res(data)
                         }else{
                             events.notice("notice.squaderror",2);
-                            events.hideLoader();
+                            events.kobe_hideLoader();
                         }
                     }
                 },
                 onerror: function(error) {
                     console.error('请求出错:', error);
                     events.notice("notice.loaderror",2);
-                    events.hideLoader();
+                    events.kobe_hideLoader();
                 }
             })
         })
