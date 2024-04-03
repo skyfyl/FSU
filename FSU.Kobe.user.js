@@ -646,227 +646,227 @@
     }
  
  
-    // UTSquadOverviewViewController.prototype.viewDidAppear = function() {
-    //     call.plist.squad.call(this);
-    //     let p = this._squad._players.map(function (i) {if(i._item.type == "player" && !info.roster.data.hasOwnProperty(i._item.definitionId)){return i._item.definitionId}}).filter(i => i > 0);
-    //     events.loadPlayerPrice(p);
+    UTSquadOverviewViewController.prototype.viewDidAppear = function() {
+        call.plist.squad.call(this);
+        // let p = this._squad._players.map(function (i) {if(i._item.type == "player" && !info.roster.data.hasOwnProperty(i._item.definitionId)){return i._item.definitionId}}).filter(i => i > 0);
+        // events.loadPlayerPrice(p);
  
  
-    //     if(this._squad.isSBC()){
-    //         let sp = this._view;
-    //         if(sp.hasOwnProperty("_fsuQuickRight")){
-    //             sp._fsuQuickRight.remove()
-    //         }
-    //         if(sp.hasOwnProperty("_fsuQuickTop")){
-    //             sp._fsuQuickTop.remove()
-    //         }
-    //         if(sp.hasOwnProperty("_detailsButton") && isPhone()){
-    //             sp._detailsButton.__root.style.zIndex = 999;
-    //         }
-    //         let e = this._challenge.eligibilityRequirements;
-    //         let t = 0;
-    //         let th = document.createElement("div");
-    //         th.classList.add("fsu-quick","top")
-    //         sp._fsuQuickTop = th;
-    //         let to = document.createElement("div");
-    //         to.classList.add("fsu-quick-list","other");
-    //         sp._fsuQuickOther = to;
-    //         sp._fsuRlist = {};
+        if(this._squad.isSBC()){
+            let sp = this._view;
+            // if(sp.hasOwnProperty("_fsuQuickRight")){
+            //     sp._fsuQuickRight.remove()
+            // }
+            // if(sp.hasOwnProperty("_fsuQuickTop")){
+            //     sp._fsuQuickTop.remove()
+            // }
+            // if(sp.hasOwnProperty("_detailsButton") && isPhone()){
+            //     sp._detailsButton.__root.style.zIndex = 999;
+            // }
+            // let e = this._challenge.eligibilityRequirements;
+            // let t = 0;
+            let th = document.createElement("div");
+            th.classList.add("fsu-quick","top")
+            sp._fsuQuickTop = th;
+            // let to = document.createElement("div");
+            // to.classList.add("fsu-quick-list","other");
+            // sp._fsuQuickOther = to;
+            sp._fsuRlist = {};
             
-    //         for (let i of e) {
-    //             if(i.kvPairs._collection.hasOwnProperty(19)){
-    //                 t = i.kvPairs._collection[19][0];
-    //                 sp._fsuCount = events.createButton(
-    //                     new UTButtonControl(),
-    //                     fy("sbc.count"),
-    //                     (e) => {events.squadCount(e);},
-    //                     "im"
-    //                 )
-    //                 sp._fsuCount.__root.setAttribute("data-r",t);
-    //                 sp._fsuQuickOther.append(sp._fsuCount.__root);
-    //             }
-    //             if(i.kvPairs._collection.hasOwnProperty(35)){
-    //                 sp._fsuConsult = events.createButton(
-    //                     new UTButtonControl(),
-    //                     fy("sbc.consult"),
-    //                     (e) => {events.squadConsult(e);},
-    //                     "im"
-    //                 )
-    //                 sp._fsuConsult.__root.setAttribute("data-id",this._challenge.id);
-    //                 sp._fsuQuickOther.append(sp._fsuConsult.__root);
-    //             }
-    //         }
+            // for (let i of e) {
+            //     if(i.kvPairs._collection.hasOwnProperty(19)){
+            //         t = i.kvPairs._collection[19][0];
+            //         sp._fsuCount = events.createButton(
+            //             new UTButtonControl(),
+            //             fy("sbc.count"),
+            //             (e) => {events.squadCount(e);},
+            //             "im"
+            //         )
+            //         sp._fsuCount.__root.setAttribute("data-r",t);
+            //         sp._fsuQuickOther.append(sp._fsuCount.__root);
+            //     }
+            //     if(i.kvPairs._collection.hasOwnProperty(35)){
+            //         sp._fsuConsult = events.createButton(
+            //             new UTButtonControl(),
+            //             fy("sbc.consult"),
+            //             (e) => {events.squadConsult(e);},
+            //             "im"
+            //         )
+            //         sp._fsuConsult.__root.setAttribute("data-id",this._challenge.id);
+            //         sp._fsuQuickOther.append(sp._fsuConsult.__root);
+            //     }
+            // }
  
-    //         let y = t !== 0 ? t : 75;
-    //         let rh = document.createElement("div");
-    //         rh.classList.add("fsu-quick","right");
-    //         rh.innerHTML = `<div class="fsu-quick-list"></div>`;
-    //         sp._fsuQuickRight = rh;
-    //         let yl = [],
-    //         ylLimit = isPhone() ? [4,8] : [5,10];
-    //         for (let i = 1; i < 11; i++) {
-    //             if(events.getDedupPlayers(events.getItemBy(1,{"rating":y-i}),this._squad.getPlayers()).length){
-    //                 yl.push(y-i);
-    //             }
-    //             if(yl.length == ylLimit[0]){
-    //                 break;
-    //             }
-    //         }
-    //         for (let i = 0; i < 99-y; i++) {
-    //             if(events.getDedupPlayers(events.getItemBy(1,{"rating":y+i}),this._squad.getPlayers()).length){
-    //                 yl.unshift(y+i);
-    //             }
-    //             if(yl.length == ylLimit[1]){
-    //                 break;
-    //             }
-    //         }
-    //         if(t !== 0 && yl.length){
-    //             let ts = document.createElement("div");
-    //             ts.classList.add("fsu-quick-list","left");
-    //             sp._fsuQuickTop.append(ts);
-    //             // sp._fsuQuickTop.append(events.createDF(`<div class="fsu-quick-inr">OR</div>`));
-    //             let ratPlus = `${Number(yl[0]) + 1}`,
-    //             ratPlusBut = events.createButton(
-    //                 new UTButtonControl(),
-    //                 "",
-    //                 (e) => {events.SBCSetRatingPlayers(e);},
-    //                 "im"
-    //             )
-    //             ratPlusBut.__root.innerHTML = `<span> >= </span>${ratPlus}`;
-    //             ratPlusBut.__root.setAttribute("data-r",`${ratPlus}GT`);
-    //             sp._fsuRlist[`t_${ratPlus}+`] = ratPlusBut;
-    //             sp._fsuQuickTop.querySelector(`.left`).append(ratPlusBut.__root);
+            // let y = t !== 0 ? t : 75;
+            // let rh = document.createElement("div");
+            // rh.classList.add("fsu-quick","right");
+            // rh.innerHTML = `<div class="fsu-quick-list"></div>`;
+            // sp._fsuQuickRight = rh;
+            // let yl = [],
+            // ylLimit = isPhone() ? [4,8] : [5,10];
+            // for (let i = 1; i < 11; i++) {
+            //     if(events.getDedupPlayers(events.getItemBy(1,{"rating":y-i}),this._squad.getPlayers()).length){
+            //         yl.push(y-i);
+            //     }
+            //     if(yl.length == ylLimit[0]){
+            //         break;
+            //     }
+            // }
+            // for (let i = 0; i < 99-y; i++) {
+            //     if(events.getDedupPlayers(events.getItemBy(1,{"rating":y+i}),this._squad.getPlayers()).length){
+            //         yl.unshift(y+i);
+            //     }
+            //     if(yl.length == ylLimit[1]){
+            //         break;
+            //     }
+            // }
+            // if(t !== 0 && yl.length){
+            //     let ts = document.createElement("div");
+            //     ts.classList.add("fsu-quick-list","left");
+            //     sp._fsuQuickTop.append(ts);
+            //     // sp._fsuQuickTop.append(events.createDF(`<div class="fsu-quick-inr">OR</div>`));
+            //     let ratPlus = `${Number(yl[0]) + 1}`,
+            //     ratPlusBut = events.createButton(
+            //         new UTButtonControl(),
+            //         "",
+            //         (e) => {events.SBCSetRatingPlayers(e);},
+            //         "im"
+            //     )
+            //     ratPlusBut.__root.innerHTML = `<span> >= </span>${ratPlus}`;
+            //     ratPlusBut.__root.setAttribute("data-r",`${ratPlus}GT`);
+            //     sp._fsuRlist[`t_${ratPlus}+`] = ratPlusBut;
+            //     sp._fsuQuickTop.querySelector(`.left`).append(ratPlusBut.__root);
  
-    //             let ratMinus = `${Number(yl[yl.length - 1]) - 1}`,
-    //             ratMinusBut = events.createButton(
-    //                 new UTButtonControl(),
-    //                 "",
-    //                 (e) => {events.SBCSetRatingPlayers(e);},
-    //                 "im"
-    //             )
-    //             ratMinusBut.__root.innerHTML = `<span> <= </span>${ratMinus}`;
-    //             ratMinusBut.__root.setAttribute("data-r",`${ratMinus}LT`);
-    //             sp._fsuRlist[`t_${ratMinus}-`] = ratMinusBut;
-    //             sp._fsuQuickTop.querySelector(`.left`).append(ratMinusBut.__root);
-    //             if(ratMinus > 80 && t > 80){
-    //                 let ratGold = `GOLD`,
-    //                 ratGoldBut = events.createButton(
-    //                     new UTButtonControl(),
-    //                     "",
-    //                     (e) => {events.SBCSetRatingPlayers(e);},
-    //                     "im"
-    //                 )
-    //                 ratGoldBut.__root.innerHTML = `75<span>-</span>80`;
-    //                 ratGoldBut.__root.setAttribute("data-r",`GOLD`);
-    //                 sp._fsuRlist[`t_${ratGold}`] = ratGoldBut;
-    //                 sp._fsuQuickTop.querySelector(`.left`).append(ratGoldBut.__root);
-    //             }
-    //         }
-    //         if(sp._fsuQuickOther.innerHTML !== ""){
-    //             sp._fsuQuickTop.append(sp._fsuQuickOther);
-    //         }
-    //         sp._summaryPanel.__root.append(sp._fsuQuickTop)
-    //         //初始载入保存阵容
-    //         if(!isPhone() || !this._squad.hasOwnProperty("_fsuOldSquad")){
-    //             events.saveOldSquad(this._squad,false,true);
-    //         }
-    //         info.douagain.sbc = this._set.id;
-    //         for (let i of yl) {
-    //             let n = `r_${i}`
-    //             let r = events.createButton(
-    //                 new UTButtonControl(),
-    //                 i,
-    //                 (e) => {events.SBCSetRatingPlayers(e);},
-    //                 "im"
-    //             );
-    //             r.__root.setAttribute("data-r",i);
-    //             sp._fsuRlist[n] = r;
-    //             sp._fsuQuickRight.querySelector(".fsu-quick-list").append(sp._fsuRlist[n].__root);
-    //         }
+            //     let ratMinus = `${Number(yl[yl.length - 1]) - 1}`,
+            //     ratMinusBut = events.createButton(
+            //         new UTButtonControl(),
+            //         "",
+            //         (e) => {events.SBCSetRatingPlayers(e);},
+            //         "im"
+            //     )
+            //     ratMinusBut.__root.innerHTML = `<span> <= </span>${ratMinus}`;
+            //     ratMinusBut.__root.setAttribute("data-r",`${ratMinus}LT`);
+            //     sp._fsuRlist[`t_${ratMinus}-`] = ratMinusBut;
+            //     sp._fsuQuickTop.querySelector(`.left`).append(ratMinusBut.__root);
+            //     if(ratMinus > 80 && t > 80){
+            //         let ratGold = `GOLD`,
+            //         ratGoldBut = events.createButton(
+            //             new UTButtonControl(),
+            //             "",
+            //             (e) => {events.SBCSetRatingPlayers(e);},
+            //             "im"
+            //         )
+            //         ratGoldBut.__root.innerHTML = `75<span>-</span>80`;
+            //         ratGoldBut.__root.setAttribute("data-r",`GOLD`);
+            //         sp._fsuRlist[`t_${ratGold}`] = ratGoldBut;
+            //         sp._fsuQuickTop.querySelector(`.left`).append(ratGoldBut.__root);
+            //     }
+            // }
+            // if(sp._fsuQuickOther.innerHTML !== ""){
+            //     sp._fsuQuickTop.append(sp._fsuQuickOther);
+            // }
+            // sp._summaryPanel.__root.append(sp._fsuQuickTop)
+            // //初始载入保存阵容
+            // if(!isPhone() || !this._squad.hasOwnProperty("_fsuOldSquad")){
+            //     events.saveOldSquad(this._squad,false,true);
+            // }
+            // info.douagain.sbc = this._set.id;
+            // for (let i of yl) {
+            //     let n = `r_${i}`
+            //     let r = events.createButton(
+            //         new UTButtonControl(),
+            //         i,
+            //         (e) => {events.SBCSetRatingPlayers(e);},
+            //         "im"
+            //     );
+            //     r.__root.setAttribute("data-r",i);
+            //     sp._fsuRlist[n] = r;
+            //     sp._fsuQuickRight.querySelector(".fsu-quick-list").append(sp._fsuRlist[n].__root);
+            // }
  
-    //         let quickUnassignedBtn = events.createButton(
-    //             new UTButtonControl(),
-    //             fy("sbc.qucikdupes"),
-    //             (e) => {events.SBCSetRatingPlayers(e);},
-    //             "im"
-    //         );
-    //         quickUnassignedBtn.__root.setAttribute("data-r","d");
-    //         sp._fsuRlist["r_d"] = quickUnassignedBtn;
-    //         quickUnassignedBtn.setInteractionState(!1)
-    //         sp._fsuQuickRight.querySelector(".fsu-quick-list").append(quickUnassignedBtn.getRootElement());
+            // let quickUnassignedBtn = events.createButton(
+            //     new UTButtonControl(),
+            //     fy("sbc.qucikdupes"),
+            //     (e) => {events.SBCSetRatingPlayers(e);},
+            //     "im"
+            // );
+            // quickUnassignedBtn.__root.setAttribute("data-r","d");
+            // sp._fsuRlist["r_d"] = quickUnassignedBtn;
+            // quickUnassignedBtn.setInteractionState(!1)
+            // sp._fsuQuickRight.querySelector(".fsu-quick-list").append(quickUnassignedBtn.getRootElement());
             
-    //         //开始判断是否需要屏蔽重复按钮
-    //         let unassignedIds = _.uniq(_.map(repositories.Item.getUnassignedItems(), `definitionId`));
-    //         if(unassignedIds.length){
-    //             if(events.getDedupPlayers(events.getItemBy(2,{definitionId:unassignedIds}),this._squad.getPlayers()).length){
-    //                 quickUnassignedBtn.setInteractionState(1)
-    //             }
-    //         }
+            // //开始判断是否需要屏蔽重复按钮
+            // let unassignedIds = _.uniq(_.map(repositories.Item.getUnassignedItems(), `definitionId`));
+            // if(unassignedIds.length){
+            //     if(events.getDedupPlayers(events.getItemBy(2,{definitionId:unassignedIds}),this._squad.getPlayers()).length){
+            //         quickUnassignedBtn.setInteractionState(1)
+            //     }
+            // }
  
-    //         //转会名单搜索功能
-    //         let quickTransfersBtn = events.createButton(
-    //             new UTButtonControl(),
-    //             fy("sbc.quciktransfers"),
-    //             (e) => {
-    //                 events.SBCSetRatingPlayers(e);
-    //             },
-    //             "im"
-    //         );
-    //         quickTransfersBtn.__root.setAttribute("data-r","t");
-    //         sp._fsuRlist["r_t"] = quickTransfersBtn;
-    //         quickTransfersBtn.setInteractionState(!1)
-    //         sp._fsuQuickRight.querySelector(".fsu-quick-list").append(quickTransfersBtn.getRootElement());
-    //         console.log(quickTransfersBtn,p)
+            // //转会名单搜索功能
+            // let quickTransfersBtn = events.createButton(
+            //     new UTButtonControl(),
+            //     fy("sbc.quciktransfers"),
+            //     (e) => {
+            //         events.SBCSetRatingPlayers(e);
+            //     },
+            //     "im"
+            // );
+            // quickTransfersBtn.__root.setAttribute("data-r","t");
+            // sp._fsuRlist["r_t"] = quickTransfersBtn;
+            // quickTransfersBtn.setInteractionState(!1)
+            // sp._fsuQuickRight.querySelector(".fsu-quick-list").append(quickTransfersBtn.getRootElement());
+            // console.log(quickTransfersBtn,p)
             
-    //         //开始判断是否需要屏蔽搜索按钮
-    //         let transferIds = _.uniq(_.map(repositories.Item.getTransferItems(),i => {if(i.getAuctionData().isInactive()){ return i.definitionId}}).filter(Boolean));
-    //         if(transferIds.length){
-    //             if(events.getDedupPlayers(events.getItemBy(2,{definitionId:transferIds}),this._squad.getPlayers()).length){
-    //                 quickTransfersBtn.setInteractionState(1)
-    //             }
-    //         }
+            // //开始判断是否需要屏蔽搜索按钮
+            // let transferIds = _.uniq(_.map(repositories.Item.getTransferItems(),i => {if(i.getAuctionData().isInactive()){ return i.definitionId}}).filter(Boolean));
+            // if(transferIds.length){
+            //     if(events.getDedupPlayers(events.getItemBy(2,{definitionId:transferIds}),this._squad.getPlayers()).length){
+            //         quickTransfersBtn.setInteractionState(1)
+            //     }
+            // }
  
-    //         //阵容回退按钮
-    //         if(info.set.sbc_sback){
-    //             let rb = events.createButton(
-    //                 new UTButtonControl(),
-    //                 fy("sbc.squadback"),
-    //                 (e) => {
-    //                     let c = e._challenge.squad._fsuOldSquadCount;
-    //                     if(c){
-    //                         events.popup(
-    //                             fy("squadback.popupt"),
-    //                             fy(["squadback.popupm",c]),
-    //                             (t) => {
-    //                                 if(t === 2){
-    //                                     events.kobe_showLoader();
-    //                                     let s = e._challenge.squad._fsuOldSquad[c - 1]
-    //                                     events.saveSquad(e._challenge,e._challenge.squad,s,[]);
-    //                                     e._challenge.squad._fsuOldSquadCount--;
-    //                                     e._challenge.squad._fsuOldSquad.pop();
-    //                                 }
-    //                             }
-    //                         )
-    //                     }else{
-    //                         events.notice("notice.nosquad",2);
-    //                     }
-    //                 },
-    //                 "im"
-    //             );
-    //             rb._challenge = this._challenge;
-    //             sp._fsuRlist["r_b"] = rb;
-    //             sp._fsuQuickRight.querySelector(".fsu-quick-list").append(sp._fsuRlist["r_b"].__root);
-    //         }
+            //阵容回退按钮
+            if(info.set.sbc_sback){
+                let rb = events.createButton(
+                    new UTButtonControl(),
+                    "T",
+                    (e) => {
+                        let c = e._challenge.squad._fsuOldSquadCount;
+                        if(c){
+                            events.popup(
+                                fy("squadback.popupt"),
+                                fy(["squadback.popupm",c]),
+                                (t) => {
+                                    if(t === 2){
+                                        events.kobe_showLoader();
+                                        let s = e._challenge.squad._fsuOldSquad[c - 1]
+                                        events.saveSquad(e._challenge,e._challenge.squad,s,[]);
+                                        e._challenge.squad._fsuOldSquadCount--;
+                                        e._challenge.squad._fsuOldSquad.pop();
+                                    }
+                                }
+                            )
+                        }else{
+                            events.notice("notice.nosquad",2);
+                        }
+                    },
+                    "im"
+                );
+                rb._challenge = this._challenge;
+                sp._fsuRlist["r_b"] = rb;
+                sp._fsuQuickRight.querySelector(".fsu-quick-list").append(sp._fsuRlist["r_b"].__root);
+            }
  
-    //         sp._summaryPanel.__root.after(sp._fsuQuickRight);
-    //         if(!info.set.sbc_top){
-    //             sp._fsuQuickTop.remove();
-    //         }
-    //         if(!info.set.sbc_right){
-    //             sp._fsuQuickRight.remove();
-    //         }
-    //     }
-    // }
+            sp._summaryPanel.__root.after(sp._fsuQuickRight);
+            // if(!info.set.sbc_top){
+            //     sp._fsuQuickTop.remove();
+            // }
+            // if(!info.set.sbc_right){
+            //     sp._fsuQuickRight.remove();
+            // }
+        }
+    }
 
     events.wait = (min,max) => {
         let delay = Math.floor(Math.random() * (max * 1000 - min * 1000 + 1)) + min * 1000;
@@ -2290,7 +2290,7 @@
                                 // console.log(currentSquad)   
                                 
                                 events.saveSquadLoader(e._parent,  e._parent.squad, currentSquad, []);
-                                //events.saveOldSquad(e._parent.squad, false);
+                                events.saveOldSquad(e._parent.squad, false);
                                 //events.kobe_showLoader();
                             }                                            
                         }              
