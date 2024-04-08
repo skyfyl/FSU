@@ -827,6 +827,7 @@
             // }
  
             //阵容回退按钮
+            info.set.sbc_sback =true;
             if(info.set.sbc_sback){
                 let rb = events.createButton(
                     new UTButtonControl(),
@@ -865,6 +866,58 @@
             // if(!info.set.sbc_right){
             //     sp._fsuQuickRight.remove();
             // }
+        }
+    }
+
+    events.popup = (t,m,c,o,i,n,s) => {
+        if(!o){
+            o =  [
+                { labelEnum: enums.UIDialogOptions.OK },
+                { labelEnum: enums.UIDialogOptions.CANCEL },
+            ]
+        }
+        let mp = new EADialogViewController({
+            dialogOptions: o,
+            message: m,
+            title: t,
+            type: EADialogView.Type.MESSAGE
+        });
+        mp.init();
+        mp.modalDisplayDimensions.minWidth = "300px";
+        mp.onExit.observe(this, function (e, z) {
+            e.unobserve(this);
+            if(i){
+                c.call(this,z,mp._fsuInput)
+            }else{
+                c.call(this,z)
+            }
+        });
+        gPopupClickShield.setActivePopup(mp);
+        _.flatMap(mp.getView().dialogOptions,(v,i) => {
+            if(v.__text.innerHTML == "*"){
+                v.setText(fy(`popupButtonsText.${mp.options[i].labelEnum}`))
+            }
+        })
+        if(i){
+            let pt = new UTTextInputControl;
+            pt.init();
+            if(i.constructor == Array){
+                if(i.length > 0){
+                    pt.setPlaceholder(i[0]);
+                }
+                if(i.length > 1){
+                    pt.setValue(i[1]);
+                }
+            }else if(i.constructor == String){
+                pt.setPlaceholder(i);
+            }
+            pt.__root.style.margin = ".5rem 0";
+            pt.setInteractionState(n);
+            mp._fsuInput = pt;
+            mp._view.__msg.appendChild(mp._fsuInput.__root);
+            if(s){
+                mp._view.__msg.appendChild(events.createDF(s));
+            }
         }
     }
 
