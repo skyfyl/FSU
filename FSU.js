@@ -5265,7 +5265,25 @@
         let refePlan = [];
         if(type == 1){
 
-            let list = await getSbcSquad(e.challenge.id,type);
+            console.log("sbc challengeId: " + e.challenge.id);
+            var challengeId = e.challenge.id;
+            switch (challengeId) {
+                case 1818:
+                    challengeId = 729;
+                    break;
+                case 1817:
+                    challengeId = 728;
+                    break;
+                case 1816:
+                    challengeId = 727;
+                    break;
+                case 1815:
+                    challengeId = 726;
+                    break;    
+                default:
+                    break;
+            }
+            let list = await getSbcSquad(challengeId,type);
             if(list && list.length == 0){
                 return;
             }
