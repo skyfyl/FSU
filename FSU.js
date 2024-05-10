@@ -66,8 +66,8 @@
     };
     cntlr = {
         "current":function(){return getAppMain().getRootViewController().getPresentedViewController().getCurrentViewController().getCurrentController();},
-        "right":function(){return getAppMain().getRootViewController().getPresentedViewController().getCurrentViewController().getCurrentController().rightController._currentController},
-        "left":function(){return getAppMain().getRootViewController().getPresentedViewController().getCurrentViewController().getCurrentController()._leftController},
+        "right":function(){return getAppMain().getRootViewController().getPresentedViewController().getCurrentViewController().getCurrentController().rightController.currentController},
+        "left":function(){return getAppMain().getRootViewController().getPresentedViewController().getCurrentViewController().getCurrentController().leftController},
     };
     events.notice = function(text,type){
         services.Notification.queue([fy(text),type])
@@ -951,35 +951,35 @@
     UTSquadBuilderViewController.prototype.viewDidAppear = function() {
         call.view.build.call(this)
         if(this.squad.isSBC()){
-            this._view.getSortDropDown().setIndexById(3);
+            this.view.getSortDropDown().setIndexById(3);
 
-            this._view._fsuleague = events.createToggle(
+            this.view._fsuleague = events.createToggle(
                 `${fy(`builder.league`)}(${info.set.shield_league.length})`,
                 async(e) => {
                     build.set("league",e.getToggleState())
                 }
             )
-            this._view._fsuleague.toggle(info.build.league);
-            this._view._searchOptions.__root.appendChild(this._view._fsuleague.__root);
+            this.view._fsuleague.toggle(info.build.league);
+            this.view._searchOptions.__root.appendChild(this.view._fsuleague.__root);
 
-            this._view._fsurare = events.createToggle(
+            this.view._fsurare = events.createToggle(
                 fy(`builder.rare`),
                 async(e) => {
                     build.set("rare",e.getToggleState())
                 }
             )
-            this._view._fsurare.toggle(info.build.rare);
-            this._view._searchOptions.__root.appendChild(this._view._fsurare.__root);
+            this.view._fsurare.toggle(info.build.rare);
+            this.view._searchOptions.__root.appendChild(this.view._fsurare.__root);
 
 
-            this._view._fsupos = events.createToggle(
+            this.view._fsupos = events.createToggle(
                 fy(`builder.ignorepos`),
                 async(e) => {
                     build.set("ignorepos",e.getToggleState())
                 }
             )
-            this._view._fsupos.toggle(info.build.ignorepos);
-            this._view._searchOptions.__root.appendChild(this._view._fsupos.__root);
+            this.view._fsupos.toggle(info.build.ignorepos);
+            this.view._searchOptions.__root.appendChild(this.view._fsupos.__root);
 
         }
     }
@@ -1771,8 +1771,8 @@
                 v.setText(fy(`popupButtonsText.${mp.options[i].labelEnum}`))
             }
         })
-        mp._view.__msg.style.padding = "1rem";
-        mp._view.__msg.style.fontSize = "100%";
+        mp.view.__msg.style.padding = "1rem";
+        mp.view.__msg.style.fontSize = "100%";
         let buildArray = ["league","rare","untradeable","ignorepos","icon","hero","academy","strictlypcik"];
         _.map(buildArray,b => {
             let bText = b == "league" ? `${fy(`builder.league`)}(${info.set.shield_league.length})`: fy(`builder.${b}`);
@@ -1785,7 +1785,7 @@
             bToggle.toggle(info.build[b]);
             bToggle.__root.style.paddingLeft = "0";
             bToggle.__root.style.paddingRight = "0";
-            mp._view.__msg.appendChild(bToggle.__root);
+            mp.view.__msg.appendChild(bToggle.__root);
         })
     }
     events.popup = (t,m,c,o,i,n,s) => {
@@ -1833,9 +1833,9 @@
             pt.__root.style.margin = ".5rem 0";
             pt.setInteractionState(n);
             mp._fsuInput = pt;
-            mp._view.__msg.appendChild(mp._fsuInput.__root);
+            mp.view.__msg.appendChild(mp._fsuInput.__root);
             if(s){
-                mp._view.__msg.appendChild(events.createDF(s));
+                mp.view.__msg.appendChild(events.createDF(s));
             }
         }
     }
@@ -1929,7 +1929,7 @@
                 }
             }).filter(Boolean);
 
-            view._view.__root.querySelector(".fsu-screenshot h2 span.text").textContent = fy(["screenshot.text",price.length,price.reduce((a, b) => a + b, 0).toLocaleString()])
+            view.view.__root.querySelector(".fsu-screenshot h2 span.text").textContent = fy(["screenshot.text",price.length,price.reduce((a, b) => a + b, 0).toLocaleString()])
         }
     }
     //列表形式(右侧、拍卖行搜索结果、俱乐部)球员列表 读取球员列表查询价格
@@ -2770,24 +2770,24 @@
                     a._fsuGP.displayCurrencyIcon(!0);
                 }
             }
-            e._view._fsuAuction.__subtext.setAttribute('data-id',pid);
-            e._view._fsuAuction.__subtext.setAttribute('data-i',e.item.id || 0);
+            e.view._fsuAuction.__subtext.setAttribute('data-id',pid);
+            e.view._fsuAuction.__subtext.setAttribute('data-i',e.item.id || 0);
             if(events.getCachePrice(pid)){
                 let lp = info.roster.data[pid].prices[info.base.platform].LCPrice;
                 if(lp && lp !== "0"){
-                    e._view._fsuAuction.setSubtext(lp);
-                    e._view._fsuAuction.setInteractionState(1);
+                    e.view._fsuAuction.setSubtext(lp);
+                    e.view._fsuAuction.setInteractionState(1);
                     if(a.hasOwnProperty("_fsuGP")){
                         a._fsuGP.__root.setAttribute("data-p",lp);
                         a._fsuGP.show();
                     }
                 }else{
-                    e._view._fsuAuction.setSubtext(lp);
-                    e._view._fsuAuction.setInteractionState(0);
+                    e.view._fsuAuction.setSubtext(lp);
+                    e.view._fsuAuction.setInteractionState(0);
                 }
             }
             if(!info.set.player_auction){
-                e._view._fsuAuction.hide();
+                e.view._fsuAuction.hide();
             }
             if(a.hasOwnProperty("_fsuRat") && e.item.rating > 0){
                 a._fsuRat.__root.setAttribute("data-r",e.item.rating);
@@ -2866,7 +2866,7 @@
             // === Kobe add ===
 
         }else{
-            e._view._fsuAuction.setDisplay(!1);
+            e.view._fsuAuction.setDisplay(!1);
         }
         if(!info.set.player_getprice || services.User.getUser().tradeAccess !== TradeAccessLevel.ALLOWED){
             a._fsuGP.hide();
@@ -3350,9 +3350,9 @@
         let p = Number(e.__subtext.innerText.replace(/,/g, ''));
         if(!p) return;
         let w = isPhone() ? cntlr.current() : cntlr.right();
-        await w._quickListPanel._view._bidNumericStepper.setValue(p);
-        await w._quickListPanel._view._buyNowNumericStepper.setValue(p);
-        await w._quickListPanel._view._listButton._tapDetected(this);
+        await w._quickListPanel.view._bidNumericStepper.setValue(p);
+        await w._quickListPanel.view._buyNowNumericStepper.setValue(p);
+        await w._quickListPanel.view._listButton._tapDetected(this);
         events.notice("notice.quickauction",1);
     }
 
@@ -3732,10 +3732,10 @@
                 info.range = [46,99]
             }, EventType.TAP)
             ratClear._parent = e._view;
-            e._view._fsuRatClear = ratClear;
-            ratHeader.appendChild(e._view._fsuRatClear.__root);
-            e._view._fsuRatBox = ratHeader;
-            let targetElement = e._view._searchOptions.getRootElement();
+            e.view._fsuRatClear = ratClear;
+            ratHeader.appendChild(e.view._fsuRatClear.__root);
+            e.view._fsuRatBox = ratHeader;
+            let targetElement = e.view._searchOptions.getRootElement();
             targetElement.parentNode.insertBefore(ratHeader, targetElement.nextSibling);
             let ratBox = events.createElementWithConfig("div", {
                 classList: ["fsu-range"],
@@ -3751,8 +3751,8 @@
             ratLow.setLimits(r[0],r[1]);
             ratLow.init();
             ratLow.updateIncrementDecrementButtonInteractionStates();
-            e._view._fsuRatLow = ratLow;
-            ratBox.appendChild(e._view._fsuRatLow.__root);
+            e.view._fsuRatLow = ratLow;
+            ratBox.appendChild(e.view._fsuRatLow.__root);
             ratBox.appendChild(events.createElementWithConfig("span", {
                 classList: ["price-filter"],
                 textContent: fy("sbcrange.to"),
@@ -3762,8 +3762,8 @@
             ratHigh.setLimits(r[0],r[1]);
             ratHigh.init();
             ratHigh.updateIncrementDecrementButtonInteractionStates();
-            e._view._fsuRatHigh = ratHigh;
-            ratBox.appendChild(e._view._fsuRatHigh.__root);
+            e.view._fsuRatHigh = ratHigh;
+            ratBox.appendChild(e.view._fsuRatHigh.__root);
             ratHeader.parentNode.insertBefore(ratBox, ratHeader.nextSibling);
         }
         if(t !== 1 && t%2 == 1){
@@ -3800,7 +3800,7 @@
             }
             await e.setSearchCriteria(s);
             console.log(e)
-            await e._view.getSearchButton()._tapDetected(this);
+            await e.view.getSearchButton()._tapDetected(this);
             events.notice(not,1);
             return;
         }
@@ -3821,11 +3821,11 @@
             if("_fsuFilterBtn" in e._parentViewController){
                 delete e._parentViewController._fsuFilterBtn
             }
-            await e._view.getPlayerNameSearch()._playerNameInput.setValue(pn);
-            await e._view.getPlayerNameSearch()._playerNameInput.setInteractionState(0);
+            await e.view.getPlayerNameSearch()._playerNameInput.setValue(pn);
+            await e.view.getPlayerNameSearch()._playerNameInput.setInteractionState(0);
             let sortId = SearchSortID[_.toUpper(`${_.replace(c.sortBy,"ovr","rating")}_${c.sort}`)];
-            if(e._view.getSortDropDown().getId() !== sortId){
-                e._view.getSortDropDown().setIndexById(sortId);
+            if(e.view.getSortDropDown().getId() !== sortId){
+                e.view.getSortDropDown().setIndexById(sortId);
             }
             return;
         }
@@ -3833,15 +3833,15 @@
 
         console.log("开始判断进行填充选项","此时的saveCriteria为：",info.criteria)
         if(Object.keys(info.criteria).length == 0 && t == 0){
-            await e._view.getSortDropDown().setIndexById(2);
+            await e.view.getSortDropDown().setIndexById(2);
         }else{
             if(!info.set.sbc_records) return;
             //交易选项匹配判断
             c._untradeables = info.criteria._untradeables;
             if(info.criteria._untradeables == "true"){
-                await e._view.getSortOptions().toggles._collection["sort-untradeable"].toggle(true);
+                await e.view.getSortOptions().toggles._collection["sort-untradeable"].toggle(true);
             }else{
-                await e._view.getSortOptions().toggles._collection["sort-untradeable"].toggle(false);
+                await e.view.getSortOptions().toggles._collection["sort-untradeable"].toggle(false);
             }
             //排除队伍选项匹配判断
             if(cntlr.current().className == `UTSquadSplitViewController`){
@@ -3849,9 +3849,9 @@
             }else{
                 c.excludeDefIds = info.criteria.excludeDefIds;
                 if(info.criteria.excludeDefIds.length > 0){
-                    await e._view.getSortOptions().toggles._collection["sort-exclude-squad"].toggle(true);
+                    await e.view.getSortOptions().toggles._collection["sort-exclude-squad"].toggle(true);
                 }else{
-                    await e._view.getSortOptions().toggles._collection["sort-exclude-squad"].toggle(false);
+                    await e.view.getSortOptions().toggles._collection["sort-exclude-squad"].toggle(false);
                 }
             }
             //排序条件选项匹配判断
@@ -3859,16 +3859,16 @@
                 let sort = ["valuedesc","valueasc","ovrdesc","ovrasc","recentdesc"]
                 for (let i = 0; i < sort.length; i++) {
                     if(info.criteria.sortBy + info.criteria._sort == sort[i]){
-                        await e._view.getSortDropDown().setIndexById(i);
+                        await e.view.getSortDropDown().setIndexById(i);
                         break;
                     }
                 }
             }
             //品质条件选项匹配判断
             if(info.criteria.level !== c.level){
-                for (const v of e._view._filterContainer.filters[0].options) {
+                for (const v of e.view._filterContainer.filters[0].options) {
                     if(v.value == info.criteria.level){
-                        await e._view._filterContainer.filters[0].setIndexById(v.id);
+                        await e.view._filterContainer.filters[0].setIndexById(v.id);
                         break;
                     }
                 }
@@ -3876,32 +3876,32 @@
             //稀有条件选项匹配判断
             if(info.criteria.rarities !== c.rarities){
                 if(info.criteria.rarities.length == 1){
-                    await e._view._filterContainer.filters[1].setIndexById(info.criteria.rarities[0])
+                    await e.view._filterContainer.filters[1].setIndexById(info.criteria.rarities[0])
                 }
             }
             //位置条件选项匹配判断
             if(info.criteria._position == "any"){
-                await e._view._filterContainer.filters[2].setIndexById(-1)
+                await e.view._filterContainer.filters[2].setIndexById(-1)
             }else{
                 let posId = -1;
                 let slot = isPhone() ? cntlr.current().getCurrentController().iterator : cntlr.right().iterator;
                 if(slot){
                     posId = slot.get(slot.getIndex()).generalPosition;
                 }
-                await e._view._filterContainer.filters[2].setIndexById(posId)
+                await e.view._filterContainer.filters[2].setIndexById(posId)
             }
             if(info.criteria.nation !== c.nation){
-                await e._view._filterContainer.filters[4].setIndexById(info.criteria.nation)
+                await e.view._filterContainer.filters[4].setIndexById(info.criteria.nation)
             }
             if(info.criteria.league !== c.league){
-                await e._view._filterContainer.filters[5].setIndexById(info.criteria.league)
+                await e.view._filterContainer.filters[5].setIndexById(info.criteria.league)
             }
             if(info.criteria.club !== c.club){
-                await e._view._filterContainer.filters[6].setIndexById(info.criteria.club)
+                await e.view._filterContainer.filters[6].setIndexById(info.criteria.club)
             }
             if(t == 1){
                 setTimeout(() => {
-                    e._view.getSearchButton()._tapDetected(this);
+                    e.view.getSearchButton()._tapDetected(this);
                 }, 50);
                 events.notice("notice.quicksearch",1);
                 console.log("快捷添加状态变为",0)
@@ -4096,7 +4096,7 @@
             UTSCoins.classList.add("currency-coins");
             UTSH2.appendChild(UTSCoins);
             UTSText.textContent = fy(["screenshot.text",UTSPlayer.length,UTSPrice.toLocaleString()])
-            this._view.__root.insertBefore(UTSSection, this._view.__root.firstChild);
+            this.view.__root.insertBefore(UTSSection, this.view.__root.firstChild);
         }
         //快捷按钮调出
         //可交换页面
@@ -4105,7 +4105,7 @@
             let items = this.getViewModel().getStorableSection();
             let vacancy = repositories.Item.numItemsInCache(ItemPile.TRANSFER) + items.length <= repositories.Item.getPileSize(ItemPile.TRANSFER);
             if(0 < items.length && vacancy && this.getViewModel().hasTradeableItems()){
-                this._view._fsuTransfer = events.createButton(
+                this.view._fsuTransfer = events.createButton(
                     new UTImageButtonControl(),
                     "",
                     async(e) => {
@@ -4113,10 +4113,10 @@
                     },
                     "filter-btn fsu-transfer"
                 )
-                itemSection._header.getRootElement().appendChild(this._view._fsuTransfer.getRootElement())
+                itemSection._header.getRootElement().appendChild(this.view._fsuTransfer.getRootElement())
             }
             if(this.getViewModel().hasMovableItems()){
-                this._view._fsuClub = events.createButton(
+                this.view._fsuClub = events.createButton(
                     new UTImageButtonControl(),
                     "",
                     async(e) => {
@@ -4124,7 +4124,7 @@
                     },
                     "filter-btn fsu-club"
                 )
-                itemSection._header.getRootElement().appendChild(this._view._fsuClub.getRootElement())
+                itemSection._header.getRootElement().appendChild(this.view._fsuClub.getRootElement())
             }
         }
 
@@ -4134,7 +4134,7 @@
                 let items = this.getViewModel().getDuplicateSection();
                 let vacancy = repositories.Item.numItemsInCache(ItemPile.TRANSFER) + items.length <= repositories.Item.getPileSize(ItemPile.TRANSFER);
                 if(0 < items.length && vacancy){
-                    this._view._fsuDupTransfer = events.createButton(
+                    this.view._fsuDupTransfer = events.createButton(
                         new UTImageButtonControl(),
                         "",
                         async(e) => {
@@ -4142,13 +4142,13 @@
                         },
                         "filter-btn fsu-transfer"
                     )
-                    duplicateSection._header.getRootElement().appendChild(this._view._fsuDupTransfer.getRootElement())
+                    duplicateSection._header.getRootElement().appendChild(this.view._fsuDupTransfer.getRootElement())
                 }
             }
             let duplicatePlayerId = duplicateSection.listRows.map(i => {return i.data.duplicateId});
             let duplicatePlayer = events.getItemBy(2,{"id":duplicatePlayerId}).filter(i => !i.untradeable);
             if(duplicatePlayer.length){
-                this._view._fsuSwap = events.createButton(
+                this.view._fsuSwap = events.createButton(
                     new UTImageButtonControl(),
                     "",
                     async(e) => {
@@ -4156,12 +4156,12 @@
                     },
                     "filter-btn fsu-swap"
                 )
-                duplicateSection._header.getRootElement().appendChild(this._view._fsuSwap.getRootElement())
+                duplicateSection._header.getRootElement().appendChild(this.view._fsuSwap.getRootElement())
             }
         }
 
         if(duplicateSection || itemSection){
-            this._view._fsuRefresh = events.createButton(
+            this.view._fsuRefresh = events.createButton(
                 new UTImageButtonControl(),
                 "",
                 async(e) => {
@@ -4171,10 +4171,10 @@
                 },
                 "filter-btn fsu-refresh"
             )
-            this._view._fsuRefresh.parent = this;
+            this.view._fsuRefresh.parent = this;
             let targetElement = (itemSection || duplicateSection)?._header?.getRootElement();
             if (targetElement) {
-                targetElement.appendChild(this._view._fsuRefresh.getRootElement());
+                targetElement.appendChild(this.view._fsuRefresh.getRootElement());
             }
         }
 
@@ -5091,7 +5091,7 @@
                             console.log("info.base.template");
                             return
                         };
-                        console.log(player);
+                        // console.log(player);
                         let playerIndex = player.getIndex();
                         // console.log(playerIndex);
                         let newplayers = await events.kobe_SBCSetMeetsPlayersResult(player, e);
