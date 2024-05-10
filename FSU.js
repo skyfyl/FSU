@@ -1956,14 +1956,14 @@
             }
         }else{
             if(c.hasOwnProperty("rightController") && c.rightController){
-                c = cntlr.right()._parentViewController;
+                c = cntlr.right().parentViewController;
             }
             if(c.hasOwnProperty("_squad") && c._squad.isSBC()){
                 csbc = true;
             }
         }
         if(!isPhone() && c.hasOwnProperty("rightController") && c.rightController){
-            c = cntlr.right()._parentViewController;
+            c = cntlr.right().parentViewController;
         }
         if(csbc){
             if(c.getNavigationTitle() == services.Localization.localize("navbar.label.clubsearch")){
@@ -2291,7 +2291,7 @@
                 events.notice("notice.noduplicate",2);
             }
         }else{
-            events.sbcQuerySetFillAttr(detailsController._parentViewController,queryType == "conceptsearch" ? 9 : 5,resultPlayers,querySort)
+            events.sbcQuerySetFillAttr(detailsController.parentViewController,queryType == "conceptsearch" ? 9 : 5,resultPlayers,querySort)
             if(detailsController?.panelView){
                 await detailsController.panelView._btnAddSwap._tapDetected(this);
             }
@@ -2718,7 +2718,7 @@
         let a = w.panelView || w.panel;
         a._sendClubButton._tapDetected(this);
         if(isPhone()){
-            let p = w._parentViewController,cv,cn;
+            let p = w.parentViewController,cv,cn;
             for (let [n,v] of p._childViewControllers.entries()) {
                 if(v.className == "UTSBCSquadOverviewViewController"){
                     cv = v;
@@ -2911,8 +2911,8 @@
             }
 
             //SBC状态置为0
-            if(w.hasOwnProperty("_parentViewController") && w._parentViewController){
-                events.sbcQuerySetFillAttr(w._parentViewController,0,false,3)
+            if(w.hasOwnProperty("_parentViewController") && w.parentViewController){
+                events.sbcQuerySetFillAttr(w.parentViewController,0,false,3)
             }
 
             //默契球员按钮判断
@@ -3133,7 +3133,7 @@
                 "quickSwap",
                 async() => {
                     let b = isPhone() ? cntlr.current()._rootController : cntlr.right();
-                    events.sbcQuerySetFillAttr(b._parentViewController,1,[],3)
+                    events.sbcQuerySetFillAttr(b.parentViewController,1,[],3)
                     b.panelView._btnAddSwap._tapDetected(this);
                     console.log("快捷添加状态变为",1)
                 },
@@ -3150,7 +3150,7 @@
                     let b = isPhone() ? cntlr.current()._rootController : cntlr.right();
                     let p = events.getDedupPlayers(events.getItemBy(2,{"definitionId":services.Item.itemDao.itemRepo.getUnassignedItems().map( i => { if(i.isDuplicate() && !i.isLoaned() && i.isPlayer()){return i.definitionId}}),"academy":null}),b.squad.getPlayers());
                     if(p.length){
-                        events.sbcQuerySetFillAttr(b._parentViewController,3,p,3)
+                        events.sbcQuerySetFillAttr(b.parentViewController,3,p,3)
                         b.panelView._btnAddSwap._tapDetected(this);
                     }else{
                         events.notice("notice.noplayer",2);
@@ -3297,7 +3297,7 @@
         }
         if(resultList.length > 0){
             let b = isPhone() ? cntlr.current()._rootController : cntlr.right();
-            events.sbcQuerySetFillAttr(b._parentViewController,7,resultList,3)
+            events.sbcQuerySetFillAttr(b.parentViewController,7,resultList,3)
             await b.panelView._btnAddSwap._tapDetected(this);
         }else{
             events.notice("meetsreq.error",2);
@@ -3340,7 +3340,7 @@
         }
         if(resultList.length > 0){
             let b = isPhone() ? cntlr.current()._rootController : cntlr.right();
-            events.sbcQuerySetFillAttr(b._parentViewController,7,resultList,3)
+            events.sbcQuerySetFillAttr(b.parentViewController,7,resultList,3)
             await b.panelView._btnAddSwap._tapDetected(this);
         }else{
             events.notice("notice.notchemplayer",2);
@@ -3562,7 +3562,7 @@
                 this.getView()._fsuSortInit = true;
             }
         }
-        if("_fsuFillType" in this._parentViewController){
+        if("_fsuFillType" in this.parentViewController){
             if(this.squad.isSBC() || this.squad.isActive() || this.squad.isDream()){
                 events.searchFill(this);
             }
@@ -3702,12 +3702,12 @@
         events.clubSearchSetCount(this)
     }
     events.searchFill = async(e) =>{
-        let c = e.viewmodel.searchCriteria,t = e._parentViewController._fsuFillType,
-            p = e._parentViewController._fsuFillArray,
-            fs = e._parentViewController._fsuFillSort || 3,
-            r = "_fsuFillRange" in e._parentViewController ? e._parentViewController._fsuFillRange : [46,99];
+        let c = e.viewmodel.searchCriteria,t = e.parentViewController._fsuFillType,
+            p = e.parentViewController._fsuFillArray,
+            fs = e.parentViewController._fsuFillSort || 3,
+            r = "_fsuFillRange" in e.parentViewController ? e.parentViewController._fsuFillRange : [46,99];
 
-        if(e.squad.isSBC() && "_fsuRatLow" in e._view == false && "_fsuRatHigh" in e._view == false &&  t%2 !== 1){
+        if(e.squad.isSBC() && "_fsuRatLow" in e.view == false && "_fsuRatHigh" in e.view == false &&  t%2 !== 1){
             let ratHeader = events.createElementWithConfig("div", {
                 classList: ["fsu-range"],
                 style: {
@@ -3818,8 +3818,8 @@
                     pn = fy("sbc.chemplayer");
                     break
             }
-            if("_fsuFilterBtn" in e._parentViewController){
-                delete e._parentViewController._fsuFilterBtn
+            if("_fsuFilterBtn" in e.parentViewController){
+                delete e.parentViewController._fsuFilterBtn
             }
             await e.view.getPlayerNameSearch()._playerNameInput.setValue(pn);
             await e.view.getPlayerNameSearch()._playerNameInput.setInteractionState(0);
@@ -4196,9 +4196,9 @@
         setTimeout(() => {
             if(this.getViewModel() && this.getViewModel().length === 0 && !document.querySelector(".player-picks-modal")){
                 if(isPhone()){
-                    this._parentViewController._backButton._tapDetected(this)
+                    this.parentViewController._backButton._tapDetected(this)
                 }else{
-                    this._parentViewController._parentViewController._backButton._tapDetected(this)
+                    this.parentViewController.parentViewController._backButton._tapDetected(this)
                 }
                 events.notice("notice.packback",1);
             }
@@ -5389,7 +5389,7 @@
                         info.base.savesquad = false;
                         if(isPhone() && cntlr.current().className !== "UTSBCSquadOverviewViewController"){
                             setTimeout(() => {
-                                cntlr.current()._parentViewController._eBackButtonTapped()
+                                cntlr.current().parentViewController._eBackButtonTapped()
                             },500);
                         }
                         events.notice("notice.templatesuccess",0);
@@ -5549,9 +5549,9 @@
     UTSelectItemFromClubViewController.prototype.updateItemList = function(t) {
         call.plist.clubSelectItem.call(this,t)
         //填充状态重置为0判断
-        if(this._parentViewController._fsuFillType){
-            if(this._parentViewController._fsuFillType%2){
-                this._parentViewController._fsuFillType++;
+        if(this.parentViewController._fsuFillType){
+            if(this.parentViewController._fsuFillType%2){
+                this.parentViewController._fsuFillType++;
                 if(t.length == 0){
                     events.notice("notice.noplayer",2);
                     services.Item.itemDao.itemRepo.unassigned.reset();
@@ -5673,7 +5673,7 @@
                 s._fsuOldSquad.push(pl);
                 if(isPhone() && cntlr.current().className == "UTSquadItemDetailsNavigationController"){
                     setTimeout(() => {
-                        cntlr.current()._parentViewController._eBackButtonTapped()
+                        cntlr.current().parentViewController._eBackButtonTapped()
                     },500);
                 }
             }
@@ -6984,7 +6984,7 @@
                         info.base.savesquad = false;
                         if(isPhone() && cntlr.current().className !== "UTSBCSquadOverviewViewController"){
                             setTimeout(() => {
-                                cntlr.current()._parentViewController._eBackButtonTapped()
+                                cntlr.current().parentViewController._eBackButtonTapped()
                             },500);
                         }
                         events.notice("notice.templatesuccess",0);
