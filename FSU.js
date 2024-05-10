@@ -66,7 +66,7 @@
     };
     cntlr = {
         "current":function(){return getAppMain().getRootViewController().getPresentedViewController().getCurrentViewController().getCurrentController();},
-        "right":function(){return getAppMain().getRootViewController().getPresentedViewController().getCurrentViewController().getCurrentController()._rightController._currentController},
+        "right":function(){return getAppMain().getRootViewController().getPresentedViewController().getCurrentViewController().getCurrentController().rightController._currentController},
         "left":function(){return getAppMain().getRootViewController().getPresentedViewController().getCurrentViewController().getCurrentController()._leftController},
     };
     events.notice = function(text,type){
@@ -84,7 +84,7 @@
         info.market.mb = history_b;
         info.market.ts = Date.now();
         info.base.sId = services.Authentication.sessionUtas.id;
-        
+
         info.base.year = APP_YEAR_SHORT;
         MAX_NEW_ITEMS = 100;
         console.log(info.language)
@@ -327,7 +327,7 @@
                                 return v instanceof Array ? v.includes(i[k]) : i[k] === v;
                             }
                     }
-                } 
+                }
             });
         }
         players = _.orderBy(players,["rating","untradeable","rareflag","_itemPriceLimits.minimum","_itemPriceLimits.maximum"],[`${ratingOrder}`,"desc","asc","asc","asc"]);
@@ -396,14 +396,14 @@
         document.querySelector(".ut-click-shield").classList.add("showing","fsu-loading");
         document.querySelector(".loaderIcon").style.display = "block";
     };
-    
+
     //隐藏loading界面
     events.hideLoader = () => {
         document.querySelector(".ut-click-shield").classList.remove("showing","fsu-loading");
         document.querySelector(".loaderIcon").style.display = "none";
         if(info.base.template){
             info.base.template = false;
-            isPhone() ? cntlr.current()._view._fsuSquad.setInteractionState(1) : cntlr.right().getView()._fsuSquad.setInteractionState(1);
+            isPhone() ? cntlr.current().view._fsuSquad.setInteractionState(1) : cntlr.right().getView()._fsuSquad.setInteractionState(1);
         }
         if(info.base.losauction){
             info.base.losauction = false;
@@ -790,7 +790,7 @@
         call.view.ea.call(this,...args);
     }
 
-    
+
     //24.15 界面添加显示
     UTGameFlowNavigationController.prototype.didPush = function(e) {
         call.view.push.call(this,e);
@@ -837,7 +837,7 @@
                 if(isPhone()){
                     this.hide();
                     this.__root.classList.add("fade-out");
-                    cntlr.current()._view._playerPicksTile._tapDetected(this);
+                    cntlr.current().view._playerPicksTile._tapDetected(this);
                 }else{
                     this._superview._triggerActions(UTModalContainerView.Event.SHIELDPRESS)
                 }
@@ -980,7 +980,7 @@
             )
             this._view._fsupos.toggle(info.build.ignorepos);
             this._view._searchOptions.__root.appendChild(this._view._fsupos.__root);
-            
+
         }
     }
     UTPlayerItemView.prototype.renderItem = function (p, t) {
@@ -1045,7 +1045,7 @@
                 this._fsuCardPriceBox = fcpb;
 
                 let plow = info.base.price.hasOwnProperty(p.rating) ? `<div class="fsu-other-low currency-coins">${fy("duplicate.lowprice")}${Number(info.base.price[p.rating]["p"]).toLocaleString()}</div>` : `<span class="fsu-other-low"></span>`;
-                
+
                 let pOtherPos = otherPos.length ? `<div class="fsu-other-pos">${otherPos.join(" / ")}</div>` : `<span class="fsu-other-pos"></span>`;
 
                 let pe = -1,sp = events.getItemBy(2,{"definitionId":p.definitionId});
@@ -1079,7 +1079,7 @@
                 fco.innerHTML = `${pd}${pOtherPos}${plow}`;
                 this._fsuCardOther = fco;
 
-                
+
                 if(!p.isGK() && info.set.card_accele && p.getMetaData()){
                     let fcAccele = document.createElement("div");
                     fcAccele.classList.add("fsu-cards-accele-large","fsu-cards");
@@ -1221,7 +1221,7 @@
                         if((classNameRegex.test(controller.className) || (isPhone() && controller.className == `ItemDetailsViewController`)) && document.querySelector(`.slider span[p-id="${p.id}"]`) && !cardParen.classList.contains("reward")){
                             cardParen.insertBefore(this._fsuLock.getRootElement(),cardParen.firstChild)
                         }
-                        
+
                     }
                     if(cardParen.querySelectorAll(".player").length > 1){
                         this.__root.prepend(this._fsuCardPos);
@@ -1254,7 +1254,7 @@
                         cardParen.style.position = "relative";
                     }
                 }
-                
+
                 this.__root.appendChild(this._fsuCardRating);
                 if(!info.set.card_pos){
                     this._fsuCardPos.remove();
@@ -1309,7 +1309,7 @@
 
     //SBC任务创建奖励canvas未删除导致内存占用过高临时处理办法。
     UTSBCSetTileView.prototype.dealloc = function(...args) {
-        _.map(this.getSubviews(),i => { 
+        _.map(this.getSubviews(),i => {
             if(i.className == "UTLargePlayerItemView"){
                 console.log("SBC奖励销毁")
                 i.dealloc()
@@ -1326,7 +1326,7 @@
 
 
         if(this._squad.isSBC()){
-            let sp = this._view;
+            let sp = this.view;
             if(sp.hasOwnProperty("_fsuQuickRight")){
                 sp._fsuQuickRight.remove()
             }
@@ -1346,7 +1346,7 @@
             to.classList.add("fsu-quick-list","other");
             sp._fsuQuickOther = to;
             sp._fsuRlist = {};
-            
+
             for (let i of e) {
                 if(i.kvPairs._collection.hasOwnProperty(19)){
                     t = i.kvPairs._collection[19][0];
@@ -1418,7 +1418,7 @@
                 ratPlusBut.__root.setAttribute("data-r",`${ratPlus}GT`);
                 sp._fsuRlist[`t_${ratPlus}+`] = ratPlusBut;
                 sp._fsuQuickTop.querySelector(`.left`).append(ratPlusBut.__root);
-                
+
                 if(listType == 1){
                     let ratMinus = `${Number(yl[yl.length - 1]) - 1}`,
                     ratMinusBut = events.createButton(
@@ -1482,7 +1482,7 @@
             sp._fsuRlist["r_d"] = quickUnassignedBtn;
             quickUnassignedBtn.setInteractionState(!1)
             sp._fsuQuickRight.querySelector(".fsu-quick-list").append(quickUnassignedBtn.getRootElement());
-            
+
             //开始判断是否需要屏蔽重复按钮
             let unassignedIds = _.uniq(_.map(repositories.Item.getUnassignedItems(), `definitionId`));
             if(unassignedIds.length){
@@ -1504,7 +1504,7 @@
             sp._fsuRlist["r_t"] = quickTransfersBtn;
             quickTransfersBtn.setInteractionState(!1)
             sp._fsuQuickRight.querySelector(".fsu-quick-list").append(quickTransfersBtn.getRootElement());
-            
+
             //开始判断是否需要屏蔽搜索按钮
             let transferIds = _.uniq(_.map(repositories.Item.getTransferItems(),i => {if(i.getAuctionData().isInactive()){ return i.definitionId}}).filter(Boolean));
             if(transferIds.length){
@@ -1955,14 +1955,14 @@
                 csbc = true;
             }
         }else{
-            if(c.hasOwnProperty("_rightController") && c._rightController){
+            if(c.hasOwnProperty("rightController") && c.rightController){
                 c = cntlr.right()._parentViewController;
             }
             if(c.hasOwnProperty("_squad") && c._squad.isSBC()){
                 csbc = true;
             }
         }
-        if(!isPhone() && c.hasOwnProperty("_rightController") && c._rightController){
+        if(!isPhone() && c.hasOwnProperty("rightController") && c.rightController){
             c = cntlr.right()._parentViewController;
         }
         if(csbc){
@@ -2182,9 +2182,9 @@
     //生成奖励信息时报错处理
     UTSBCSetTileView.prototype.setData = function(e) {
         call.task.sbcSetDate.call(this,e);
-        if(_.isArray(e.awards) && !(e.awards.length)){
-            this.data.awards = null;
-        }
+        // if(_.isArray(e.awards) && !(e.awards.length)){
+        //     this.data.awards = null;
+        // }
     }
 
 
@@ -2227,11 +2227,11 @@
             querySort = 3,
             needFind = true;
 
-        
+
         if(e.getRootElement().tagName == "BUTTON" && e.getRootElement().classList.length < 3){
             needFind = false;
         }
-        
+
         switch(queryType){
             case "d":
                 pendingPlayers = repositories.Item.getUnassignedItems().map( i => { if(i.isDuplicate() && !i.isLoaned() && i.isPlayer()){return i.definitionId}});
@@ -2269,7 +2269,7 @@
         }else{
             resultPlayers = e.criteria;
         }
-        
+
         //点击选中位置
         if(needFind){
             let slotIndex = _.find(currentSquad.getNonBrickSlots(), item => !item.isValid() && !item.isBrick())?.index;
@@ -2338,7 +2338,7 @@
                                 count++;
                             }
                             if(info.task.sbc.stat?.[si].e === "1") {
-                                expiry++; 
+                                expiry++;
                             }
                         }
                     }
@@ -2422,7 +2422,7 @@
         }
     }
     events.sbcFilter = e => {
-        let t = cntlr.current()._view.sbcSetTiles,g = e.getIndex();
+        let t = cntlr.current().view.sbcSetTiles,g = e.getIndex();
         for (let i of t) {
             let y = true,d = i.data.id;
             if(info.task.sbc.stat.hasOwnProperty(d)){
@@ -2549,7 +2549,7 @@
                     e.__mainReward.querySelector(".ut-pack-graphic-view").appendChild(packBox);
                 }
             }
-            
+
         }
     }
     //字符串转换html对象
@@ -2731,7 +2731,7 @@
         }
     }
     events.detailsButtonSet = (e) => {
-        if(!isPhone() && !cntlr.current()._rightController) return;
+        if(!isPhone() && !cntlr.current().rightController) return;
         let w = isPhone() ? cntlr.current() : cntlr.right();
         if(w.hasOwnProperty("_rootController")) w = w._rootController;
         let a = w.panelView || w.panel;
@@ -2794,7 +2794,7 @@
                 a._fsuRat.setInteractionState(1);
                 a._fsuRat.show();
             }
-            
+
             //24.16 快速替换同评分黄金：按钮显示
             if(a.hasOwnProperty("_fsuQuickGlod") && e.item.rating > 75 && e.item && e.item.isSpecial() && e.item.leagueId !== 1003 && e.item.leagueId !== 1014){
                 let defId = _.map(w.squad.getPlayers(), 'item.definitionId');
@@ -2805,15 +2805,15 @@
                     let playerIndex = _.findIndex(w.squad.getPlayers(),(i) => i.item.definitionId == e.item.definitionId);
                     a._fsuQuickGlod.__root.setAttribute("data-index",playerIndex);
 
-                    
+
                     a._fsuQuickGlod.oldPlayer = e.item;
                     a._fsuQuickGlod.newPlayer = _.cloneDeep(goldList[0]);
                     a._fsuQuickGlod.challenge = w.challenge;
 
-                    
+
                     a._fsuQuickGlod.setInteractionState(1);
                     a._fsuQuickGlod.show();
-    
+
                 }
 
             }
@@ -2914,7 +2914,7 @@
             if(w.hasOwnProperty("_parentViewController") && w._parentViewController){
                 events.sbcQuerySetFillAttr(w._parentViewController,0,false,3)
             }
-            
+
             //默契球员按钮判断
             if(w.hasOwnProperty("challenge") && w.viewmodel.getIndex() < 11 && w.squad.getFieldPlayers().filter(i => i.getItem().rating > 0).length){
                 let c = 0,r = 0,q = 0;
@@ -2927,7 +2927,7 @@
                     }
                     if(se.getFirstKey() === 3){
                         q = `${se.scope == 0 ? ">=" : se.scope == 1 ? "<=" : "="}${se.getFirstValue(3)}`
-                        
+
                     }
                 }
                 if(c){
@@ -2998,7 +2998,7 @@
             a._fsuButtons.insertAdjacentElement('afterend', btnBox);
         }
     }
-    
+
     events.requirementsToText = (e) => {
         let L10n = services.Localization;
         let text = ``;
@@ -3208,8 +3208,8 @@
             fcm.hide();
             e._fsuChem = fcm;
             fbg.appendChild(e._fsuChem.__root);
-            
-            
+
+
             let fcmr = events.createButton(
                 new UTGroupButtonControl(),
                 fy("meetsreq.btntext"),
@@ -3274,9 +3274,9 @@
 
             e._fsuButtons = fbg;
             e.__itemActions.before(e._fsuButtons)
-            
 
-            
+
+
         }
     }
     //满足条件球员读取程序
@@ -3492,20 +3492,20 @@
                         events.hideLoader();
                         info.base.state = true;
                         events.notice("notice.ldatasuccess",0);
-                        if(cntlr.current().className == "UTHomeHubViewController" && info.task.obj.html && !cntlr.current()._view._objectivesTile.__root.querySelector(".fsu-task") && cntlr.current()._view._objectivesTile.__tileContent.querySelector(".ut-tile-view--subtitle")){
-                            cntlr.current()._view._objectivesTile.__tileContent.before(
+                        if(cntlr.current().className == "UTHomeHubViewController" && info.task.obj.html && !cntlr.current().view._objectivesTile.__root.querySelector(".fsu-task") && cntlr.current().view._objectivesTile.__tileContent.querySelector(".ut-tile-view--subtitle")){
+                            cntlr.current().view._objectivesTile.__tileContent.before(
                                 events.createDF(`<div class="fsu-task">${info.task.obj.html}</div>`)
                             )
                         }
-                        if(cntlr.current().className == "UTHomeHubViewController" && info.task.sbc.html && !cntlr.current()._view._sbcTile.__root.querySelector(".fsu-task") && cntlr.current()._view._sbcTile.__tileContent.querySelector(".ut-tile-content-graphic-info")){
-                            cntlr.current()._view._sbcTile.__tileContent.before(
+                        if(cntlr.current().className == "UTHomeHubViewController" && info.task.sbc.html && !cntlr.current().view._sbcTile.__root.querySelector(".fsu-task") && cntlr.current().view._sbcTile.__tileContent.querySelector(".ut-tile-content-graphic-info")){
+                            cntlr.current().view._sbcTile.__tileContent.before(
                                 events.createDF(`<div class="fsu-task">${info.task.sbc.html}</div>`)
                             )
                         }
                     }
                 }
             }) : NetworkErrorManager.checkCriticalStatus(response.status) && NetworkErrorManager.handleStatus(response.status) && events.hideLoader() && events.notice("notice.ldataerror",2);
-        }); 
+        });
     }
     UTHomeHubView.prototype.getObjectivesTile = function() {
         if(info.task.obj.html && !this._objectivesTile.__root.querySelector(".fsu-task") && info.set.info_obj){
@@ -3515,7 +3515,7 @@
         }
         return this._objectivesTile
     }
-    
+
     //首页目标区域数字更新
     UTObjectivesHubTileView.prototype.setNumUnclaimedObjectives = function(e) {
         call.task.objSetNum.call(this,e);
@@ -3674,7 +3674,7 @@
             cm = new Map(),
             ca = [];
             for (let i of r) {
-                cm.set(i, (cm.get(i) || 0) + 1); 
+                cm.set(i, (cm.get(i) || 0) + 1);
             }
             let l = isPhone() ? e.__picker.querySelectorAll("option") : e.__list.querySelectorAll("li");
             for (let [i, v] of l.entries()) {
@@ -3688,7 +3688,7 @@
                     }
                     ca.push(ct);
                 }else{
-                   ca.push(0); 
+                   ca.push(0);
                 }
             }
             if(e.hasOwnProperty(`_fsu${e.setId}`)){
@@ -3829,7 +3829,7 @@
             }
             return;
         }
-        
+
 
         console.log("开始判断进行填充选项","此时的saveCriteria为：",info.criteria)
         if(Object.keys(info.criteria).length == 0 && t == 0){
@@ -3965,7 +3965,7 @@
     }
     events.searchInputEvent = (e) => {
         let iz = cntlr.current()._view;
-        if(cntlr.current().hasOwnProperty("_rightController")){
+        if(cntlr.current().hasOwnProperty("rightController")){
             iz = cntlr.right()._view;
         }
         if(e.type == "compositionstart"){
@@ -4225,7 +4225,7 @@
             var i = n ? n.getSlot(t) : null;
             return i && (i.isValid() || i.isBrick()) ?
                 i.getItem() :
-                info.build.ignorepos ? 
+                info.build.ignorepos ?
                 p[c++] : r.getBestPlayerForPos(_, p);
         })
         events.loadPlayerPrice(pa.map(function (i) {if(i){return i.definitionId}}).filter(i => i > 0))
@@ -4376,7 +4376,7 @@
                 "call-to-action"
             )
             b.appendChild(this._fsuheadentrance.__root);
-            
+
             this._fsuqueries = events.createButton(
                 new UTStandardButtonControl(),
                 isPhone() ? buttonText[2] : fy("numberofqueries.btntext"),
@@ -4439,7 +4439,7 @@
     fsuSC.prototype.getNavigationTitle = function () {
         return fy("set.title");
     };
-    
+
     set.init = function(){
         let a = JSON.parse(GM_getValue("set","{}")),b = {};
         if(a && typeof a === 'object'){
@@ -4635,7 +4635,7 @@
                     }
                 }
             }
-            
+
         }
         if(!state){
             events.cardAddBuyErrorTips(defId);
@@ -4881,7 +4881,7 @@
             this._fsuIgnore.hide()
         }
         if(Object.keys(gf).length){
-            if(!this._fsuAutoFill && info.set.sbc_autofill){   
+            if(!this._fsuAutoFill && info.set.sbc_autofill){
                 let b = events.createButton(
                     new UTStandardButtonControl(),
                     fy("autofill.btntext"),
@@ -5048,14 +5048,14 @@
                     info.base.template = true;
                     for (const player of players) {
                         if(!info.base.template){return};
-                        //console.log(player);     
-                        await events.kobe_buyPlayerList(player, false);                 
+                        //console.log(player);
+                        await events.kobe_buyPlayerList(player, false);
                         events.changeLoadingText("buyplayer.pauseloadingclose");
-                        await events.wait(2, 3);                       
-                                                                                            
-                    }   
-                    events.hideLoader();  
-                    events.notice("buyplayer.missplayerbuy.success",0);               
+                        await events.wait(2, 3);
+
+                    }
+                    events.hideLoader();
+                    events.notice("buyplayer.missplayerbuy.success",0);
                 },
                 "mini call-to-action"
             )
@@ -5091,10 +5091,10 @@
                             console.log("info.base.template");
                             return
                         };
-                        console.log(player);   
+                        console.log(player);
                         let playerIndex = player.getIndex();
                         // console.log(playerIndex);
-                        let newplayers = await events.kobe_SBCSetMeetsPlayersResult(player, e);  
+                        let newplayers = await events.kobe_SBCSetMeetsPlayersResult(player, e);
                         // console.log(newplayers);
                         if (newplayers.length > 0) {
 
@@ -5109,24 +5109,24 @@
                                 // console.log(newplayerDiffs);
                                 let newplayer = newplayerDiffs[0];
                                 // console.log(newplayer);
-                                currentSquad[playerIndex] = newplayer;     
+                                currentSquad[playerIndex] = newplayer;
                                 // console.log("currentSquad: change")
-                                // console.log(currentSquad)   
-                                
+                                // console.log(currentSquad)
+
                                 events.kobe_SaveSquadLoader(e._parent,  e._parent.squad, currentSquad, []);
                                 //events.saveOldSquad(e._parent.squad, false);
                                 //events.showLoader();
-                            }                                            
-                        }              
+                            }
+                        }
                         events.changeLoadingText("buyplayer.pauseloadingclose");
                         await events.wait(0.2, 0.5);
-                                                                                            
-                    }   
-                    events.hideLoader();  
+
+                    }
+                    events.hideLoader();
                     console.log(currentSquad);
                     events.saveSquad(e._parent,  e._parent.squad, currentSquad, currentSquad.map(i => {if(i && !info.roster.data.hasOwnProperty(i.definitionId)){return i.definitionId}}).filter(Boolean));
                     events.saveOldSquad(e._parent.squad, false);
-                    events.notice("buyplayer.missplayerbuy.success",0);               
+                    events.notice("buyplayer.missplayerbuy.success",0);
                 },
                 "mini call-to-action"
             )
@@ -5136,7 +5136,7 @@
             this._fsuMeetsFill = b;
             this._sbcQuickOtherList.append(this._fsuMeetsFill.__root);
             //this._btnSquadBuilder.__root.after(this._fsuMeetsFill.__root);
-            //this._challengeDetails._requirements.__root.appendChild(this._sbcQuickOther.__root);            
+            //this._challengeDetails._requirements.__root.appendChild(this._sbcQuickOther.__root);
         }
 
 
@@ -5161,10 +5161,10 @@
                     info.base.template = true;
                     for (const player of players) {
                         if(!info.base.template){return};
-                        // console.log(player);   
+                        // console.log(player);
                         let playerIndex = player.getIndex();
                         // console.log(playerIndex);
-                        let newplayers = await events.kobe_filterRatingPlayers(player.getItem().rating, e._parent.squad.getPlayers());  
+                        let newplayers = await events.kobe_filterRatingPlayers(player.getItem().rating, e._parent.squad.getPlayers());
                         // console.log(newplayers);
                         if (newplayers.length > 0) {
 
@@ -5179,20 +5179,20 @@
                                 // console.log(newplayerDiffs);
                                 let newplayer = newplayerDiffs[0];
                                 // console.log(newplayer);
-                                currentSquad[playerIndex] = newplayer;     
+                                currentSquad[playerIndex] = newplayer;
                                 // console.log("currentSquad: change")
-                                // console.log(currentSquad)      
-                            }                                            
-                        }              
+                                // console.log(currentSquad)
+                            }
+                        }
                         events.changeLoadingText("buyplayer.pauseloadingclose");
                         await events.wait(0.2, 1);
-                                                                                            
-                    }   
-                    events.hideLoader();  
+
+                    }
+                    events.hideLoader();
                     // console.log(currentSquad);
                     events.saveSquad(e._parent,  e._parent.squad, currentSquad, []);
                     events.saveOldSquad(e._parent.squad, false);
-                    events.notice("buyplayer.missplayerbuy.success",0);               
+                    events.notice("buyplayer.missplayerbuy.success",0);
                 },
                 "mini call-to-action"
             )
@@ -5206,7 +5206,7 @@
         }
 
         this._sbcQuickOther.append(this._sbcQuickOtherList);
-        
+
         this._challengeDetails._requirements.__root.append(this._sbcQuickOther);
         // ===/ Kobe add ===
 
@@ -5219,7 +5219,7 @@
         let squadFormation = repositories.Squad.getFormation(challenge.formation);
         let squadBuild = new UTSquadBuilderViewModel();
         let squadBestPos = squadFormation.generalPositions.concat(Array(12).fill(-1));
-        
+
         playerlist = squadBestPos.map(function(e, t) {
             let i = challenge.squad ? challenge.squad.getSlot(t) : null;
             if(!i || i.isBrick()){
@@ -5247,7 +5247,7 @@
         events.saveSquad(challenge,challenge.squad,playerlist,[]);
         events.hideLoader();
         events.saveOldSquad(challenge.squad,false);
-        
+
     }
     //阵容智能填充
     events.getTemplate = async function(e,type,sId){
@@ -5279,7 +5279,7 @@
                     break;
                 case 1815:
                     challengeId = 726;
-                    break;    
+                    break;
                 default:
                     break;
             }
@@ -5403,7 +5403,7 @@
                 );
             }
         );
-        
+
     }
     UTSBCService.prototype.loadChallengeData = function (r) {
         var s = this,
@@ -5472,7 +5472,7 @@
             this.__topGroup.after(g);
         }
     }
-    
+
     //球员挂拍卖
     events.playerToAuction = async (d,p) =>{
         let i = services.Item.itemDao.itemRepo.transfer.get(d) || services.Item.itemDao.itemRepo.unassigned.get(d) || services.Item.itemDao.itemRepo.club.items.get(d);
@@ -5520,7 +5520,7 @@
                         }
                     }
                 })
-                
+
             }else{
                 events.notice("notice.auctionmax",2)
                 return false;
@@ -5787,9 +5787,9 @@
         //             sr = ra.shift();
         //         }
         //     }
-            
+
         //     if(sr){
-                
+
         //         if(/^\d{2}$/.test(sr)){
         //             criteria["rating"] = Number(sr);
         //         }else if(/^\d{2}\+$/.test(sr)){
@@ -5920,7 +5920,7 @@
                     this._fsufilterOptionCount = filterOptionCount;
                 }
             }
-            
+
             if(packFilter){
                 if(this.getStoreCategory() == "mypacks" && e.length){
                     this._fsufilter.style.display = "flex";
@@ -6436,7 +6436,7 @@
 
                 //当未选择位置时出现匹配当前位置的选项
                 if(this.searchCriteria.position == "any" && this.getView().pinnedItemView.getRootElement().querySelector(".fsu-chemistryfilter") == null){
-                    
+
                     let originalPlayers = resultPlayers;
                     let pinnedView = this.getView().pinnedItemView.getRootElement();
                     let slotIndex = this.slotIndex;
@@ -6477,8 +6477,8 @@
                     }
                 }
             }
-            
-            
+
+
             // console.log(this.searchCriteria)
             // console.log(resultPlayers)
             // console.log(range)
@@ -6488,7 +6488,7 @@
             }else{
                 this.handleItemRetrieval(resultPlayers,true)
             }
-            
+
         }
     }
     //获得奖励弹窗点击效果
@@ -6578,7 +6578,7 @@
                     e.appendChild(document.createElement("br"));
                     e.appendChild(packCoin);
                 }
-                
+
             }
         }
     }
@@ -6728,7 +6728,7 @@
                 this._fsuHistory.btns.length = 0;
                 this._fsuHistory.element.querySelector(".fsu-historybox").innerHTML = "";
                 let criteriaKeys = Object.keys(e.searchCriteria);
-                
+
                 for (const i of info.market.mb) {
                     let info = repositories.Item.getStaticDataByDefId(i[criteriaKeys.indexOf("maskedDefId")])
                     let btn = events.createButton(
@@ -6782,7 +6782,7 @@
             this._fsuHistory.element.style.display = "none";
         }
     }
-    
+
     //进化球员搜索界面
     UTAcademySlotItemDetailsViewController.prototype.renderView = function(...args) {
         call.view.academySlot.call(this, ...args);
@@ -6825,7 +6825,7 @@
         call.other.store.setCategory.call(this,e)
         if(this.viewmodel !== void 0){
             let searchCategoryIds = _.map(
-                _.filter(this.viewmodel.categories, obj => 
+                _.filter(this.viewmodel.categories, obj =>
                     obj.localizedName === 'FUT_STORE_CAT_SPECIAL_NAME' || obj.localizedName === 'FUT_STORE_CAT_GLOBAL_L'
                 ),'categoryId'
             );
@@ -6928,7 +6928,7 @@
     unsafeWindow._ = _;
 
 
-    
+
     // ==Kobe Addition==
 
     //满足条件球员读取程序 返回列表
@@ -6952,7 +6952,7 @@
     }
 
     events.kobe_filterRatingPlayers = async(r, ps) => {
-        let jq = {"rating":Number(r)};            
+        let jq = {"rating":Number(r)};
         let curP = events.getItemBy(2, jq)
         let p = events.getDedupPlayers(curP, ps);
         if(!p.length){
@@ -6998,7 +6998,7 @@
                 );
             }
         );
-        
+
     }
 
     //假想球员批量购买
@@ -7069,7 +7069,7 @@
                     }
                 }
             }
-            
+
         }
         isShowLoader && events.kobe_hideLoader();
     };
