@@ -5272,7 +5272,8 @@
             this._fsuBIB.__root.style.marginLeft = '1rem';
             this._fsuBIB.__root.style.marginRight = '1rem';
             this._fsuBIB.challenge = e;
-            this._challengeDetails.__root.insertBefore(this._fsuBIB.__root, this._challengeDetails.__description.nextSibling);
+            // this._challengeDetails.__root.insertBefore(this._fsuBIB.__root, this._challengeDetails.__description.nextSibling);
+            this._challengeDetails._requirements.__root.appendChild(this._fsuBIB.__root);
         }
         let conceptList = _.filter(e.squad.getPlayers(), slot => {
             return slot.item.concept;
@@ -5330,7 +5331,8 @@
             this._fsuMeetsFill.__root.style.width = 'calc(100% - 2rem)';
             this._fsuMeetsFill.__root.style.marginLeft = '1rem';
             this._fsuMeetsFill.__root.style.marginRight = '1rem';
-            this._challengeDetails.__root.insertBefore(this._fsuMeetsFill.__root, this._challengeDetails.__description.nextSibling);
+            // this._challengeDetails.__root.insertBefore(this._fsuMeetsFill.__root, this._challengeDetails.__description.nextSibling);
+            this._challengeDetails._requirements.__root.appendChild(this._fsuMeetsFill.__root);
         }
 
 
@@ -5375,7 +5377,8 @@
             this._fsuRatFill.__root.style.width = 'calc(100% - 2rem)';
             this._fsuRatFill.__root.style.marginLeft = '1rem';
             this._fsuRatFill.__root.style.marginRight = '1rem';
-            this._challengeDetails.__root.insertBefore(this._fsuRatFill.__root, this._challengeDetails.__description.nextSibling);
+            // this._challengeDetails.__root.insertBefore(this._fsuRatFill.__root, this._challengeDetails.__description.nextSibling);
+            this._challengeDetails._requirements.__root.appendChild(this._fsuRatFill.__root);
         }
 
 
