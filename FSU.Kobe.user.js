@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【FSU】EAFC FUT WEB 增强器
 // @namespace    https://futcd.com/
-// @version      24.19
+// @version      24.22
 // @description  EAFCFUT模式SBC任务便捷操作增强器👍👍👍，额外信息展示、近期低价自动查询、一键挂出球员、跳转FUTBIN、快捷搜索、拍卖行优化等等...👍👍👍
 // @author       Futcd_kcka
 // @match        https://www.ea.com/ea-sports-fc/ultimate-team/web-app/*
@@ -30,7 +30,7 @@
     var events = {},info = {},cntlr = {},html = {},call = {},set = {},pdb = {},lock = {},build = {};
     info = {
         "task":{"obj":{"stat":{},"html":"","source":[]},"sbc":{"stat":{},"html":""}},
-        "base":{"state":false,"platform":"pc","price":{},"sId":"","localization":"",autoLoad:true,"ratings":{},"input":true,"promo":0,"savesquad":false,"packcoin":{},"packreturns":{}},
+        "base":{"state":false,"platform":"pc","price":{},"sId":"","localization":"",autoLoad:true,"ratings":{},"input":true,"promo":0,"savesquad":false,"packcoin":{},"packreturns":{},"oddo":{},"fastsbc":{},"fastsbctips":false},
         "criteria":{},
         "run":{"template":false,"losauction":false,"bulkbuy":false},
         "roster":{"state":false,"data":{},"page":-1,"element":{},"thousand":{"lowest":99}},
@@ -90,7 +90,6 @@
         
         info.base.year = APP_YEAR_SHORT;
         MAX_NEW_ITEMS = 100;
-        console.log(info.language)
         GM_xmlhttpRequest({
             method:"GET",
             url:"https://futcd.com/data/fsuupdata.json",
@@ -159,16 +158,38 @@
                 })
             },
         });
+        // GM_xmlhttpRequest({
+        //     method:"GET",
+        //     url:"https://futcd.com/data/futpackcoin.json?2411",
+        //     headers: {
+        //         "Content-type": "application/json",
+        //         "Cache-Control": "max-age=3600"
+        //     },
+        //     onload:function(res){
+        //         info.base.packcoin = JSON.parse(res.response)
+        //     },
+        // });
         GM_xmlhttpRequest({
             method:"GET",
-            url:"https://futcd.com/data/futpackcoin.json?2411",
+            url:"https://futcd.com/data/oddo.json",
             headers: {
                 "Content-type": "application/json",
                 "Cache-Control": "max-age=3600"
             },
             onload:function(res){
-                info.base.packcoin = JSON.parse(res.response)
+                info.base.oddo = JSON.parse(res.response)
             },
+        });
+        GM_xmlhttpRequest({
+            method: "GET",
+            url: "https://futcd.com/data/fastsbc.json?t=" + new Date().getTime(),
+            headers: {
+                "Content-type": "application/json",
+                "Cache-Control": "no-cache"
+            },
+            onload: function(res) {
+                info.base.fastsbc = JSON.parse(res.responseText);
+            }
         });
         let lb = events.createButton(
             new UTButtonControl(),
@@ -275,7 +296,6 @@
             academyDTO.count = 40;
             services.Academy.requestAcademyHub(academyDTO);
         }
-        events.notice("notice.succeeded",0);
     };
     //获取缓存球员数据
     events.getItemBy = (type,queryOptions,insertData,replaceData) => {
@@ -785,7 +805,7 @@
         "popupButtonsText.44402":["前往查看ID列表","前往檢視ID列表","Go to view ID list"],
         "squadcmpl.simulatedsuccess":["此次模拟补全后阵容评分： %1 ，预估填充球员价值： %2 。","此次模擬補全後陣容評分： %1 ，預估填充球員價值： %2 。","Lineup score after this simulation completion: %1 , estimated fill player value: %2 ."],
         "squadcmpl.simulatederror":["无法模拟补全出阵容，请填充球员、调整排除选项或进入网站计算。","無法模擬補全出陣容，請填充球員、調整排除選項或進入網站計算。","The full lineup cannot be simulated. Please fill in players, adjust exclusion options, or enter the website for calculations."],
-        "packfilter.total":["共计：%1   价值：%2","共計：%1   價值：%2","Total:%1   Value:%2"],
+        "packfilter.total":["共计：%1   预估：%2","共計：%1   預估：%2","Total:%1   Estimated:%2"],
         "chemistrylist.setpos":["仅显示 %1","僅顯示 %1","Show only %1"],
         "chemistrylist.setall":["显示全部","顯示全部","Show all"],
         "requirements.addbtn":["添加 %1","新增 %1","Add %1"],
@@ -826,7 +846,7 @@
         "builder.current":["当前过滤：","當前過濾：","Current Filter:"],
         "builder.league.short":["联赛(%1)","聯賽(%1)","League(%1)"],
         "builder.untradeable.short":["可交易","可交易","tradable"],
-        "builder.rare.short":["周黑","周黑","Zhou Hei"],
+        "builder.rare.short":["周黑","周黑","TOTW"],
         "builder.icon.short":["传奇","傳奇","Legend"],
         "builder.hero.short":["英雄","英雄","hero"],
         "builder.academy.short":["进化","進化","evolution"],
@@ -846,6 +866,14 @@
         "loas.input":["可填入修改挂牌时间","可填入修改掛牌時間","You can fill in to modify the listing time."],
         "loas.input.tips":["请按小时为基准填入，默认和1为1小时、3为3小时、6为6小时、12为12小时、24为1天、72为3天，不支持其他时间。","請按小時為基準填入，預設和1為1小時、3為3小時、6為6小時、12為12小時、24為1天、72為3天，不支援其他時間。","Please fill in the hours as the basis, the default and 1 is 1 hour, 3 is 3 hours, 6 is 6 hours, 12 is 12 hours, 24 is 1 day, 72 is 3 days, other times are not supported."],
         "loas.input.error":["填入挂牌时间错误，请务必按照说明填写。","填入掛牌時間錯誤，請務必按照說明填寫。","Fill in the wrong listing time, please be sure to follow the instructions."],
+        "returns.text":["平均回报：","平均回報：","Avg Returns:"],
+        "notice.submitrepeat":["阵容中有未分配不可交易版本，将自动替换并提交阵容。","陣容中有未分配不可交易版本，將自動替換並提交陣容。","If there is an unassigned non-tradable version in the lineup, it will be automatically replaced and submitted."],
+        "fastsbc.popupt":["快速任务提示","快速任務提示","Quick SBC Tip"],
+        "fastsbc.popupm":["此模式将快速执行指定SBC，优先未分配和进行排除选项，不会识别未分配可交易替换功能。此为实验功能谨慎使用，过量可能导致BAN提交等不知名惩罚，且可能提交掉你的有价值球员。确认后本次使用插件将不再提示。","此模式將快速執行指定SBC，優先未分配和進行排除選項，不會識別未分配可交易替換功能。此為實驗功能謹慎使用，過量可能導致BAN提交等不知名懲罰，且可能提交掉你的有價值球員。確認後本次使用外掛將不再提示。","This mode will quickly execute the specified SBC, give priority to unassigned and exclude options, and will not recognize unassigned tradable replacements. This is an experimental feature to use with caution. Excessive use may lead to unknown penalties such as BAN submission, and may submit your valuable players. After confirmation, this use of the plugin will no longer prompt."],
+        "fastsbc.success":["快速任务成功，请适度使用切勿过于频繁。","快速任務成功，請適度使用切勿過於頻繁。","The quick SBC is successful, please use it in moderation and not too frequently."],
+        "fastsbc.errro":["快速任务失败，请检查是否有足够完成的球员或此任务信息是否到期或已无次数。","快速任務失敗，請檢查是否有足夠完成的球員或此任務資訊是否到期或已無次數。","Quick SBC failed, please check if there are enough players to complete or if this SBC information is due or not."],
+        "fastsbc.title":["重复球员可快速完成 %1 个SBC","重複球員可快速完成 %1 個SBC","Repeat players can quickly complete %1 SBC"],
+        "fastsbc.sbcbtntext":["一键完成（%1）","一鍵完成（%1）","Quick Completion(%1)"],
     }
     //固话的HTML内容
     html = {
@@ -858,7 +886,7 @@
         "searchInput":"<input type=\"text\" class=\"fsu-input\" placeholder=\"{text}\" maxlength=\"50\">",
         "uasBtn":"<button class=\"btn-standard section-header-btn mini call-to-action fsu-getprice\" id=\"uasreset\">{uasreset.btntext}</button>",
     };
-    info.base.sytle = ".tns-horizontal.tns-subpixel>.tns-item{position: relative;}button.notevents{pointer-events: none;color: #a4a9b4;}.btn-standard.section-header-btn.mini.call-to-action.fsu-getprice{margin-left: 1rem;}.btn-standard.section-header-btn.mini.call-to-action.fsu-getprice:hover{background-color:#e9dfcd}.view-modal-container.form-modal header .fsu-getprice{position: absolute;top: .5rem;left: 0;height: 2rem;line-height: 2rem;}.fsu-task-bar{position: absolute;right: .2rem;top: 0;}.ut-sbc-set-tile-view.production-tagged .tileHeader::before{display:none;}.fsu-task{display: flex;justify-content: space-between;padding: 0.5rem;background-color: #d31332;}.fsu-task.no{background-color: #d313325c;}.task-expire{background-color: #d313325c;height: 2rem;line-height: 2rem;text-align: center;}a.header_explain{color: #a2a2a2;text-decoration: none;line-height: 3rem;}a.header_explain:hover{color: #ffffff;}.ut-fifa-header-view{display: flex;justify-content: space-between;}    .fsu-loading-close{display: none;position: absolute;bottom: 38%;z-index: 999;}.fsu-loading .fsu-loading-close{display: block;text-align: center;}          .fsu-task-bar-favorite{background-color: rgb(255,86,48);right: 0.2rem;top: 2px;color: #ffffff;padding: 0 6px;border-radius: 4px;line-height: 1.2rem;position: absolute;}                                                     .fsu-sbc-info{padding: 0.5rem;background-color: #d313325c;display: flex;font-family: UltimateTeamCondensed,sans-serif;justify-content: space-between;font-size: 1rem;}.fsu-sbc-info div{width: 50%;}.fsu-sbc-info div:last-child{display: flex;justify-content: space-around;}.fsu-sbc-info .currency-coins::after{font-size:16px}                .rewards-footer li{position: relative;}.fsu-sbc-vplayer {position: absolute;bottom: .25rem;right:0;background-color: #8A6E2C;padding: .5rem;color: #15191d;line-height: 1rem;font-size: 16px;}.fsu-sbc-vplayer:hover{background-color: #f6b803;}                 @media screen and (min-width:1280px) and (max-width:1441px) {.ut-split-view {padding:0;}.ut-split-view>.ut-content {max-height:100%;}}            .fsu-squad-pBox{display:flex}.fsu-squad-pWrap{margin:.5em}.fsu-squad-pTitle{width:100%;word-break:keep-all;font-size:.8em;display:block;overflow:hidden;text-overflow:ellipsis;text-transform:uppercase;white-space:nowrap}.fsu-squad-pValue{font-family:UltimateTeamCondensed,sans-serif;font-weight:400;font-size:1.125em;text-overflow:ellipsis;white-space:nowrap;line-height: 1.8rem;}.fsu-squad-pValue.currency-coins::after{font-size:1rem;margin-left:.2em !important;margin-top:-.2em !important}.fsu-squad-pTitle .plus{color:#36b84b;padding-left:.1rem}.fsu-squad-pTitle .minus{color:#d21433;padding-left:.1rem}         li.with-icon.hide {display: none;}                      .fsu-input{border: 0 !important;background-color: rgba(0,0,0,0) !important;padding-left: 0 !important;font-family: UltimateTeamCondensed,sans-serif;font-size: 1em;color: #f8eede;}                  .fsu-quick{position:absolute;top:100%;width:100%;display:flex;align-items:center;font-family:UltimateTeam,sans-serif;justify-content:center;margin-top:.2rem}.fsu-quick.top .fsu-quick-list{display:flex;align-items:center}.fsu-quick-list .im{height:1.8rem;line-height:1.8rem;cursor:pointer;background-color:#2b3540;font-family:UltimateTeam,sans-serif;border-radius:4px;padding:0 .2rem;font-size:1rem;font-weight:900;color:#f2f2f2;overflow: hidden;}.fsu-quick-list .im:hover{background-color:#394754}.fsu-quick-list.other .im{background-color:#f8eede;color:#ef6405;font-weight:500;margin-left:.3rem;text-align:center;}.fsu-quick-list.other .im:hover{background-color:#f5efe6}.fsu-quick-list .im span{font-size:.8rem;font-weight:300;color:#a4a9b4}.fsu-quick-list.left .im{margin-right:.3rem}.fsu-quick-list.right .im{margin-left:.3rem}.fsu-quick-inr{font-size:.8rem;margin:0 .3rem}.fsu-quick.right{position:absolute;top:50%;width:2rem;display:block;right:0%;z-index:3;-webkit-transform:translateY(-50%) !important;transform:translateY(-50%) !important}.phone .fsu-quick.right{top:8rem;-webkit-transform:translateY(0%) !important;transform:translateY(0%) !important}.fsu-quick.right .fsu-quick-list .im{width:1.4rem;margin-bottom:.2rem;text-align:center}.fsu-quick.right .fsu-quick-list .im.disabled{background-color:#30302e;color:#656563}.entityContainer>.name.untradeable{color:#f6b803}                                      .fsu-promo-box{flex:auto;display:flex;justify-content:flex-end}.landscape button.currency.fsu-promo{margin-top:-.25rem;text-align:justify;padding:.25rem .5rem;width:6.6rem;color:#f2f2f2;background-color:#556c95}.landscape button.currency.fsu-promo:hover{background-color:#ef6405}.landscape button.currency.fsu-promo .text{font-size:2rem;font-weight:600;height:2rem;line-height:2rem}.landscape button.currency.fsu-promo .subtext{font-size:.6rem;line-height:1rem;font-weight:600;text-transform:uppercase}.landscape button.currency.fsu-promo::after{background-image:url(https://www.ea.com/ea-sports-fc/ultimate-team/web-app/images/Items/small_item_totw_gold.png) !important;background-position:center;background-repeat:no-repeat;background-size:contain;content:'';height:3rem;transform:translateY(-50%);position:absolute;width:3rem;top:50%;right:0}                                  .phone .fsu-sbc-info{font-size:.875rem}.phone .fsu-task{display:block;font-size:.875rem}.phone .fsu-price-box.right > div .value{font-size:1rem;margin-top:.2rem}.phone .fsu-price-box.right > div .title{font-size:.875rem}.phone button.currency.fsu-promo{line-height:1.6rem;padding:0 .3rem;height:3rem}.phone button.currency.fsu-promo .subtext{display:block;font-size:.6rem;line-height:1rem;text-transform:uppercase}.phone .fsu-player-other > div{font-size:0.6rem}.phone .small.player .fsu-cards-price{font-size:.6rem}.phone .small.player .fsu-cards-price{font-size:.6rem}.phone .small.player .fsu-cards-price::after{font-size:.875rem}.phone .fsu-cards.fsu-cards-attr{font-size:.6rem}.phone .fsu-quick-list .im{font-size:.875rem}                                              .ut-pinned-item .listFUTItem.has-auction-data .fsu-player-other{margin-top:0 !important;top:.8rem;right:.2rem;position:absolute;z-index:2}        .fsu-sbcfilter-box{align-items:center;background-color:#394754;display:flex;justify-content:center;padding:1rem;z-index:10}.fsu-sbcfilter-option{align-items:center;box-sizing:border-box;display:flex;flex:1;max-width:300px}.fsu-sbcfilter-option .ut-drop-down-control{margin-left:1rem;flex:1}             .fsu-cards-pos.old>div,div:not(.small)>.fsu-cards-attr.old>div{background-color:#0040A6}.small.player .fsu-price-box{font-size:.875rem}.large.player .fsu-price-box{font-size:1rem}.fsu-price-box.old{background-color:#0f1417;color:#a4a9b4;border:0}.small>.fsu-cards-attr.old{background-color:#0040A6}                         .fsu-setbox{display: grid;grid-template-columns: repeat(3, minmax(0, 1fr));}.phone .fsu-setbox{display: grid;grid-template-columns: repeat(1, minmax(0, 1fr));}                                  .btn-standard.mini.fsu-reward-but{height:2rem;line-height:2rem;position:absolute;top:.2rem;left:50%;transform:translateX(-50%)}.btn-standard.mini.fsu-reward-but.pcr{bottom:1.9rem;top:auto}           .btn-standard.mini.fsu-pickspc{line-height:2rem;height:2rem;margin:.5rem auto 0 auto}.ut-image-button-control.back-btn.fsu-picksback{height:100%;width:3rem;position:absolute;left:0;font-size:1.6rem}                       .fsu-fcount{position:absolute;right:0.5rem;height:1.4rem;top:.8rem;line-height:1.5rem;padding:0 .4rem;border-radius:.2rem;z-index:1;background-color: #264A35;}        .ut-squad-building-set-status-label-view.refresh.sbccount::before {content:'\\E0AA';color: #36b84b;}.phone .fsu-store-tile .ut-tile-content-graphic-info .description{display:block;}        .fsu-range button{margin:0}                                                               .fsu-price-box{font-family:UltimateTeamCondensed,sans-serif}.fsu-price-box.right{position:absolute;right:0%;top:50%;-webkit-transform:translateY(-50%);transform:translateY(-50%);display:flex;align-items:center}.fsu-price-box.right>div{background-color:#162C1A;color: #ffffff;padding:0.5rem;text-align:center;border-radius:4px;margin-top:0;display:block}.fsu-price-box.right>div .title{color:#a4a9b4;padding:0;font-size:1rem;line-height:1rem}.fsu-price-box.right>div .title span.plus{color:#36b84b;font-weight:500;padding-left:.2rem}.fsu-price-box.right>div .title span.minus{color:#d21433;font-weight:500;padding-left:.2rem}.fsu-price-box.right>div .value{font-size:1.2rem;margin-top:.5rem;line-height:1.2rem}.fsu-price-val[data-value='0']{display:none !important}.fsu-price-val .currency-coins::after{font-size:1rem;margin-top:-3px}.fsu-price-box.bottom{padding-left:6.3rem;margin:.2rem 0rem}.fsu-price-box.bottom>div{display:flex;align-items:center;font-size:0.9375rem}.fsu-price-box.bottom>div .title{color:#a4a9b4;margin-right:.2rem}.fsu-price-box.bottom .fsu-price-val .currency-coins::after{font-size:inherit}.fsu-price-box.trf{position:absolute;left:54%;margin-top:.2rem}.fsu-price-box.trf .fsu-price-val{display:flex;align-items:center;background-color:#162C1A;color: #ffffff;text-align:center;border-radius:4px;padding:0 .3rem;height:20px}.fsu-price-box.trf .fsu-price-val .title{font-size:.875rem;margin-right:.2rem}.fsu-price-box.trf .fsu-price-val .currency-coins::after{margin-top:-2px}.fsu-price-box.top{position:absolute;right:0%;top:8%;display:flex;align-items:center}.fsu-price-box.top>div{display:flex;align-items:center;background-color:#162C1A;color: #ffffff;padding:.1rem 0.5rem;text-align:center;border-radius:4px}.fsu-price-box.top>div .title{font-size:0.875rem;margin-right:0.5rem}.fsu-price-last{margin-right:.5rem}.fsu-player-other{display:flex;margin-top:.2rem;font-family:UltimateTeamCondensed,sans-serif;font-size:1rem;line-height:1rem}.fsu-price-box.top+.fsu-player-other{margin-top:.4rem}.fsu-player-other>div{background-color:#3B4754;color:#a4a9b4;padding:0.1rem 0.5rem;text-align:center;border-radius:20px;font-size:0.9rem;margin-right:0.5rem;white-space:nowrap}.fsu-player-other>div.swap{background-color:#36b84b;color:#201e20}.fsu-player-other>div.not{background-color:#8A6E2C;color:#201e20}.fsu-player-other>div.yes{background-color:#264A35;color:#201e20}.large.player+.fsu-player-other{justify-content:center}.large.player+.fsu-player-other>div{margin-right:0rem}.fsu-player-other .currency-coins::after{font-size:.875rem;margin-top:-1px;margin-left:2px !important}@media (max-width:1130px){.has-auction-data .fsu-player-other{margin-top:5rem !important}.has-auction-data .fsu-price-box.trf{margin-top:5rem !important;left:auto;right:3%}}                                                                    .fsu-cards-lea-small,.fsu-cards-accele-large,.fsu-cards-price{position:absolute;z-index:2;font-family:UltimateTeamCondensed,sans-serif;font-weight:300;text-align:center;width:1.6rem;top:25%}.fsu-cards-lea-small{bottom:8%;height:16%;font-size:70%;width:100%;top:auto;font-weight:500;line-height:1}.fsu-cards-lea-small~.playStyle,.ut-squad-pitch-view:not(.sbc) .fsu-cards-lea-small{display:none !important}.specials .fsu-cards-lea-small{bottom:10%}.fsu-cards-accele-large,.fsu-cards-price{width:auto !important;padding:0 0.2rem;left:50%;-webkit-transform:translateX(-50%) !important;transform:translateX(-50%) !important;white-space:nowrap;background-color:#13151d;border:1px solid;border-radius:5px}.fsu-cards-accele-large{bottom:0;top:auto !important}.fsu-cards-price{top:0 !important}.fsu-cards-price::after{font-size:1rem}.ut-squad-pitch-view:not(.sbc) .fsu-cards-lea-small~.playStyle{display:block !important}.fsu-cards-attr,.fsu-cards-pos{position:absolute;z-index:2;font-family:UltimateTeamCondensed,sans-serif;font-weight:300;text-align:center;top:25%;display:flex;flex-direction:column;gap:1px}.fsu-cards-attr div,.fsu-cards-pos div{border:1px solid;border-color:inherit;background-color:#13151d;line-height:100%;border-radius:5px;color:#fcfcf7;width:1.4rem;white-space:nowrap;}.large.player~.fsu-cards-attr,.large.player .fsu-cards-attr,.ut-tactics-instruction-menu-view  .fsu-cards-attr{left:calc(50% + 76px - 0.8rem);font-size:14px;gap:4px}.large.player~.fsu-cards-attr div,.large.player .fsu-cards-attr div{width:1.6rem}.small.player~.fsu-cards-attr{left:5.2rem;font-size:12px}.reward.small .small.player~.fsu-cards-attr{left:calc(50% + 42px);top:20%}.reward.small .small.player~.fsu-cards-pos{left:calc(50% - 66px);top:20%;font-size:12px}.ut-squad-slot-view .small.player~.fsu-cards-attr{left:auto;right:-.2rem}.large.player~.fsu-cards-pos,.large.player .fsu-cards-pos,.ut-tactics-instruction-menu-view  .fsu-cards-pos{left:calc(50% - 76px - .8rem);font-size:14px;gap:4px}.ut-squad-slot-view .small.player~.fsu-cards-pos{flex-direction:row;font-size:12px;top:auto;bottom:-1.2rem;left:50%;transform:translate(-50%,0)}.ut-squad-slot-dock-view .ut-squad-slot-view .small.player~.fsu-cards-pos{bottom:-.6rem}.ut-store-xray-pack-details-view .large.player~.fsu-cards-attr{left:calc(50% + 76px - 2rem)}.ut-store-article-pack-graphic-view--option .large.player~.fsu-cards-pos{left:calc(50% - 76px - .4rem)}.large.player .fsu-cards-attr{right:0;left:auto;}.large.player .fsu-cards-pos{right:auto;left:0;}                                       .ut-image-button-control.filter-btn.fsu-transfer::after{content:'\\E0C6';font-size:1.6rem}.ut-image-button-control.filter-btn.fsu-club::after{content:'\\E04F';font-size:1.6rem}.ut-image-button-control.filter-btn.fsu-swap::after{content:'\\E092';font-size:1.4rem}.ut-image-button-control.filter-btn.fsu-refresh::after{content:'\\E0B1';font-size:1.4rem}.filter-btn.fsu-swap,.filter-btn.fsu-transfer,.filter-btn.fsu-club,.filter-btn.fsu-refresh{margin-left:1rem}                                  .fsu-akb .ut-toggle-cell-view>.ut-toggle-control .ut-toggle-control--grip,.fsu-akb-title .ut-toggle-cell-view>.ut-toggle-control .ut-toggle-control--grip{font-family:UltimateTeam-Icons,sans-serif;font-style:normal;font-variant:normal;font-weight:400;text-transform:none;flex-shrink:0;font-size:1em;text-decoration:none;text-align:center;line-height:1.5rem;transition:color .3s,bottom .3s,top .3s}.fsu-akb .ut-toggle-cell-view>.ut-toggle-control .ut-toggle-control--grip::before,.fsu-akb-title .ut-toggle-cell-view>.ut-toggle-control .ut-toggle-control--grip::before{content:'\\E04E';color:#3a4755}.fsu-akb .ut-toggle-cell-view>.ut-toggle-control.toggled:not(.disabled) .ut-toggle-control--grip::before,.fsu-akb-title .ut-toggle-cell-view>.ut-toggle-control.toggled:not(.disabled) .ut-toggle-control--grip::before{content:'\\E02C';color:#36b94b}.fsu-akb .ut-toggle-cell-view>.ut-toggle-control.toggled:not(.disabled) .ut-toggle-control--track,.fsu-akb-title .ut-toggle-cell-view>.ut-toggle-control.toggled:not(.disabled) .ut-toggle-control--track{background-color:#36b94b}.fsu-akb .ut-toggle-cell-view>.ut-toggle-cell-view--label{display:none}.fsu-akb .ut-toggle-cell-view{position:absolute;z-index:10;transform:scale(0.7);top:-.2rem;left:-.5rem;padding:0 1rem 1rem 0;cursor:pointer}.fsu-akb-title{align-items:center;background-color:#2b3540;display:flex;justify-content:space-between;padding:.75rem .5rem;border-top:solid 1px #556c95}.fsu-akb-left{display:flex;align-items:center}.fsu-akb-title .ut-toggle-cell-view>.ut-toggle-control .ut-toggle-control--grip{transition:color .3s,left .3s,right .3s}.fsu-akb-left>div{padding:0 .675rem 0 0}.fsu-akb-left>div:last-child{padding-right:0}                  body.landscape.futweb{min-height: 38rem;}.ut-tab-bar-item-notif ~ .fsu-task-bar{top: auto;bottom: 0;}               .ut-club-hub-view .tile.fsu-lock .tileContent:before { content:'\\E09C'; }                            .fsu-objnew{background:#ff0000;z-index:2;position:absolute;left:0;top:1rem;transform:rotate(-45deg);transform-origin:0 100%;padding:6px 10px;width:3.2rem;text-align:center}              .fsu-lockbtn{padding:0 10px;position:absolute;right:2rem;bottom:0;z-index:2;margin:2rem 0 .8rem 2rem;}.fsu-lockbtn::before{font-family:UltimateTeam-Icons,sans-serif;padding-right:.4rem;content:'';display:inline-block;vertical-align:middle;background-size:100% auto;background-repeat:no-repeat}.fsu-lockbtn.unlock::before{content:'\\E0C4'}.fsu-lockbtn.lock::before{content:'\\E09C'}.fsu-lockbtn.unlock{background-color:#fcfcf7;color:#151616}html[dir=ltr] .listFUTItem .entityContainer>.name.fsulocked.locked,html[dir=ltr] .listFUTItem .entityContainer>.name.fsulocked.untradeable{padding-right:2.7em}html[dir=ltr] .listFUTItem .entityContainer>.name.fsulocked.locked::before,html[dir=ltr] .listFUTItem .entityContainer>.name.fsulocked.untradeable::before{right:1.4em}html[dir=ltr] .listFUTItem .entityContainer>.name.fsulocked::after{font-family:UltimateTeam-Icons,sans-serif;color:#d31332;margin-top:2px;position:absolute;width:1.1em;content:'\\E09C';right:0}html[dir=ltr] .listFUTItem .entityContainer>.name.fsulocked{padding-right:1.4em}html[dir=ltr] :not(.phone) .listFUTItem .entityContainer>.name.fsulocked.untradeable { max-width: 42%; }        .fsu-cardlock{position:absolute;height:.9rem;width:.9rem;right:0;bottom:5%;z-index:2;background-color:#222426;border:1px solid #333d47;border-radius:100%;text-align:center;box-shadow:0 1px 3px #000;font-size:10.8px}.fsu-cardlock::before{font-family:UltimateTeam-Icons,sans-serif;content:'\\E09C';display:inline-block;vertical-align:middle;background-size:100% auto;color:#d31332;background-repeat:no-repeat}                            .filter-btn.fsu-eligibilitysearch{height:1.8rem;width:1.8rem;position:absolute;right:0}.ut-image-button-control.filter-btn.fsu-eligibilitysearch::after{font-size:1.4rem;content:'\\E09D'}                  .item.player>.fsu-cards-rating{position:absolute;left:50%;top:50%;font-size:5rem;transform:translate(-50%,-50%)}.large.item.player>.fsu-cards-rating{font-size:7rem}.item.player.ut-item-loading>.fsu-cards-rating{opacity:1}.item.player.ut-item-loaded>.fsu-cards-rating{opacity:0}                        .fsu-chemistryfilter{position:absolute;right:.5rem;top:.5rem;}                          .ut-list-active-tag-view .label-container.fsu-inclubtag{background-color:#0b96ff}.ut-list-active-tag-view .label-container.fsu-inclubtag::after{border-color:#0b96ff}                                           .fsu-optionbest{position:relative}.fsu-optionbest > span,.fsu-optionbest > .player-pick-option,.fsu-optionbest > .fsu-pickspc{position:relative;z-index:1}.fsu-optionbest >.no-favorites-tile{position:absolute;max-width:100%;height:120%;width:100%;margin:-15% 0 0 0;z-index:0;top:0px;right:0px;padding:0}.fsu-optionbest > .no-favorites-tile::before{font-size:2.2rem;height:2.2rem;width:2.2rem;line-height:2.2rem}.fsu-optionbest > .player-pick-option.selected ~ .no-favorites-tile::before{display:none}                      .fsu-navsbc{height:80%;justify-content:flex-end;margin-right:1rem}.fsu-navsbc button{margin:-0.25rem;}.phone .fsu-navsbc{margin-right:0}.phone .fsu-navsbc button{margin:0}    .fsu-shownavsbc .ut-navigation-button-control{width:3rem}.fsu-shownavsbc .title{flex:1 0;position:relative !important;width:auto !important;text-align:left !important;padding:0 0 0 0.5rem !important}.fsu-shownavsbc .fsu-navsbc{height:3rem}.fsu-shownavsbc .ut-iteminfochange-button-control{display:none}        .phone .fsu-optionbest > .no-favorites-tile{height:108%;margin:-4% 0 0 0;border-radius:10px}.phone .fsu-optionbest > .no-favorites-tile::before{font-size:1rem;height:1rem;width:1rem;line-height:1rem;margin:.25rem}                .fsu-cards-attr div.fsu-academytips{display:flex;align-content:center;justify-content:center;background:linear-gradient(to bottom,#00A7CC 0,#007D99 100%);color:#0f1010;box-shadow:0 1px 1px 0 rgba(0,0,0,.5);border:none}.fsu-academytips-icon{height:0}.fsu-academytips-icon::before{font-family:UltimateTeam-Icons,sans-serif;font-style:normal;font-variant:normal;font-weight:400;text-decoration:none;text-transform:none;content:'\\E001'}"
+    info.base.sytle = ".tns-horizontal.tns-subpixel>.tns-item{position: relative;}button.notevents{pointer-events: none;color: #a4a9b4;}.btn-standard.section-header-btn.mini.call-to-action.fsu-getprice{margin-left: 1rem;}.btn-standard.section-header-btn.mini.call-to-action.fsu-getprice:hover{background-color:#e9dfcd}.view-modal-container.form-modal header .fsu-getprice{position: absolute;top: .5rem;left: 0;height: 2rem;line-height: 2rem;}.fsu-task-bar{position: absolute;right: .2rem;top: 0;}.ut-sbc-set-tile-view.production-tagged .tileHeader::before{display:none;}.fsu-task{display: flex;justify-content: space-between;padding: 0.5rem;background-color: #d31332;}.fsu-task.no{background-color: #d313325c;}.task-expire{background-color: #d313325c;height: 2rem;line-height: 2rem;text-align: center;}a.header_explain{color: #a2a2a2;text-decoration: none;line-height: 3rem;}a.header_explain:hover{color: #ffffff;}.ut-fifa-header-view{display: flex;justify-content: space-between;}    .fsu-loading-close{display: none;position: absolute;bottom: 38%;z-index: 999;}.fsu-loading .fsu-loading-close{display: block;text-align: center;}          .fsu-task-bar-favorite{background-color: rgb(255,86,48);right: 0.2rem;top: 2px;color: #ffffff;padding: 0 6px;border-radius: 4px;line-height: 1.2rem;position: absolute;}                                                     .fsu-sbc-info{padding: 0.5rem;background-color: #d313325c;display: flex;font-family: UltimateTeamCondensed,sans-serif;justify-content: space-between;font-size: 1rem;}.fsu-sbc-info div{width: 50%;}.fsu-sbc-info div:last-child{display: flex;justify-content: space-around;}.fsu-sbc-info .currency-coins::after{font-size:16px}                .rewards-footer li{position: relative;}.fsu-sbc-vplayer {position: absolute;bottom: .25rem;right:0;background-color: #8A6E2C;padding: .5rem;color: #15191d;line-height: 1rem;font-size: 16px;}.fsu-sbc-vplayer:hover{background-color: #f6b803;}                 @media screen and (min-width:1280px) and (max-width:1441px) {.ut-split-view {padding:0;}.ut-split-view>.ut-content {max-height:100%;}}            .fsu-squad-pBox{display:flex}.fsu-squad-pWrap{margin:.5em}.fsu-squad-pTitle{width:100%;word-break:keep-all;font-size:.8em;display:block;overflow:hidden;text-overflow:ellipsis;text-transform:uppercase;white-space:nowrap}.fsu-squad-pValue{font-family:UltimateTeamCondensed,sans-serif;font-weight:400;font-size:1.125em;text-overflow:ellipsis;white-space:nowrap;line-height: 1.8rem;}.fsu-squad-pValue.currency-coins::after{font-size:1rem;margin-left:.2em !important;margin-top:-.2em !important}.fsu-squad-pTitle .plus{color:#36b84b;padding-left:.1rem}.fsu-squad-pTitle .minus{color:#d21433;padding-left:.1rem}         li.with-icon.hide {display: none;}                      .fsu-input{border: 0 !important;background-color: rgba(0,0,0,0) !important;padding-left: 0 !important;font-family: UltimateTeamCondensed,sans-serif;font-size: 1em;color: #f8eede;}                  .fsu-quick{position:absolute;top:100%;width:100%;display:flex;align-items:center;font-family:UltimateTeam,sans-serif;justify-content:center;margin-top:.2rem}.fsu-quick.top .fsu-quick-list{display:flex;align-items:center}.fsu-quick-list .im{height:1.8rem;line-height:1.8rem;cursor:pointer;background-color:#2b3540;font-family:UltimateTeam,sans-serif;border-radius:4px;padding:0 .2rem;font-size:1rem;font-weight:900;color:#f2f2f2;overflow: hidden;}.fsu-quick-list .im:hover{background-color:#394754}.fsu-quick-list.other .im{background-color:#f8eede;color:#ef6405;font-weight:500;margin-left:.3rem;text-align:center;}.fsu-quick-list.other .im:hover{background-color:#f5efe6}.fsu-quick-list .im span{font-size:.8rem;font-weight:300;color:#a4a9b4}.fsu-quick-list.left .im{margin-right:.3rem}.fsu-quick-list.right .im{margin-left:.3rem}.fsu-quick-inr{font-size:.8rem;margin:0 .3rem}.fsu-quick.right{position:absolute;top:50%;width:2rem;display:block;right:0%;z-index:3;-webkit-transform:translateY(-50%) !important;transform:translateY(-50%) !important}.phone .fsu-quick.right{top:8rem;-webkit-transform:translateY(0%) !important;transform:translateY(0%) !important}.fsu-quick.right .fsu-quick-list .im{width:1.4rem;margin-bottom:.2rem;text-align:center}.fsu-quick.right .fsu-quick-list .im.disabled{background-color:#30302e;color:#656563}.entityContainer>.name.untradeable{color:#f6b803}                                      .fsu-promo-box{flex:auto;display:flex;justify-content:flex-end}.landscape button.currency.fsu-promo{margin-top:-.25rem;text-align:justify;padding:.25rem .5rem;width:6.6rem;color:#f2f2f2;background-color:#556c95}.landscape button.currency.fsu-promo:hover{background-color:#ef6405}.landscape button.currency.fsu-promo .text{font-size:2rem;font-weight:600;height:2rem;line-height:2rem}.landscape button.currency.fsu-promo .subtext{font-size:.6rem;line-height:1rem;font-weight:600;text-transform:uppercase}.landscape button.currency.fsu-promo::after{background-image:url(https://www.ea.com/ea-sports-fc/ultimate-team/web-app/images/Items/small_item_totw_gold.png) !important;background-position:center;background-repeat:no-repeat;background-size:contain;content:'';height:3rem;transform:translateY(-50%);position:absolute;width:3rem;top:50%;right:0}                                  .phone .fsu-sbc-info{font-size:.875rem}.phone .fsu-task{display:block;font-size:.875rem}.phone .fsu-price-box.right > div .value{font-size:1rem;margin-top:.2rem}.phone .fsu-price-box.right > div .title{font-size:.875rem}.phone button.currency.fsu-promo{line-height:1.6rem;padding:0 .3rem;height:3rem}.phone button.currency.fsu-promo .subtext{display:block;font-size:.6rem;line-height:1rem;text-transform:uppercase}.phone .fsu-player-other > div{font-size:0.6rem}.phone .small.player .fsu-cards-price{font-size:.6rem}.phone .small.player .fsu-cards-price{font-size:.6rem}.phone .small.player .fsu-cards-price::after{font-size:.875rem}.phone .fsu-cards.fsu-cards-attr{font-size:.6rem}.phone .fsu-quick-list .im{font-size:.875rem}                                              .ut-pinned-item .listFUTItem.has-auction-data .fsu-player-other{margin-top:0 !important;top:.8rem;right:.2rem;position:absolute;z-index:2}        .fsu-sbcfilter-box{align-items:center;background-color:#394754;display:flex;justify-content:center;padding:1rem;z-index:10}.fsu-sbcfilter-option{align-items:center;box-sizing:border-box;display:flex;flex:1;max-width:300px}.fsu-sbcfilter-option .ut-drop-down-control{margin-left:1rem;flex:1}             .fsu-cards-pos.old>div,div:not(.small)>.fsu-cards-attr.old>div{background-color:#0040A6}.small.player .fsu-price-box{font-size:.875rem}.large.player .fsu-price-box{font-size:1rem}.fsu-price-box.old{background-color:#0f1417;color:#a4a9b4;border:0}.small>.fsu-cards-attr.old{background-color:#0040A6}                         .fsu-setbox{display: grid;grid-template-columns: repeat(3, minmax(0, 1fr));}.phone .fsu-setbox{display: grid;grid-template-columns: repeat(1, minmax(0, 1fr));}                                  .btn-standard.mini.fsu-reward-but{height:2rem;line-height:2rem;position:absolute;top:.2rem;left:50%;transform:translateX(-50%)}.btn-standard.mini.fsu-reward-but.pcr{bottom:1.9rem;top:auto}           .btn-standard.mini.fsu-pickspc{line-height:2rem;height:2rem;margin:.5rem auto 0 auto}.ut-image-button-control.back-btn.fsu-picksback{height:100%;width:3rem;position:absolute;left:0;font-size:1.6rem}                       .fsu-fcount{position:absolute;right:0.5rem;height:1.4rem;top:.8rem;line-height:1.5rem;padding:0 .4rem;border-radius:.2rem;z-index:1;background-color: #264A35;}        .ut-squad-building-set-status-label-view.refresh.sbccount::before {content:'\\E0AA';color: #36b84b;}.phone .fsu-store-tile .ut-tile-content-graphic-info .description{display:block;}        .fsu-range button{margin:0}                                                               .fsu-price-box{font-family:UltimateTeamCondensed,sans-serif}.fsu-price-box.right{position:absolute;right:0%;top:50%;-webkit-transform:translateY(-50%);transform:translateY(-50%);display:flex;align-items:center}.fsu-price-box.right>div{background-color:#162C1A;color: #ffffff;padding:0.5rem;text-align:center;border-radius:4px;margin-top:0;display:block}.fsu-price-box.right>div .title{color:#a4a9b4;padding:0;font-size:1rem;line-height:1rem}.fsu-price-box.right>div .title span.plus{color:#36b84b;font-weight:500;padding-left:.2rem}.fsu-price-box.right>div .title span.minus{color:#d21433;font-weight:500;padding-left:.2rem}.fsu-price-box.right>div .value{font-size:1.2rem;margin-top:.5rem;line-height:1.2rem}.fsu-price-val[data-value='0']{display:none !important}.fsu-price-val .currency-coins::after{font-size:1rem;margin-top:-3px}.fsu-price-box.bottom{padding-left:6.3rem;margin:.2rem 0rem}.fsu-price-box.bottom>div{display:flex;align-items:center;font-size:0.9375rem}.fsu-price-box.bottom>div .title{color:#a4a9b4;margin-right:.2rem}.fsu-price-box.bottom .fsu-price-val .currency-coins::after{font-size:inherit}.fsu-price-box.trf{position:absolute;left:54%;margin-top:.2rem}.fsu-price-box.trf .fsu-price-val{display:flex;align-items:center;background-color:#162C1A;color: #ffffff;text-align:center;border-radius:4px;padding:0 .3rem;height:20px}.fsu-price-box.trf .fsu-price-val .title{font-size:.875rem;margin-right:.2rem}.fsu-price-box.trf .fsu-price-val .currency-coins::after{margin-top:-2px}.fsu-price-box.top{position:absolute;right:0%;top:8%;display:flex;align-items:center}.fsu-price-box.top>div{display:flex;align-items:center;background-color:#162C1A;color: #ffffff;padding:.1rem 0.5rem;text-align:center;border-radius:4px}.fsu-price-box.top>div .title{font-size:0.875rem;margin-right:0.5rem}.fsu-price-last{margin-right:.5rem}.fsu-player-other{display:flex;margin-top:.2rem;font-family:UltimateTeamCondensed,sans-serif;font-size:1rem;line-height:1rem}.fsu-price-box.top+.fsu-player-other{margin-top:.4rem}.fsu-player-other>div{background-color:#3B4754;color:#a4a9b4;padding:0.1rem 0.5rem;text-align:center;border-radius:20px;font-size:0.9rem;margin-right:0.5rem;white-space:nowrap}.fsu-player-other>div.swap{background-color:#36b84b;color:#201e20}.fsu-player-other>div.not{background-color:#8A6E2C;color:#201e20}.fsu-player-other>div.yes{background-color:#264A35;color:#201e20}.large.player+.fsu-player-other{justify-content:center}.large.player+.fsu-player-other>div{margin-right:0rem}.fsu-player-other .currency-coins::after{font-size:.875rem;margin-top:-1px;margin-left:2px !important}@media (max-width:1130px){.has-auction-data .fsu-player-other{margin-top:5rem !important}.has-auction-data .fsu-price-box.trf{margin-top:5rem !important;left:auto;right:3%}}                                                                    .fsu-cards-lea-small,.fsu-cards-accele-large,.fsu-cards-price{position:absolute;z-index:2;font-family:UltimateTeamCondensed,sans-serif;font-weight:300;text-align:center;width:1.6rem;top:25%}.fsu-cards-lea-small{bottom:8%;height:16%;font-size:70%;width:100%;top:auto;font-weight:500;line-height:1}.fsu-cards-lea-small~.playStyle,.ut-squad-pitch-view:not(.sbc) .fsu-cards-lea-small{display:none !important}.specials .fsu-cards-lea-small{bottom:10%}.fsu-cards-accele-large,.fsu-cards-price{width:auto !important;padding:0 0.2rem;left:50%;-webkit-transform:translateX(-50%) !important;transform:translateX(-50%) !important;white-space:nowrap;background-color:#13151d;border:1px solid;border-radius:5px}.fsu-cards-accele-large{bottom:0;top:auto !important}.fsu-cards-price{color:#fff;top:0 !important}.fsu-cards-price::after{font-size:1rem}.ut-squad-pitch-view:not(.sbc) .fsu-cards-lea-small~.playStyle{display:block !important}.fsu-cards-attr,.fsu-cards-pos{position:absolute;z-index:2;font-family:UltimateTeamCondensed,sans-serif;font-weight:300;text-align:center;top:25%;display:flex;flex-direction:column;gap:1px}.fsu-cards-attr div,.fsu-cards-pos div{border:1px solid;border-color:inherit;background-color:#13151d;line-height:100%;border-radius:5px;color:#fcfcf7;width:1.4rem;white-space:nowrap;}.large.player~.fsu-cards-attr,.large.player .fsu-cards-attr,.ut-tactics-instruction-menu-view  .fsu-cards-attr{left:calc(50% + 76px - 0.8rem);font-size:14px;gap:4px}.large.player~.fsu-cards-attr div,.large.player .fsu-cards-attr div{width:1.6rem}.small.player~.fsu-cards-attr{left:5.2rem;font-size:12px}.reward.small .small.player~.fsu-cards-attr{left:calc(50% + 42px);top:20%}.reward.small .small.player~.fsu-cards-pos{left:calc(50% - 66px);top:20%;font-size:12px}.ut-squad-slot-view .small.player~.fsu-cards-attr{left:auto;right:-.2rem}.large.player~.fsu-cards-pos,.large.player .fsu-cards-pos,.ut-tactics-instruction-menu-view  .fsu-cards-pos{left:calc(50% - 76px - .8rem);font-size:14px;gap:4px}.ut-squad-slot-view .small.player~.fsu-cards-pos{flex-direction:row;font-size:12px;top:auto;bottom:-1.2rem;left:50%;transform:translate(-50%,0)}.ut-squad-slot-dock-view .ut-squad-slot-view .small.player~.fsu-cards-pos{bottom:-.6rem}.ut-store-xray-pack-details-view .large.player~.fsu-cards-attr{left:calc(50% + 76px - 2rem)}.ut-store-article-pack-graphic-view--option .large.player~.fsu-cards-pos{left:calc(50% - 76px - .4rem)}.large.player .fsu-cards-attr{right:0;left:auto;}.large.player .fsu-cards-pos{right:auto;left:0;}                                       .ut-image-button-control.filter-btn.fsu-transfer::after{content:'\\E0C6';font-size:1.6rem}.ut-image-button-control.filter-btn.fsu-club::after{content:'\\E04F';font-size:1.6rem}.ut-image-button-control.filter-btn.fsu-swap::after{content:'\\E092';font-size:1.4rem}.ut-image-button-control.filter-btn.fsu-refresh::after{content:'\\E0B1';font-size:1.4rem}.filter-btn.fsu-swap,.filter-btn.fsu-transfer,.filter-btn.fsu-club,.filter-btn.fsu-refresh{margin-left:1rem}                                  .fsu-akb .ut-toggle-cell-view>.ut-toggle-control .ut-toggle-control--grip,.fsu-akb-title .ut-toggle-cell-view>.ut-toggle-control .ut-toggle-control--grip{font-family:UltimateTeam-Icons,sans-serif;font-style:normal;font-variant:normal;font-weight:400;text-transform:none;flex-shrink:0;font-size:1em;text-decoration:none;text-align:center;line-height:1.5rem;transition:color .3s,bottom .3s,top .3s}.fsu-akb .ut-toggle-cell-view>.ut-toggle-control .ut-toggle-control--grip::before,.fsu-akb-title .ut-toggle-cell-view>.ut-toggle-control .ut-toggle-control--grip::before{content:'\\E04E';color:#3a4755}.fsu-akb .ut-toggle-cell-view>.ut-toggle-control.toggled:not(.disabled) .ut-toggle-control--grip::before,.fsu-akb-title .ut-toggle-cell-view>.ut-toggle-control.toggled:not(.disabled) .ut-toggle-control--grip::before{content:'\\E02C';color:#36b94b}.fsu-akb .ut-toggle-cell-view>.ut-toggle-control.toggled:not(.disabled) .ut-toggle-control--track,.fsu-akb-title .ut-toggle-cell-view>.ut-toggle-control.toggled:not(.disabled) .ut-toggle-control--track{background-color:#36b94b}.fsu-akb .ut-toggle-cell-view>.ut-toggle-cell-view--label{display:none}.fsu-akb .ut-toggle-cell-view{position:absolute;z-index:10;transform:scale(0.7);top:-.2rem;left:-.5rem;padding:0 1rem 1rem 0;cursor:pointer}.fsu-akb-title{align-items:center;background-color:#2b3540;display:flex;justify-content:space-between;padding:.75rem .5rem;border-top:solid 1px #556c95}.fsu-akb-left{display:flex;align-items:center}.fsu-akb-title .ut-toggle-cell-view>.ut-toggle-control .ut-toggle-control--grip{transition:color .3s,left .3s,right .3s}.fsu-akb-left>div{padding:0 .675rem 0 0}.fsu-akb-left>div:last-child{padding-right:0}                  body.landscape.futweb{min-height: 38rem;}.ut-tab-bar-item-notif ~ .fsu-task-bar{top: auto;bottom: 0;}               .ut-club-hub-view .tile.fsu-lock .tileContent:before { content:'\\E09C'; }                            .fsu-objnew{background:#ff0000;z-index:2;position:absolute;left:0;top:1rem;transform:rotate(-45deg);transform-origin:0 100%;padding:6px 10px;width:3.2rem;text-align:center}              .fsu-lockbtn{padding:0 10px;position:absolute;right:2rem;bottom:0;z-index:2;margin:2rem 0 .8rem 2rem;}.fsu-lockbtn::before{font-family:UltimateTeam-Icons,sans-serif;padding-right:.4rem;content:'';display:inline-block;vertical-align:middle;background-size:100% auto;background-repeat:no-repeat}.fsu-lockbtn.unlock::before{content:'\\E0C4'}.fsu-lockbtn.lock::before{content:'\\E09C'}.fsu-lockbtn.unlock{background-color:#fcfcf7;color:#151616}html[dir=ltr] .listFUTItem .entityContainer>.name.fsulocked.locked,html[dir=ltr] .listFUTItem .entityContainer>.name.fsulocked.untradeable{padding-right:2.7em}html[dir=ltr] .listFUTItem .entityContainer>.name.fsulocked.locked::before,html[dir=ltr] .listFUTItem .entityContainer>.name.fsulocked.untradeable::before{right:1.4em}html[dir=ltr] .listFUTItem .entityContainer>.name.fsulocked::after{font-family:UltimateTeam-Icons,sans-serif;color:#d31332;margin-top:2px;position:absolute;width:1.1em;content:'\\E09C';right:0}html[dir=ltr] .listFUTItem .entityContainer>.name.fsulocked{padding-right:1.4em}html[dir=ltr] :not(.phone) .listFUTItem .entityContainer>.name.fsulocked.untradeable { max-width: 42%; }        .fsu-cardlock{position:absolute;height:.9rem;width:.9rem;right:0;bottom:5%;z-index:2;background-color:#222426;border:1px solid #333d47;border-radius:100%;text-align:center;box-shadow:0 1px 3px #000;font-size:10.8px}.fsu-cardlock::before{font-family:UltimateTeam-Icons,sans-serif;content:'\\E09C';display:inline-block;vertical-align:middle;background-size:100% auto;color:#d31332;background-repeat:no-repeat}                            .filter-btn.fsu-eligibilitysearch{height:1.8rem;width:1.8rem;position:absolute;right:0}.ut-image-button-control.filter-btn.fsu-eligibilitysearch::after{font-size:1.4rem;content:'\\E09D'}                  .item.player>.fsu-cards-rating{position:absolute;left:50%;top:50%;font-size:5rem;transform:translate(-50%,-50%)}.large.item.player>.fsu-cards-rating{font-size:7rem}.item.player.ut-item-loading>.fsu-cards-rating{opacity:1}.item.player.ut-item-loaded>.fsu-cards-rating{opacity:0}                        .fsu-chemistryfilter{position:absolute;right:.5rem;top:.5rem;}                          .ut-list-active-tag-view .label-container.fsu-inclubtag{background-color:#0b96ff}.ut-list-active-tag-view .label-container.fsu-inclubtag::after{border-color:#0b96ff}                                           .fsu-optionbest{position:relative}.fsu-optionbest > span,.fsu-optionbest > .player-pick-option,.fsu-optionbest > .fsu-pickspc{position:relative;z-index:1}.fsu-optionbest >.no-favorites-tile{position:absolute;max-width:100%;height:120%;width:100%;margin:-15% 0 0 0;z-index:0;top:0px;right:0px;padding:0}.fsu-optionbest > .no-favorites-tile::before{font-size:2.2rem;height:2.2rem;width:2.2rem;line-height:2.2rem}.fsu-optionbest > .player-pick-option.selected ~ .no-favorites-tile::before{display:none}                      .fsu-navsbc{height:80%;justify-content:flex-end;margin-right:1rem}.fsu-navsbc button{margin:-0.25rem;}.phone .fsu-navsbc{margin-right:0}.phone .fsu-navsbc button{margin:0}    .fsu-shownavsbc .ut-navigation-button-control{width:3rem}.fsu-shownavsbc .title{flex:1 0;position:relative !important;width:auto !important;text-align:left !important;padding:0 0 0 0.5rem !important}.fsu-shownavsbc .fsu-navsbc{height:3rem}.fsu-shownavsbc .ut-iteminfochange-button-control{display:none}        .phone .fsu-optionbest > .no-favorites-tile{height:108%;margin:-4% 0 0 0;border-radius:10px}.phone .fsu-optionbest > .no-favorites-tile::before{font-size:1rem;height:1rem;width:1rem;line-height:1rem;margin:.25rem}                .fsu-cards-attr div.fsu-academytips{display:flex;align-content:center;justify-content:center;background:linear-gradient(to bottom,#00A7CC 0,#007D99 100%);color:#0f1010;box-shadow:0 1px 1px 0 rgba(0,0,0,.5);border:none}.fsu-academytips-icon{height:0}                              .fsu-academytips-icon::before,.ut-store-pack-details-view--description.fsu-packprice:before,.fsu-cards-price.fsu-unassigned:before{font-family:UltimateTeam-Icons,sans-serif;font-style:normal;font-variant:normal;font-weight:400;text-decoration:none;text-transform:none}.fsu-academytips-icon::before{content:'\\E001'}.ut-store-pack-details-view--description.fsu-packprice:before{color:#f7b702;display:inline-block;content:'\\E053';margin-right:.25rem}.fsu-cards-price.fsu-unassigned:before{content:'\\E092';display:inline-block;margin-right:.3em;vertical-align:middle;color:#f7b702}"
 
 
     //24.18 修改请求fut链接报错提示
@@ -900,6 +928,7 @@
     };
     call.view = {
         card:UTPlayerItemView.prototype.renderItem,
+        miscItem:UTMiscItemView.prototype.renderItem,
         squad:UTBaseSquadSplitViewController.prototype.viewDidAppear,
         unassigned:UTUnassignedItemsViewController.prototype.renderView,
         pack:UTStorePackDetailsView.prototype._generate,
@@ -914,9 +943,30 @@
         academySlot:UTAcademySlotItemDetailsViewController.prototype.renderView,
         nav:UTGameFlowNavigationController.prototype.viewDidAppear,
         ea:EAViewController.prototype.viewDidAppear,
-        push:UTGameFlowNavigationController.prototype.didPush
+        push:UTGameFlowNavigationController.prototype.didPush,
+        login:UTLoginView.prototype._generate
     }
 
+
+    //24.20 lodin页面插入已加载提示
+    UTLoginView.prototype._generate = function (...args) {
+        if (!this._generated) {
+            call.view.login.call(this, ...args);
+            
+            let locale = services.Localization.locale;
+            if(locale.language == "zh"){
+                info.language = locale.variant == "Hans" ? 0 : 1;
+            }
+            events.notice("notice.succeeded",0);
+            let psBtn = events.createElementWithConfig("div",{
+                textContent:fy("notice.succeeded"),
+                style:{
+                    color:"#36b84b"
+                }
+            })
+            this._linkGettingStarted.getRootElement().parentNode.appendChild(psBtn);
+        }
+    }
     //24.15 底层界面展示
     EAViewController.prototype.viewDidAppear = function(...args) {
         call.view.ea.call(this,...args);
@@ -1116,6 +1166,7 @@
             
         }
     }
+    //球员卡信息创建
     UTPlayerItemView.prototype.renderItem = function (p, t) {
         call.view.card.call(this, p, t);
         if (p.isValid()) {
@@ -1262,6 +1313,7 @@
                         2:`.itemList > .listFUTItem.has-auction-data ${sp}`,
                         3:`.itemList > .listFUTItem ${sp}`,
                         //拍卖行
+                        4:`.ut-navigation-container-view.ui-layout-right .SearchResults .paginated-item-list .listFUTItem.has-auction-data ${sp}`,
                         7:`.SearchResults .paginated-item-list .listFUTItem.has-auction-data ${sp}`,
                         //替换球员上部
                         5:`.ut-pinned-item.has-iterator .listFUTItem ${sp}`,
@@ -1289,7 +1341,7 @@
                             }
                         }
                     }
-                    if(cs == 7 && document.querySelector(".icon-transfer.selected")) cs = 4;
+                    if(cs == 7 && document.querySelector(".icon-transfer.selected")) cs = 12;
                     if(cs == 8 && document.querySelector(".icon-club.selected")) cs = 9;
                     if(cs == 2 && controller.className == "UTWatchListViewController") cs = 11;
                     if(cs == 8 && controller.className == "UTAcademyPlayerFromClubViewController") cs = 3;
@@ -1309,29 +1361,35 @@
                             }
                         }
                         if([5,21,22,23,24,25,31].includes(cs)){
+                            if(cs == 21 && !p.untradeable){
+                                let uP = _.find(repositories.Item.getUnassignedItems(), (item) => item.definitionId === p.definitionId);
+                                if(uP && uP.untradeable){
+                                    this._fsuCardPrice.classList.add("fsu-unassigned")
+                                }
+                            }
                             this.__root.prepend(this._fsuCardPrice);
                         }else{
                             let pbc = "right";
-                            if([1,2,4,7,11].includes(cs)){
+                            if([1,2,12,11].includes(cs)){
                                 pbc = "top";
                                 if(isPhone()){
                                     this.getRootElement().parentNode.querySelector(".name").style.width = "25%";
                                 }
                             }
                             this._fsuCardPriceBox.classList.add(pbc);
-                            if(cs == 4 || cs == 7 || cs == 11){
+                            if(cs == 12 || cs == 11){
                                 this._fsuCardPriceBox.querySelector(".fsu-price-last")?.remove();
                                 this._fsuCardPriceBox.querySelector(".title span")?.remove();
                                 this.__root.parentNode.append(this._fsuCardPriceBox);
-                            }else if(cs == 6 || cs == 8){
+                            }else if(cs == 6 || cs == 8 || cs == 7 || cs == 4){
                                 this.__root.prepend(this._fsuCardPrice);
                             }else{
                                 this.__root.after(this._fsuCardPriceBox);
                             }
 
-                            if(cs == 4 || cs == 6) this._fsuCardOther.querySelector(".fsu-other-low").remove();
+                            if(cs == 12 || cs == 6) this._fsuCardOther.querySelector(".fsu-other-low").remove();
                             if(cs == 1 || cs == 8  || cs == 9) this._fsuCardOther.querySelector(".fsu-other-dup").remove();
-                            if(![7].includes(cs)){
+                            if(![7,4].includes(cs)){
                                 this.__root.parentNode.append(this._fsuCardOther);
                             }
                         }
@@ -1430,6 +1488,49 @@
             }, 10);
         };
     };
+
+    //球员道具信息创建效果
+    UTMiscItemView.prototype.renderItem = function(t, e) {
+        call.view.miscItem.call(this, t, e);
+        if(t.isPlayerPickItem()){
+            let pickOddo = events.getOddo(t.definitionId);
+            if(pickOddo){
+                if(this.className.includes("Small")){
+                    if(cntlr.current().className.includes("Unassigned") && this.getRootElement().parentElement){
+                        let oddoBox = events.createElementWithConfig("div", {
+                            textContent:`${fy("returns.text")}${pickOddo.toLocaleString()}`,
+                            classList: ['currency-coins']
+                        });
+                        this.getRootElement().parentElement.appendChild(oddoBox);
+                    }
+                }else{
+                    let oddoBox = events.createElementWithConfig("div", {
+                        style:{
+                            position:"absolute",
+                            bottom:"0",
+                            backgroundColor:"rgb(0 0 0 / 60%)",
+                            width:"100%",
+                            textAlign:"center",
+                            padding:".2rem 0",
+                            color:"#ffffff",
+                            fontSize:"1rem",
+                            paddingBottom:".5rem"
+                        }
+                    });
+                    let oddoTitle = events.createElementWithConfig("div", {
+                        textContent:_.replace(_.replace(fy("returns.text"),":",""),"：","")
+                    });
+                    oddoBox.appendChild(oddoTitle)
+                    let oddoCoin = events.createElementWithConfig("div", {
+                        classList: ['currency-coins'],
+                        textContent:pickOddo.toLocaleString()
+                    });
+                    oddoBox.appendChild(oddoCoin)
+                    this.getRootElement().appendChild(oddoBox);
+                }
+            }
+        }
+    }
     call.plist = {
         sectioned:UTSectionedItemListView.prototype.addItems,
         paginated:UTPaginatedItemListView.prototype.renderItems,
@@ -1453,27 +1554,17 @@
             setFilter:UTMarketSearchFiltersView.prototype.setFilters,
         },
         rewards:{
-            base:UTRewardsCarouselView.prototype.setupRewards,
             campaign:UTCampaignRewardsCarouselView.prototype.setupRewards,
             campaigns:UTCampaignRewardsCarouselView.prototype.setupCampaignRewards,
-            selection:UTRewardSelectionChoiceViewController.prototype.viewDidAppear,
-            popupTapped:UTGameRewardsViewController.prototype.onButtonTapped
+            choice:UTRewardSelectionChoiceViewController.prototype.viewDidAppear,
+            popupTapped:UTGameRewardsViewController.prototype.onButtonTapped,
+            objectiveDetail:UTObjectiveDetailPopupView.prototype.render,
+            choiceSet:UTRewardSelectionChoiceView.prototype.expandRewardSet
         },
-        SBCSetDealloc:UTSBCSetTileView.prototype.dealloc,
+        localize:EALocalizationService.prototype.localize
     }
 
-    //SBC任务创建奖励canvas未删除导致内存占用过高临时处理办法。
-    UTSBCSetTileView.prototype.dealloc = function(...args) {
-        _.map(this.getSubviews(),i => { 
-            if(i.className == "UTLargePlayerItemView"){
-                console.log("SBC奖励销毁")
-                i.dealloc()
-            }
-        })
-        call.other.SBCSetDealloc.call(this, ...args);
-    }
-
-
+    
     UTSquadOverviewViewController.prototype.viewDidAppear = function() {
         call.plist.squad.call(this);
         let p = this._squad._players.map(function (i) {if(i._item.type == "player" && !info.roster.data.hasOwnProperty(i._item.definitionId)){return i._item.definitionId}}).filter(i => i > 0);
@@ -1481,6 +1572,53 @@
 
 
         if(this._squad.isSBC()){
+            //24.20 判断是否可以快速完成并插入按钮
+            if(_.size(info.base.fastsbc) > 0){
+                let sId = this._set.id,
+                    cId = this._challenge.id,
+                    q = info.base.fastsbc[`${sId}#${cId}`];
+                if(q && this._set.challengesCount == 1){
+                    console.log(q)
+                    let qs = events.fastSBCQuantity(true,_.filter(services.Item.itemDao.itemRepo.getUnassignedItems(), item => item.isPlayer() && item.duplicateId !== 0),q);
+                    if(qs){
+                        let fsBox = events.createElementWithConfig("div",{
+                            style:{
+                                position:"absolute",
+                                left:"50%",
+                                bottom:".5em",
+                                transform:"translateX(-50%)"
+                            }
+                        });
+                        let fsBtn = events.createButton(
+                            new UTStandardButtonControl(),
+                            fy(["fastsbc.sbcbtntext",qs]),
+                            (e) => {
+                                if (info.base.fastsbctips) {
+                                    events.isSBCCache(e._sId, e._cId)
+                                } else {
+                                    events.popup(
+                                        fy("fastsbc.popupt"),
+                                        fy("fastsbc.popupm"),
+                                        (t) => {
+                                            if (t === 2) {
+                                                info.base.fastsbctips = true;
+                                                events.isSBCCache(e._sId, e._cId)
+                                            }
+                                        }
+                                    )
+                                }
+                            },
+                            "call-to-action mini"
+                        );
+                        fsBtn._sId = sId;
+                        fsBtn._cId = cId;
+                        fsBox.appendChild(fsBtn.getRootElement());
+                        this.getView().__draggableArea.appendChild(fsBox);
+                    }
+                }
+            }
+
+
             let sp = this.getView();
             if(sp.hasOwnProperty("_fsuQuickRight")){
                 sp._fsuQuickRight.remove()
@@ -2243,11 +2381,11 @@
         if(list.length > 0){
             let la = Array.from(new Set(list));
             let pu = [];
-            let gr = Math.ceil(la.length / 23);
-            console.log(la)
-            for (let i = 0; i < gr; i++) {
-                let lt = la.splice(-23).join();
-                pu.push(`https://www.futbin.com/${info.base.year}/playerPrices?player=&rids=${lt}`)
+            let chunks = _.chunk(la, 23);
+            for (let chunk of chunks) {
+                let first = chunk[0]; // 获取第一位
+                let rest = chunk.slice(1).join(); // 获取剩余部分并拼接
+                pu.push(`https://www.futbin.com/${info.base.year}/playerPrices?player=${first}&rids=${rest}`);
             }
             for (let k in pu) {
                 let playerPrice;
@@ -2339,14 +2477,15 @@
 
 
     //点击子任务后给包添加价格
+    //24.20 修改为预估价格
     UTSBCGroupRewardListView.prototype.setRewards = function(e, o) {
         call.task.rewardList.call(this,e,o)
         _.map(e,(item,index) =>{
-            if(item.isPack){
-                let packCoinValue = info.base.packcoin?.[item.value];
+            if(item.isPack || (item.isItem && item.item && item.item.isPlayerPickItem())){
+                let packCoinValue = events.getOddo(item.value);
                 if(packCoinValue){
                     let packBox = events.createElementWithConfig("div", {
-                        textContent:`${fy("packcoin.text")}${(packCoinValue * item.count).toLocaleString()}`,
+                        textContent:`${fy("returns.text")}${(packCoinValue * item.count).toLocaleString()}`,
                         classList: ['currency-coins']
                     });
                     this.__rewardList.querySelector(`li:nth-child(${index+1})`).querySelector(".rowContent").appendChild(packBox);
@@ -2560,7 +2699,16 @@
                 events.notice("notice.basesbc",0);
             }
         }
-
+        let playerIds = _.chain(this.sbcSetTiles)
+        .map(s => {
+          if (s.data.awards.length && s.data.awards[0].isItem && s.data.awards[0].item.isPlayer() && !info.roster.data.hasOwnProperty(s.data.awards[0].item.definitionId)) {
+            return s.data.awards[0].item.definitionId;
+          }
+          return null;
+        }).compact().value();
+        if(playerIds.length){
+            events.loadPlayerPrice(playerIds);
+        }
         if(Object.keys(info.task.sbc.stat).length && info.set.info_sbcf && t){
             if(!this.hasOwnProperty("_fsuSbcFilter")){
                 this._fsuSbcFilter = new UTDropDownControl();
@@ -2623,7 +2771,7 @@
     UTSBCChallengesViewController.prototype.viewDidAppear = function() {
         call.task.sbcC.call(this);
         if(info.set.info_sbcs){
-            events.sbcSubPrice(this.sbset.id,this.getView()._challengeRows);
+            events.sbcSubPrice(this.sbset.id,this.getView());
 
             //子任务添加查看球员按钮
             if(_.isArray(this.sbset.awards)){
@@ -2706,7 +2854,7 @@
         if("data" in e && e.data.awards && e.data.awards.length == 1){
             if(e.data.awards[0].isPack){
                 let reward = e.data.awards[0];
-                let packCoinValue = info.base.packcoin?.[reward.value];
+                let packCoinValue = events.getOddo(reward.value);
                 if(packCoinValue){
                     let packBox = events.createElementWithConfig("div", {
                         style:{
@@ -2715,11 +2863,11 @@
                             backgroundColor:"rgb(0 0 0 / 60%)",
                             width:"100%",
                             textAlign:"center",
-                            padding:".2rem 0"
+                            padding:".2rem 0",
                         }
                     });
                     let packTitle = events.createElementWithConfig("div", {
-                        textContent:_.replace(_.replace(fy("packcoin.text"),":",""),"：","")
+                        textContent:_.replace(_.replace(fy("returns.text"),":",""),"：","")
                     });
                     packBox.appendChild(packTitle)
                     let packCoin = events.createElementWithConfig("div", {
@@ -2732,6 +2880,18 @@
                 }
             }
             
+        }
+    }
+    events.getOddo = (t) => {
+        if(_.has(info.base.oddo,t)){
+            let oddo = info.base.oddo[t];
+            if(_.size(oddo) > 1){
+                return oddo[info.base.platform];
+            }else{
+                return oddo.avg;
+            }
+        }else{
+            return 0;
         }
     }
     //字符串转换html对象
@@ -2758,7 +2918,8 @@
                 }
             }
             if(info.task.sbc.stat[id].hasOwnProperty("c")){
-                for (let i of e) {
+                let sumValue = 0,sumCoin = 0;
+                for (let i of e._challengeRows) {
                     if("_fsuSubSet" in i){
                         let sId = i._fsuSubSet.id,
                         box = events.createElementWithConfig("div",{
@@ -2767,20 +2928,22 @@
                                 flexDirection:"row"
                             }
                         }),
-                        priceValue = Number(info.base.platform == "pc" ? info.task.sbc.stat[id].c[sId].pc : info.task.sbc.stat[id].c[sId].tv).toLocaleString(),
+                        priceValue = Number(info.base.platform == "pc" ? info.task.sbc.stat[id].c[sId].pc : info.task.sbc.stat[id].c[sId].tv),
                         price = events.createElementWithConfig("span",{
-                            textContent:`${fy("sbc.price")}${priceValue}`,
+                            textContent:`${fy("sbc.price")}${priceValue.toLocaleString()}`,
                             classList:['currency-coins']
                         });
+                        sumValue += priceValue;
                         box.appendChild(price);
 
                         let sAwards = i._fsuSubSet.awards,
                             packCoin = 0;
                         _.map(sAwards,item => {
-                            if(item.isPack){
-                                let packCoinValue = info.base.packcoin?.[item.value];
+                            if(item.isPack || (item.isItem && item.item && item.item.isPlayerPickItem())){
+                                let packCoinValue = events.getOddo(item.value);
                                 if(packCoinValue){
                                     packCoin += packCoinValue * item.count;
+                                    sumCoin += packCoin;
                                 }
                             }
                         })
@@ -2800,6 +2963,45 @@
 
                         i.__rowTitle.insertAdjacentElement('afterend',box);
                     }
+                }
+                
+                let targetElement = e._setInfo.getRootElement().querySelector(".sbc-status-container");
+                if(targetElement.querySelector(".fsu-sub-price") == null){
+                    _.map(services.SBC.repository.getSetById(id).awards,r => {
+                        if(r.isPack || (r.isItem && r.item && r.item.isPlayerPickItem())){
+                            let packCoinValue = events.getOddo(r.value);
+                            if(packCoinValue){
+                                sumCoin += packCoinValue;
+                            }
+                        }
+                    })
+                    let sumBox = events.createElementWithConfig("div",{
+                        classList:["fsu-sub-price"],
+                        style:{
+                            display:"flex",
+                            flexDirection:"row",
+                            lineHeight:"2em",
+                            width:"100%",
+                        }
+                    })
+                    let sumValueBox = events.createElementWithConfig("span",{
+                        textContent:`${fy("sbc.price")}${sumValue.toLocaleString()}`,
+                        classList:['currency-coins']
+                    })
+                    sumBox.appendChild(sumValueBox);
+                    let sumCoinBox = events.createElementWithConfig("span",{
+                        textContent:`${fy("subsbcaward.title")}${sumCoin ? sumCoin.toLocaleString() : fy("subsbcaward.nope")}`,
+                        classList:[`${sumCoin ? 'currency-coins' : 'no'}`],
+                        style:{
+                            marginLeft:".5rem",
+                        }
+                    })
+                    sumBox.appendChild(sumCoinBox);
+                    if(targetElement){
+                        targetElement.appendChild(sumBox);
+                    }
+    
+                    console.log(sumValue,sumCoin)
                 }
             }
         }
@@ -3717,6 +3919,8 @@
         }
     }
 
+    //目标普通任务（非赛季）奖励信息显示
+    //24.20 改为使用预估价值
     UTObjectiveCategoryView.prototype.setCategoryGroups = function(i, e, o, n) {
         call.task.objG.call(this ,i, e, o, n)
         let g = this.groups;
@@ -3745,12 +3949,12 @@
                     textContent: rewardText,
                 });
                 rewardHtml.appendChild(rewardTextHtml)
-                if(reward.isPack){
-                    let packCoinValue = info.base.packcoin?.[reward.value];
+                if(reward.isPack || (reward.isItem && reward.item && reward.item.isPlayerPickItem())){
+                    let packCoinValue = events.getOddo(reward.value);
                     if(packCoinValue){
                         let packCoin = events.createElementWithConfig("span", {
                             classList: ['currency-coins'],
-                            textContent: `${fy("packcoin.text")}${(packCoinValue *  reward.count).toLocaleString()}`,
+                            textContent: `${fy("returns.text")}${(packCoinValue *  reward.count).toLocaleString()}`,
                         });
                         rewardHtml.appendChild(packCoin)
                     }
@@ -3763,10 +3967,6 @@
         if (!this._generated) {
             call.task.home.call(this, ...args);
             GM_addStyle(info.base.sytle);
-            let locale = services.Messages.messagesDAO.authDelegate.sessionUtas.locale;
-            if(locale.language == "zh"){
-                info.language = locale.variant == "Hans" ? 0 : 1;
-            }
             console.log(fy("tile.settitle"))
             this._fsuSet = events.createTile(
                 fy("tile.settitle"),
@@ -4448,7 +4648,7 @@
     //转会名单发送球员后调用事件
     events.transferToClub = (controller,list) => {
         services.Item.move(list, ItemPile.CLUB).observe(controller, (e,t) => {
-                if (e.unobserve(controller),
+            if (e.unobserve(controller),
                 t.success) {
                     let i = t.data.itemIds.length , o = 1 < i ? services.Localization.localize("notification.item.allToClub", [i]) : services.Localization.localize("notification.item.oneToClub");
                     services.Notification.queue([o, UINotificationType.NEUTRAL]);
@@ -4464,9 +4664,122 @@
             }
         })
     }
+    //快速SBC数量检测
+    events.fastSBCQuantity = (y,p,o) => {
+        let c = [];
+        _.map(o,os => {
+            let criteria = events.ignorePlayerToCriteria(os.t);
+            criteria.lock = false;
+            let tc = y ? _.size(events.getItemBy(1,criteria,p)) : _.size(events.getItemBy(1,criteria,false,p));
+            tc = _.ceil(tc / os.c)
+            c.push(tc)
+        })
+        return y ? _.min(c) : _.max(c);
+    }
     //未分配界面
     UTUnassignedItemsViewController.prototype.renderView = function(...args) {
         call.view.unassigned.call(this, ...args);
+        //快捷按钮调出
+        let dupPlayers = _.filter(this.getViewModel().getDuplicateSection(), item => item.isPlayer() && item.duplicateId !== 0);
+        if(dupPlayers.length && _.size(info.base.fastsbc) > 0){
+            let fastList = [];
+            _.forOwn(info.base.fastsbc,(value, key) => {
+                if(_.includes(key,'#')){
+                    let c = events.fastSBCQuantity(false,dupPlayers,value);
+                    if(c){
+                        let scId = _.map(_.split(key,'#'), _.parseInt);
+                        fastList.push({"sId":scId[0],"cId":scId[1],"c":c})
+                    }
+                }
+            });
+            if(fastList.length){
+                let buttonList = [];
+                let UTFdiv = events.createElementWithConfig("div", {
+                    style:{
+                        display:"flex",
+                        padding:".75rem .5rem",
+                        gap:".6em"
+                    }
+                })
+                _.map(fastList,i => {
+                    let s = services.SBC.repository.getSetById(i.sId);
+                    let c = s ? s.getChallenge(i.cId) : false;
+                    if(s && !s.isComplete() && (c == null || !c.isCompleted())){
+                        let uDupPlayers = this.getViewModel().getUntradeableDuplicates();
+                        let sPlayersIds = events.getItemBy(1,{"id":_.map(uDupPlayers,"duplicateId"),"untradeable":false});
+                        let swapPlayers = [];
+                        if(sPlayersIds.length){
+                            swapPlayers = _.filter(uDupPlayers,item => _.includes(sPlayersIds,item.definitionId));
+                        }
+                        let bTitle = (s.challengesCount == 1 ? s.name : `${s.name}-${c ? c.name : i.cId}`) + `(${i.c})`;
+                        let b = events.createButton(
+                            new UTStandardButtonControl(),
+                            bTitle,
+                            (e) => {
+                                function goFastSBC(b){
+                                    let Btn = b;
+                                    if(Btn._swap.length){
+                                        console.log("有可交换的")
+                                        events.showLoader();
+                                        services.Item.move(Btn._swap, ItemPile.CLUB).observe(cntlr.current(),async (e, t) => {
+                                            if (e.unobserve(cntlr.current()), t.success) {
+                                                events.isSBCCache(Btn._sId, Btn._cId)
+                                            }else{
+                                                services.Notification.queue([services.Localization.localize("notification.item.moveFailed"), UINotificationType.NEGATIVE])
+                                            }
+                                        });
+                                    }else{
+                                        console.log("没有可交换的")
+                                        events.isSBCCache(Btn._sId, Btn._cId)
+                                    }
+                                }
+                                if (info.base.fastsbctips) {
+                                    goFastSBC(e)
+                                    //events.fastSBC(e._sId, e._cId)
+                                } else {
+                                    events.popup(
+                                        fy("fastsbc.popupt"),
+                                        fy("fastsbc.popupm"),
+                                        (t) => {
+                                            if (t === 2) {
+                                                info.base.fastsbctips = true;
+                                                goFastSBC(e)
+                                                //events.fastSBC(e._sId, e._cId)
+                                            }
+                                        }
+                                    )
+                                }
+                            },
+                            "call-to-action mini"
+                        );
+                        b._sId = i.sId;
+                        b._cId = i.cId;
+                        b._swap = swapPlayers;
+                        buttonList.push(b)
+                        UTFdiv.appendChild(b.getRootElement());
+                    }
+                })
+                if(buttonList.length){
+                    let UTFSection = events.createElementWithConfig("section", {
+                        classList:["sectioned-item-list","fsu-screenshot"]
+                    })
+                    let UTFheader = events.createElementWithConfig("header", {
+                        classList:["ut-section-header-view"]
+                    })
+                    UTFSection.appendChild(UTFheader);
+                    let UTFH2 = events.createElementWithConfig("h2", {
+                        textContent:fy(["fastsbc.title",buttonList.length]),
+                        classList:["title"],
+                        style:{
+                            fontSize:"1.3rem",
+                        }
+                    })
+                    UTFheader.appendChild(UTFH2);
+                    UTFSection.appendChild(UTFdiv);
+                    this.getView().getRootElement().prepend(UTFSection);
+                }
+            }
+        }
         //生成头部
         let UTSPrice = 0;
         let UTSPlayer = this.getViewModel().getSectionItems().map(i => {
@@ -4494,7 +4807,6 @@
             UTSText.textContent = fy(["screenshot.text",UTSPlayer.length,UTSPrice.toLocaleString()])
             this.getView().getRootElement().insertBefore(UTSSection, this.getView().getRootElement().firstChild);
         }
-        //快捷按钮调出
         //可交换页面
         let itemSection = this.getView().getSection(UTUnassignedItemsViewModel.SECTION.ITEMS);
         if(itemSection){
@@ -5272,8 +5584,7 @@
             this._fsuBIB.__root.style.marginLeft = '1rem';
             this._fsuBIB.__root.style.marginRight = '1rem';
             this._fsuBIB.challenge = e;
-            // this._challengeDetails.__root.insertBefore(this._fsuBIB.__root, this._challengeDetails.__description.nextSibling);
-            this._challengeDetails._requirements.__root.appendChild(this._fsuBIB.__root);
+            this._challengeDetails.__root.insertBefore(this._fsuBIB.__root, this._challengeDetails.__description.nextSibling);
         }
         let conceptList = _.filter(e.squad.getPlayers(), slot => {
             return slot.item.concept;
@@ -5284,8 +5595,9 @@
             this._fsuBIB.hide()
         }
 
-        // Kobe Add
-        if(!this._fsuMeetsFill && info.set.sbc_template){
+
+         // Kobe Add
+         if(!this._fsuMeetsFill && info.set.sbc_template){
             let b = events.createButton(
                 new UTStandardButtonControl(),
                 "替换满足",
@@ -5381,7 +5693,6 @@
             this._challengeDetails._requirements.__root.appendChild(this._fsuRatFill.__root);
         }
 
-
         if(!this._fsuSquad && info.set.sbc_template){
             let b = events.createButton(
                 new UTStandardButtonControl(),
@@ -5430,65 +5741,19 @@
         }
 
         //计算所需条件
-        let sc = 11 - e.squad.getAllBrickIndices().length,gf = [],gfall = {},targetRting = 0,needChem = false;
-        for (let i of e.eligibilityRequirements) {
-            let fk = i.getFirstKey(),fv = i.getFirstValue(fk),gfs = {"t":{},"c":i.count};
-            if(fk == SBCEligibilityKey.PLAYER_QUALITY){
-                gfs.t["rs"] = fv - 1;
-                gfall["rs"] = fv - 1;
+        let targetRting = 0,needChem = false,gf = [];
+
+        _.map(e.eligibilityRequirements,r => {
+            if(r.getFirstKey() == SBCEligibilityKey.TEAM_RATING){
+                targetRting = r.getFirstValue(r.getFirstKey());
             }
-            if(fk == SBCEligibilityKey.PLAYER_RARITY){
-                gfs.t["rareflag"] = fv;
-            }
-            if(fk == SBCEligibilityKey.PLAYER_RARITY_GROUP && fv == 4){
-                gfs.t["gs"] = true;
-                gfall["gs"] = false;
-            }
-            if(fk == SBCEligibilityKey.PLAYER_MIN_OVR && e.eligibilityRequirements.length == 1){
-                gfs.t["GTrating"] = fv;
-            }
-            if(fk == SBCEligibilityKey.PLAYER_LEVEL){
-                gfs.t["rs"] = fv - 1;
-            }
-            if(fk == SBCEligibilityKey.TEAM_RATING){
-                gf = [];
-                targetRting = fv;
-            }
-            if(fk == SBCEligibilityKey.CHEMISTRY_POINTS){
+            if(r.getFirstKey() == SBCEligibilityKey.CHEMISTRY_POINTS){
                 needChem = true;
             }
-            if(Object.keys(gfs.t).length){
-                gf.push(gfs)
-            }
+        })
+        if(targetRting == 0 && !needChem){
+            gf = events.oneFillCreationGF(e.eligibilityRequirements,11 - e.squad.getAllBrickIndices().length);
         }
-        if(gf.length){
-            gf.sort((a, b) => b.c - a.c);
-            //处理球员数量
-            let ac = gf.filter(i => i.c == -1).length,gc = sc;
-            if(ac > 1){
-                gf = [];
-            }else if(ac == 1){
-                for (let i of gf) {
-                    if(i.c == -1){
-                        i.c = gc
-                    }else{
-                        gc = gc - i.c;
-                    }
-                }
-            }
-            if(Object.keys(gfall).length){
-                for (let i of gf) {
-                    let keys = Object.keys(gfall).filter(k => !(k in i.t));
-                    for (let key of keys) {
-                        i.t[key] = gfall[key];
-                    }
-                }
-            }
-            if(gc < 0){
-                gf = {};
-            }
-        }
-
         //一键填充和重复球员填充判断
         
         //24.16 排除球员配置按钮：生成按钮
@@ -5744,9 +6009,14 @@
                 }
             }
         })
-        events.loadPlayerPrice(playerlist.map(i => {if(i && i.definitionId){return i.definitionId}}).filter(Boolean))
+        events.loadPlayerPrice(
+            _.chain(playerlist)
+            .map(i => (i && i.definitionId && !info.roster.data.hasOwnProperty(i.definitionId) ? i.definitionId : null))
+            .compact()
+            .value()
+        )
         events.saveSquad(challenge,challenge.squad,playerlist,[]);
-        events.hideLoader();
+        //events.hideLoader();
         events.saveOldSquad(challenge.squad,false);
         
     }
@@ -5884,11 +6154,12 @@
                             },500);
                         }
                         events.notice("notice.templatesuccess",0);
-                        events.loadPlayerPrice(a);
-                        let view = isPhone() ? cntlr.current().getView() : cntlr.left().getView();
-                        console.log(view._interactionState)
-                        if(!view._interactionState){
-                            view.setInteractionState(!0)
+                        let view = isPhone() ? cntlr.current() : cntlr.left();
+                        if(view){
+                            console.log(view.getView()._interactionState)
+                            if(!view.getView()._interactionState){
+                                view.getView().setInteractionState(!0)
+                            }
                         }
                     }
                 );
@@ -6050,6 +6321,7 @@
         "removeItem":UTSquadEntity.prototype.removeItemFromSlot,
         "removeAll":UTSquadEntity.prototype.removeAllItems,
         "submitted":UTSBCSquadOverviewViewController.prototype._onChallengeSubmitted,
+        "submit":UTSBCSquadOverviewViewController.prototype._submitChallenge,
         "requirements":UTSBCChallengeRequirementsView.prototype.renderChallengeRequirements
     }
 
@@ -6350,15 +6622,54 @@
             itemListElement = this.__itemList,
             unassignedItems = repositories.Item.getUnassignedItems().length,
             HideAndShow = this.getStoreCategory() == 'mypacks';
-            if(HideAndShow){
-                this.storePacks.forEach((item) => {
-                    if(info.base.packcoin.hasOwnProperty(item.articleId) && !item.getRootElement().querySelector(".fsu-packprice")){
-                        let packCoinBox = document.createElement("p");
-                        packCoinBox.classList.add("ut-store-pack-details-view--description","currency-coins","fsu-packprice");
-                        packCoinBox.textContent = `${fy("packcoin.text")}${info.base.packcoin[item.articleId].toLocaleString()}`;
-                        item.__articleDesc.parentNode.insertBefore(packCoinBox, item.__articleDesc)
+            this.storePacks.forEach((item) => {
+                let packCoin = events.getOddo(item.articleId);
+                if(packCoin && !item.getRootElement().querySelector(".fsu-packprice")){
+                    let packCoinBox = document.createElement("p");
+                    packCoinBox.classList.add("ut-store-pack-details-view--description","currency-coins","fsu-packprice");
+                    packCoinBox.textContent = `${fy("returns.text")}${packCoin.toLocaleString()}`;
+                    let packData = repositories.Store.getArticle(item.articleId);
+                    if(packData){
+                        if(packData.getPrice(GameCurrency.COINS)){
+                            let packDuff = Math.round((packCoin/packData.getPrice(GameCurrency.COINS)-1)*100);
+                            let packDuffElement = document.createElement("span");
+                            packDuffElement.style.paddingLeft = ".3em";
+                            if(packDuff > 0){
+                                packDuffElement.style.color = "#36b84b"
+                                packDuffElement.textContent = `(+${packDuff}%)`
+                            }else{
+                                packDuffElement.style.color = "#d21433"
+                                packDuffElement.textContent = `(${packDuff}%)`
+                            }
+                            packCoinBox.appendChild(packDuffElement);
+                        }
                     }
-                })
+                    item.__articleDesc.after(packCoinBox)
+                    let packInfoBox = events.createElementWithConfig("div", {
+                        style:{
+                            position:"absolute",
+                            bottom:"0",
+                            backgroundColor:"rgb(0 0 0 / 60%)",
+                            width:"100%",
+                            textAlign:"center",
+                            padding:".2rem 0",
+                            color:"#ffffff",
+                            fontSize:"1rem",
+                        }
+                    });
+                    let packInfoTitle = events.createElementWithConfig("div", {
+                        textContent:_.replace(_.replace(fy("returns.text"),":",""),"：","")
+                    });
+                    packInfoBox.appendChild(packInfoTitle)
+                    let packInfoCoin = events.createElementWithConfig("div", {
+                        classList: ['currency-coins'],
+                        textContent:packCoin.toLocaleString()
+                    });
+                    packInfoBox.appendChild(packInfoCoin);
+                    item._pack.getRootElement().appendChild(packInfoBox);
+                }
+            })
+            if(HideAndShow){
                 if(e.length){
                     let filterOptionCount = {};
                     for (const i of e) {
@@ -6368,7 +6679,7 @@
                             filterOptionCount[i.id] = {
                                 count:1,
                                 name:services.Localization.localize(i.packName),
-                                value:info.base.packcoin.hasOwnProperty(i.id) ? info.base.packcoin[i.id] : 0
+                                value:events.getOddo(i.id)
                             };
                         }
                     }
@@ -6653,33 +6964,35 @@
             if(type == 1){
                 info.douagain.SBCList.unshift(sbcId);
             }
-            info.douagain.SBCList = _.filter(info.douagain.SBCList,SBCId => !services.SBC.repository.getSetById(SBCId).isComplete());
-            info.douagain.SBCList = info.douagain.SBCList.slice(0, 8);
-            info.douagain.SBCListHtml.innerHTML = ""
-            //24.16 调整为读取配置显示入口数量
-            _.map(info.douagain.SBCList,(item,index) => {
-                let button = events.createButton(
-                    new UTImageButtonControl(),
-                    "",
-                    (e) => {
-                        events.goToSBC(services.SBC.repository.getSetById(Number(e.__root.getAttribute("data-SBCId"))));
-                    },
-                    ""
-                )
-                button.__root.setAttribute("data-SBCId",item);
-                let img = events.createElementWithConfig("img", {
-                    style:{
-                        height:"100%",
-                        width:"auto"
+            if(services.SBC.repository.sets.length){
+                info.douagain.SBCList = _.filter(info.douagain.SBCList,SBCId => !services.SBC.repository.getSetById(SBCId).isComplete());
+                info.douagain.SBCList = info.douagain.SBCList.slice(0, 8);
+                info.douagain.SBCListHtml.innerHTML = ""
+                //24.16 调整为读取配置显示入口数量
+                _.map(info.douagain.SBCList,(item,index) => {
+                    let button = events.createButton(
+                        new UTImageButtonControl(),
+                        "",
+                        (e) => {
+                            events.goToSBC(services.SBC.repository.getSetById(Number(e.__root.getAttribute("data-SBCId"))));
+                        },
+                        ""
+                    )
+                    button.__root.setAttribute("data-SBCId",item);
+                    let img = events.createElementWithConfig("img", {
+                        style:{
+                            height:"100%",
+                            width:"auto"
+                        }
+                    })
+                    img.setAttribute("src",AssetLocationUtils.getSquadBuildingSetImageUri(services.SBC.repository.getSetById(item).assetId));
+                    button.getRootElement().appendChild(img);
+                    if(index >= info.set.headentrance_number){
+                        button.__root.style.display = "none";
                     }
+                    info.douagain.SBCListHtml.appendChild(button.getRootElement())
                 })
-                img.setAttribute("src",AssetLocationUtils.getSquadBuildingSetImageUri(services.SBC.repository.getSetById(item).assetId));
-                button.getRootElement().appendChild(img);
-                if(index >= info.set.headentrance_number){
-                    button.__root.style.display = "none";
-                }
-                info.douagain.SBCListHtml.appendChild(button.getRootElement())
-            })
+            }
         }
     }
     events.goToSBC = (SBCSetEntity) => {
@@ -6825,6 +7138,261 @@
             }
         }
     }
+
+
+    //一键填充需求生成程序
+    //24.20 新插入程序用以手机端快捷按钮判定和快速任务
+    events.oneFillCreationGF = (req,miss) => {
+        let gf = [],gfall = {};
+        _.map(req,i => {
+            const fk = i.getFirstKey(), fv = i.getFirstValue(fk), gfs = {"t":{},"c":i.count};
+            switch (fk) {
+                case SBCEligibilityKey.PLAYER_QUALITY:
+                case SBCEligibilityKey.PLAYER_LEVEL:
+                    gfs.t["rs"] = fv - 1;
+                    if (fk === SBCEligibilityKey.PLAYER_QUALITY) gfall["rs"] = fv - 1;
+                    break;
+                case SBCEligibilityKey.PLAYER_RARITY:
+                    gfs.t["rareflag"] = fv;
+                    break;
+                case SBCEligibilityKey.PLAYER_RARITY_GROUP:
+                    if (fv === 4) {
+                        gfs.t["gs"] = true;
+                        gfall["gs"] = false;
+                    }
+                    break;
+                case SBCEligibilityKey.PLAYER_MIN_OVR:
+                    if (req.length === 1) gfs.t["GTrating"] = fv;
+                    break;
+                default:
+                    break;
+            }
+            if (!_.isEmpty(gfs.t)) gf.push(gfs);
+        });
+        if(gf.length){
+            gf.sort((a, b) => b.c - a.c);
+            //处理球员数量
+            let ac = gf.filter(i => i.c == -1).length,gc = miss;
+            if(ac > 1){
+                gf = [];
+            }else if(ac == 1){
+                for (let i of gf) {
+                    if(i.c == -1){
+                        i.c = gc
+                    }else{
+                        gc = gc - i.c;
+                    }
+                }
+            }
+            if(Object.keys(gfall).length){
+                for (let i of gf) {
+                    let keys = Object.keys(gfall).filter(k => !(k in i.t));
+                    for (let key of keys) {
+                        i.t[key] = gfall[key];
+                    }
+                }
+            }
+            if(gc < 0){
+                gf = {};
+            }
+        }
+        _.map(req,r => {
+            if(r.getFirstKey() == SBCEligibilityKey.TEAM_RATING){
+                gf = [];
+            }
+            if(r.getFirstKey() == SBCEligibilityKey.CHEMISTRY_POINTS){
+                gf = [];
+            }
+        })
+        return gf;
+    }
+
+    //SBC任务是否有缓存检测
+    events.isSBCCache = (id,cId) => {
+        let SBCSetEntity = services.SBC.repository.getSetById(id);
+        if(SBCSetEntity){
+            events.fastSBC(id,cId)
+        }else{
+            console.log("执行任务的是否发现没有SBC数据！")
+            services.SBC.requestSets().observe(cntlr.current(), function(e, t) {
+                if (e.unobserve(s),
+                t.success && JSUtils.isObject(t.data)) {
+                    events.fastSBC(id,cId);
+                } else {
+                    var r = t.error ? t.error.code : t.status;
+                    NetworkErrorManager.checkCriticalStatus(r) ? NetworkErrorManager.handleStatus(r) : r === UtasErrorCode.SERVICE_IS_DISABLED && services.Configuration.setFeatureEnabled(UTServerSettingsRepository.KEY.SBC_ENABLED, !1)
+                }
+            })
+        }
+    }
+    //快速SBC
+    //24.20 新插入程序快速完成指定 SBC
+    events.fastSBC = async (id,cId) => {
+        let controller = events.getCurrent(),
+            view = controller.getView(),
+            SBCSetEntity = services.SBC.repository.getSetById(id),
+            challenge;
+        events.showLoader();
+        view.setInteractionState(!1);
+        services.SBC.requestChallengesForSet(SBCSetEntity).observe(controller, (e, t) => {
+            if (e.unobserve(controller),t.success && 0 < t.data.challenges.length){
+                challenge = t.data.challenges.find(challenge => challenge.id === cId),
+                services.SBC.loadChallenge(challenge).observe(controller, async (ee,tt) => {
+                    if (ee.unobserve(controller),tt.success){
+                        if(!SBCSetEntity.getChallenge(cId).squad){
+                            SBCSetEntity.getChallenge(cId).update(challenge);
+                        }
+                        console.log(SBCSetEntity)
+                        let oneFillNeed = info.base.fastsbc[`${id}#${cId}`];
+                        if(oneFillNeed && Object.keys(oneFillNeed).length){
+                            let fillPlayers = [];
+                            if(!info.build.strictlypcik && _.size(oneFillNeed) == 2 && _.isEqual(_.sortBy(_.keys(oneFillNeed[0].t)), ['gs', 'rs']) && _.isEqual(_.sortBy(_.keys(oneFillNeed[1].t)), ['gs', 'rs']) && oneFillNeed[0].t.rs == oneFillNeed[1].t.rs){
+                                let criteriaNumber = oneFillNeed[0].c + oneFillNeed[1].c;
+                                let tempFillNeed = {rs:JSON.parse(JSON.stringify(oneFillNeed[0].t.rs))};
+                                tempFillNeed = events.ignorePlayerToCriteria(tempFillNeed);
+                                tempFillNeed["lock"] = false;
+                                fillPlayers = events.getItemBy(2,tempFillNeed,services.Item.itemDao.itemRepo.getUnassignedItems()).slice(0,criteriaNumber);
+                            }else{
+                                let excludeId = [];
+                                for (let i of oneFillNeed) {
+                                    let searchCriteria = JSON.parse(JSON.stringify(i.t));
+                                    searchCriteria = events.ignorePlayerToCriteria(searchCriteria);
+                                    if(excludeId.length){
+                                        searchCriteria["NEdatabaseId"] = excludeId;
+                                    }
+                                    searchCriteria["lock"] = false;
+                                    let searchResults = events.getItemBy(2,searchCriteria,services.Item.itemDao.itemRepo.getUnassignedItems()).slice(0,i.c);
+                                    console.log(searchResults)
+                                    excludeId = excludeId.concat(searchResults.map( i => {return i.databaseId}))
+                                    fillPlayers = fillPlayers.concat(searchResults)
+                                }
+                            }
+                            if(fillPlayers.length == challenge.squad.getNumOfRequiredPlayers()){
+                                events.playerListFillSquad(challenge,fillPlayers,1);
+                                if (challenge.canSubmit()){
+                                    if (!services.Configuration.getFeatureSetting(UTServerSettingsRepository.KEY.SBC_ALLOW_UNTRADEABLE) && challenge.hasUntradeableItems()){
+                                        utils.PopupManager.showAlert(utils.PopupManager.Alerts.SBC_UNTRADEABLE_NOT_ALLOWED);
+                                    }else if(JSUtils.isValid(SBCSetEntity)){
+                                        TelemetryManager.trackEvent(TelemetryManager.Sections.SBC, TelemetryManager.Categories.BUTTON_PRESS, "SBC - Submit Challenge");
+                                        let t = services.UserSettings.getSBCValidationSkip();
+                                        services.SBC.submitChallenge(challenge,SBCSetEntity,t,services.Chemistry.isFeatureEnabled()).observe(controller,(eee,ttt) => {
+                                            eee.unobserve(controller);
+                                            let newChallenge = SBCSetEntity.getChallenge(challenge.id);
+                                            if (ttt.success && newChallenge) {
+                                                if (events.showRewardsView(newChallenge),ttt.data.setCompleted) {
+                                                    events.showRewardsView(SBCSetEntity);
+                                                    repositories.Item.setDirty(ItemPile.PURCHASED)
+                                                }
+                                                services.PIN.sendData(PINEventType.PAGE_VIEW, {
+                                                    type: PIN_PAGEVIEW_EVT_TYPE,
+                                                    pgid: "SBC - Rewards Overlay"
+                                                })
+                                                if(_.includes(controller.className, 'UTUnassignedItems')){
+                                                    view._fsuRefresh._tapDetected();
+                                                }
+                                                if(_.includes(controller.className, 'UTSBCSquad')){
+                                                    controller.getNavigationController().popViewController()
+                                                }
+                                                events.SBCListInsertToFront(SBCSetEntity.id,1)
+                                                events.notice("fastsbc.success",0)
+                                            }else{
+                                                services.Notification.queue([services.Localization.localize("notification.sbcChallenges.failedToSubmit"), UINotificationType.NEGATIVE])
+                                                events.notice("fastsbc.errro",2)
+                                            }
+                                        })
+                                    }
+                                }else{
+                                    utils.PopupManager.showAlert(utils.PopupManager.Alerts.SBC_INELIGIBLE_SQUAD);
+                                    events.notice("fastsbc.errro",2)
+                                }
+                            }else{
+                                events.notice("fastsbc.errro",2)
+                            }
+                        }else{
+                            events.notice("fastsbc.errro",2)
+                        }
+                    }else{
+                        let n = ee.error && tt.error.code === UtasErrorCode.SERVICE_IS_DISABLED ? "sbc.notification.disabled" : "notification.sbcChallenges.failedToLoad";
+                        services.Notification.queue([services.Localization.localize(n), UINotificationType.NEGATIVE]);
+                        events.notice("fastsbc.errro",2)
+                    }
+                });
+                events.hideLoader();
+            }else if(NetworkErrorManager.checkCriticalStatus(t.status)){
+                NetworkErrorManager.handleStatus(t.status);
+                events.notice("fastsbc.errro",2);
+                events.hideLoader();
+            }else {
+                let n = t.error && t.error.code === UtasErrorCode.SERVICE_IS_DISABLED ? "sbc.notification.disabled" : "notification.sbcChallenges.failedToLoad";
+                s.setInteractionState(!0),
+                services.Notification.queue([services.Localization.localize(n), UINotificationType.NEGATIVE]);
+                events.notice("fastsbc.errro",2);
+                events.hideLoader();
+            }
+        })
+        view.setInteractionState(!0)
+    }
+    //根据类型获取当前的view和controller
+    events.getCurrent = (type) => {
+        let r = isPhone() ? cntlr.current() : cntlr.left();
+        if(type && type == 2){
+            r = r.getView()
+        }
+        return r;
+    }
+    //SBC完成后的奖励弹窗
+    //24.20 新插入在一键完成后出现的弹层
+    events.showRewardsView = (set) => {
+        var rewardsController = new UTGameRewardsViewController(set.awards);
+        rewardsController.init(),
+        rewardsController.modalDisplayDimensions.width = "24em";
+        var rewardsView = rewardsController.getView();
+        rewardsView.setTitle(set.name),
+        rewardsView.setDescription(set.description),
+        rewardsView.setButtonText(services.Localization.localize("sbc.rewards.claim")),
+        gPopupClickShield.setActivePopup(rewardsController)
+    }
+    //提交SBC任务
+    //24.20 拦截提交行为，交换重复球员
+    UTSBCSquadOverviewViewController.prototype._submitChallenge = function _submitChallenge(e) {
+        console.log(this,e)
+        let controller = this;
+        let pIds = _(this._squad.getFieldPlayers())
+        .filter(p => p._item.untradeable === false && p._item.definitionId !== 0)
+        .map(p => p._item.definitionId)
+        .value();
+        let filteredItems = _.filter(repositories.Item.getUnassignedItems(), item => item.isPlayer() && item.untradeable && _.includes(pIds, item.definitionId));
+        if(filteredItems.length){
+            services.Item.move(filteredItems, ItemPile.CLUB).observe(controller,async (e, t) => {
+                if (e.unobserve(controller), t.success) {
+                    let oldIds = _.map(t.data.clubDuplicates,"id");
+                    let newPlayers = _.map(controller._squad.getPlayers(),p => {
+                        let oldIdIndex = _.indexOf(oldIds, p._item.id);
+                        if (oldIdIndex === -1) {
+                            return p._item;
+                        } else {
+                            let tItemId = t.data.itemIds[oldIdIndex];
+                            let eventResult = events.getItemBy(2, { id: tItemId });
+                            if(eventResult.length){
+                                return eventResult[0]; 
+                            }else{
+                                return p._item;
+                            }
+                        }
+                    })
+                    console.log(newPlayers)
+                    events.showLoader();
+                    events.notice("notice.submitrepeat",1);
+                    await events.saveSquad(controller._challenge,controller._challenge.squad,newPlayers,[]);
+                    call.squad.submit.call(controller,e)
+                }else{
+                    services.Notification.queue([services.Localization.localize("notification.item.moveFailed"), UINotificationType.NEGATIVE])
+                }
+            });
+        }else{
+            call.squad.submit.call(controller,e)
+        }
+    }
     //获得包和SBC进行存储
     UTSBCSquadOverviewViewController.prototype._onChallengeSubmitted = function _onChallengeSubmitted(e, t) {
         call.squad.submitted.call(this,e,t)
@@ -6964,25 +7532,6 @@
             cntlr.current().getStorePacks()
         }
     }
-    UTCampaignRewardsCarouselView.prototype.setupRewards = function(e) {
-        call.other.rewards.campaign.call(this,e)
-        if(e.length){
-            const rewardElement = this?.__root?.querySelectorAll(".objective-reward-label");
-            if(rewardElement && rewardElement.length == e.length){
-                for (let i = 0; i < e.length; i++){
-                    let reward = e[i],packCoinValue = info.base.packcoin?.[reward.value];
-                    if(reward.isPack && packCoinValue){
-                        let packCoin = events.createElementWithConfig("span", {
-                            classList: ['currency-coins'],
-                            textContent: `${fy("packcoin.text")}${(packCoinValue *  reward.count).toLocaleString()}`,
-                        });
-                        rewardElement[i].appendChild(document.createElement("br"));
-                        rewardElement[i].appendChild(packCoin);
-                    }
-                }
-            }
-        }
-    }
     events.createElementWithConfig = (tag, config)  => {
         const element = document.createElement(tag);
         Object.keys(config).forEach(key => {
@@ -6998,73 +7547,185 @@
         });
         return element;
     }
-    UTCampaignRewardsCarouselView.prototype.setupCampaignRewards = function(e) {
-        call.other.rewards.campaigns.call(this,e)
-        if(e.length){
-            const rewardElement = this?.__root?.querySelectorAll(".objective-reward-label");
-            if(rewardElement && rewardElement.length == e.length){
-                for (let i = 0; i < e.length; i++){
-                    if(e[i].rewards.length == 1){
-                        let reward = e[i].rewards[0],packCoinValue = info.base.packcoin?.[e[i].rewards[0].value];
-                        if(reward.isPack && packCoinValue){
-                            let packCoin = events.createElementWithConfig("span", {
+
+
+
+    events.setRewardOddo = (target,reward,type) => {
+        //console.log(target,reward)
+        let results = 0;
+        if(reward.isPack || (reward.isMiscItem && reward.item && reward.item.isPlayerPickItem())){
+            let oddo = events.getOddo(reward.value);
+            if(oddo){
+                results = oddo * reward.count;
+                if(target){
+                    let targetItem = target.querySelector(".ut-pack-graphic-view"),
+                        targetType = 1;
+                    if(targetItem == null){
+                        targetItem = target.querySelector(".player-pick");
+                        targetType = 2;
+                    }
+                    if(targetItem == null){
+                        targetItem = target.querySelector(".reward-info .type");
+                        targetType = 3;
+                    }
+                    if(targetItem){
+                        let oddoBox;
+                        if(targetType == 3){
+                            targetItem.appendChild(document.createElement("br"));
+                            oddoBox = events.createElementWithConfig("span", {
                                 classList: ['currency-coins'],
-                                textContent: `${fy("packcoin.text")}${(packCoinValue *  e[i].rewards[0].count).toLocaleString()}`,
+                                textContent:fy("returns.text") + results.toLocaleString()
                             });
-                            rewardElement[i].appendChild(document.createElement("br"));
-                            rewardElement[i].appendChild(packCoin);
+                        }else{
+                            oddoBox = events.createElementWithConfig("div", {
+                                style:{
+                                    position:"absolute",
+                                    bottom:"0",
+                                    backgroundColor:"rgb(0 0 0 / 60%)",
+                                    width:"100%",
+                                    textAlign:"center",
+                                    padding:".2rem 0",
+                                    color:"#ffffff",
+                                    fontSize:".8rem",
+                                }
+                            });
+                            let oddoTitle = events.createElementWithConfig("div", {
+                                textContent:_.replace(_.replace(fy("returns.text"),":",""),"：","")
+                            });
+                            oddoBox.appendChild(oddoTitle)
+                            let oddoCoin = events.createElementWithConfig("div", {
+                                classList: ['currency-coins'],
+                                textContent:results.toLocaleString()
+                            });
+                            oddoBox.appendChild(oddoCoin);
+                            if(targetType == 2){
+                                oddoBox.style.paddingBottom = ".5rem";
+                            }
+                            if(type == 2){
+                                oddoBox.style.fontSize = "1rem";
+                            }
                         }
+                        targetItem.appendChild(oddoBox);
                     }
                 }
             }
+        }else if(reward.isCoin){
+            results = reward.value;
+        }
+        return results;
+    }
+    //赛事列表式奖励展示
+    UTCampaignRewardsCarouselView.prototype.setupRewards = function(e) {
+        call.other.rewards.campaign.call(this,e)
+        if(e.length){
+            let target = this.getRootElement().querySelectorAll('.reward');
+            _.map(e,(r,i) => {
+                events.setRewardOddo(target[i],r,1)
+            })
         }
     }
-
-    UTRewardSelectionChoiceViewController.prototype.viewDidAppear = function() {
-        call.other.rewards.selection.call(this)
-        console.log(this)
-        let isSelected = this.selectedRewardIndex == -1 ? false : true;
-        let reward = [];
-        if(isSelected){
-            reward = Array.from(this.rewardSets).flatMap(rewardSet => rewardSet.awards);
-        }else{
-            reward = this.rewardSets.map((set) => set.awards[0]);
+    //目标赛季奖励列表载入
+    UTCampaignRewardsCarouselView.prototype.setupCampaignRewards = function(e) {
+        call.other.rewards.campaigns.call(this,e)
+        if(e.length){
+            let target = this.getRootElement().querySelectorAll('.reward');
+            _.map(e,(r,i) => {
+                events.setRewardOddo(target[i],r.rewards[0],1)
+            })
         }
-        let rewardElement = this.getView().__rewardTiles.querySelectorAll(isSelected ? ".textField" : ".main-description")
-        console.log(reward,rewardElement)
-        if(reward.length == rewardElement.length){
-            for (let i = 0; i < rewardElement.length; i++) {
-                let e = rewardElement[i],r = reward[i],packCoinValue = info.base.packcoin?.[r.value];
-                if(!e.querySelector("span.currency-coins") && r.isPack && packCoinValue){
-                    let packCoin = events.createElementWithConfig("span", {
-                        classList: ['currency-coins'],
-                        textContent: `${fy("packcoin.text")}${(packCoinValue *  r.count).toLocaleString()}`,
-                    });
-                    e.style.height = "auto";
-                    e.appendChild(document.createElement("br"));
-                    e.appendChild(packCoin);
+    }
+    //目标非赛季奖励组预览
+    UTObjectiveDetailPopupView.prototype.render = function(e) {
+        call.other.rewards.objectiveDetail.call(this,e)
+        //console.log(this,e)
+        
+        let sum = events.setRewardOddo(this._rewardsCarousel.getRootElement().querySelector(".reward"),e.rewards.rewards);
+        _.map(this.taskViews,(sView,sIndex) => {
+
+            let sAttr = _.nth(e.objectives.values(),-(sIndex + 1));
+            _.map(sAttr.rewards.rewards,(r,i) => {
+                if(i == 0){
+                    sum += events.setRewardOddo(sView._rewardsCarousel.getRootElement().querySelector(".reward"),r,2);
+                }else{
+                    sum += events.setRewardOddo(sView.__rewardsList.querySelector(`li:nth-of-type(${i})`),r,2);
                 }
-                
-            }
+            })
+        })
+        if(sum){
+            let sumBox = events.createElementWithConfig("span", {
+                textContent:'(',
+                style:{
+                    marginLeft:".5rem",
+                    fontSize:"1.2rem",
+                    color:"#666",
+                }
+            });
+            let sumText = events.createElementWithConfig("span", {
+                textContent: sum.toLocaleString(),
+                classList: ['currency-coins']
+            });
+            sumBox.appendChild(sumText);
+            sumBox.appendChild(document.createTextNode(')'));
+            this.__title.appendChild(sumBox);
         }
     }
-    UTRewardsCarouselView.prototype.setupRewards = function(t) {
-        call.other.rewards.base.call(this,t)
-        if(t.length){
-            const rootElement = this?.__root,packCoinValue = info.base.packcoin?.[t[0].value];
-            if(t[0].isPack && packCoinValue && rootElement){
-                let target = rootElement.querySelector(".textField");
-                let packCoin = events.createElementWithConfig("span", {
-                    classList: ['currency-coins'],
-                    textContent: `${fy("packcoin.text")}${(packCoinValue *  t[0].count).toLocaleString()}`,
-                });
-                target.style.height = "auto";
-                target.appendChild(document.createElement("br"));
-                target.appendChild(packCoin);
-            }
-        }
-    }
+    //奖励预览弹窗目录
+    UTRewardSelectionChoiceViewController.prototype.viewDidAppear = function() {
+        call.other.rewards.choice.call(this)
+        //console.log(this)
+        //events.setRewardOddo(this.getView(),this.rewardSets)
+        let target = this.getView().__rewardTiles.querySelectorAll('.ut-reward-selection');
+        _.map(this.rewardSets,(s,i) => {
+            let sum = 0;
+            _.map(s.rewards,(r,z) => {
+                sum += events.setRewardOddo(z == 0 ? target[i] : false,r,2); 
+            })
 
+            if(s.rewards.length > 1){
+                let sumBox = events.createElementWithConfig("span", {
+                    textContent:'(',
+                    style:{
+                        marginLeft:".5rem",
+                        fontSize:"1.2rem",
+                        color:"#666",
+                    }
+                });
+                let sumText = events.createElementWithConfig("span", {
+                    textContent: sum.toLocaleString(),
+                    classList: ['currency-coins']
+                });
+                sumBox.appendChild(sumText);
+                sumBox.appendChild(document.createTextNode(')'));
+                target[i].querySelector(".selection-title-landscape").appendChild(sumBox);
+            }
+        })
+    }
+    //奖励预览弹窗 - 奖励被选择
+    UTRewardSelectionChoiceView.prototype.expandRewardSet = function(e, t) {
+        call.other.rewards.choiceSet.call(this,e,t)
+        let target = this.__expandedReward.querySelectorAll('.reward');
+        let sum = 0;
+        _.map(t.rewards,(r,i) => {
+            sum += events.setRewardOddo(target[i],r,2)
+        })
+        if(t.rewards.length > 1){
+            let sumBox = events.createElementWithConfig("span", {
+                textContent:'(',
+                style:{
+                    marginLeft:".5rem",
+                    fontSize:"1.2rem",
+                    color:"#666",
+                }
+            });
+            let sumText = events.createElementWithConfig("span", {
+                textContent: sum.toLocaleString(),
+                classList: ['currency-coins']
+            });
+            sumBox.appendChild(sumText);
+            sumBox.appendChild(document.createTextNode(')'));
+            this.__title.appendChild(sumBox)
+        }
+    }
 
     //创建俱乐部按钮
     UTClubHubView.prototype.clearTileContent = function(...args) {
@@ -7293,7 +7954,7 @@
 
     //商店页面设置标题
     UTStoreViewController.prototype.setCategory = function(e) {
-        call.other.store.setCategory.call(this,e)
+        call.other.store.setCategory.call(this,e)   
         if(this.viewmodel !== void 0){
             let searchCategoryIds = _.map(
                 _.filter(this.viewmodel.categories, obj => 
@@ -7365,6 +8026,17 @@
         return newChallenge;
     }
 
+
+
+    //24.20 临时解决秒数无法显示的问题
+    //如修复则进行删除
+    EALocalizationService.prototype.localize = function(t, e, i) {
+        if(t == "timespan.second"){
+            t = "timespan.seconds"
+        }
+        let text = call.other.localize.call(this,t,e,i);
+        return text;
+    }
     lock.init = function(){
         let a = JSON.parse(GM_getValue("lock","[]")),b = [];
         if(a && typeof a === 'object'){
@@ -7399,6 +8071,7 @@
     unsafeWindow.events = events;
     unsafeWindow._ = _;
 
+    
     // ==Kobe Addition==
 
     //满足条件球员读取程序 返回列表
@@ -7544,4 +8217,5 @@
         isShowLoader && events.kobe_hideLoader();
     };
     // ==/Kobe Addition==
+
 })();
