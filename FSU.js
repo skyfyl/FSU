@@ -20,6 +20,7 @@
 // @connect      futcd.com
 // @connect      fut.gg
 // @connect      fut.to
+// @connect      futwiz.com
 // @license      MIT
 // @downloadURL https://update.greasyfork.org/scripts/431044/%E3%80%90FSU%E3%80%91EAFC%20FUT%20WEB%20%E5%A2%9E%E5%BC%BA%E5%99%A8.user.js
 // @updateURL https://update.greasyfork.org/scripts/431044/%E3%80%90FSU%E3%80%91EAFC%20FUT%20WEB%20%E5%A2%9E%E5%BC%BA%E5%99%A8.meta.js
@@ -1696,7 +1697,7 @@
                     this._fsuCardOther.querySelector(".fsu-other-dup")?.remove();
                 }
             }, 10);
-        };
+        }
     };
 
     //球员道具信息创建效果
@@ -2595,7 +2596,7 @@
             for (let chunk of chunks) {
                 let first = chunk[0]; // 获取第一位
                 let rest = chunk.slice(1).join(); // 获取剩余部分并拼接
-                //pu.push(`https://www.futbin.com/${info.base.year}/playerPrices?player=${first}&rids=${rest}`);
+                // pu.push(`https://www.futbin.com/${info.base.year}/playerPrices?player=${first}&rids=${rest}`);
                 pu.push(`https://www.futwiz.com/en/app/sold25/${first}/console`);
             }
             for (let k in pu) {
@@ -2607,25 +2608,44 @@
                     continue;
                 }
                 info.roster.data = Object.assign(info.roster.data,playerPrice);
-                for (let innerKey in playerPrice) {
-                    let e = document.querySelectorAll(`.fsu-price-box[data-id='${innerKey}']`);
-                    let p = playerPrice[innerKey].prices[info.base.platform].LCPrice;
-                    if(e.length > 0){
-                        for (let i of e) {
-                            if(i.classList.contains("fsu-price-val")){
-                                i.setAttribute("data-value",p);
-                                i.innerText = p;
-                            }else{
-                                i.querySelector(".fsu-price-val").setAttribute("data-value",p);
-                                i.querySelector(".fsu-price-val .value").innerText = p;
-                            }
-                            let lastPriceName = isPhone() ? '[data-last]' : '.fsu-price-last';
-                            if(i.querySelectorAll(lastPriceName).length > 0){
-                                i.querySelector(".fsu-price-val .title span").outerHTML = events.priceLastDiff(p.replace(/,/g, ''),isPhone() ? i.querySelector(lastPriceName).getAttribute("data-last").replace(/,/g, '') : i.querySelector(lastPriceName).innerText.replace(/,/g, ''));
-                            }
+                let innerKey = 'player';
+                let e = document.querySelectorAll(`.fsu-price-box[data-id='${playerPrice[innerKey]['line_id']}']`);
+                if(e.length > 0){
+                    let p = playerPrice['prices'][info.base.platform === 'ps' ? 'xb':info.base.platform].bin;
+                    for (let i of e) {
+                        if(i.classList.contains("fsu-price-val")){
+                            i.setAttribute("data-value",p);
+                            i.innerText = p;
+                        }else{
+                            i.querySelector(".fsu-price-val").setAttribute("data-value",p);
+                            i.querySelector(".fsu-price-val .value").innerText = p;
+                        }
+                        let lastPriceName = isPhone() ? '[data-last]' : '.fsu-price-last';
+                        if(i.querySelectorAll(lastPriceName).length > 0){
+                            i.querySelector(".fsu-price-val .title span").outerHTML = events.priceLastDiff(p.replace(/,/g, ''),isPhone() ? i.querySelector(lastPriceName).getAttribute("data-last").replace(/,/g, '') : i.querySelector(lastPriceName).innerText.replace(/,/g, ''));
                         }
                     }
                 }
+
+                // for (let innerKey in playerPrice) {
+                //     let e = document.querySelectorAll(`.fsu-price-box[data-id='${innerKey}']`);
+                //     let p = playerPrice[innerKey].prices[info.base.platform].LCPrice;
+                //     if(e.length > 0){
+                //         for (let i of e) {
+                //             if(i.classList.contains("fsu-price-val")){
+                //                 i.setAttribute("data-value",p);
+                //                 i.innerText = p;
+                //             }else{
+                //                 i.querySelector(".fsu-price-val").setAttribute("data-value",p);
+                //                 i.querySelector(".fsu-price-val .value").innerText = p;
+                //             }
+                //             let lastPriceName = isPhone() ? '[data-last]' : '.fsu-price-last';
+                //             if(i.querySelectorAll(lastPriceName).length > 0){
+                //                 i.querySelector(".fsu-price-val .title span").outerHTML = events.priceLastDiff(p.replace(/,/g, ''),isPhone() ? i.querySelector(lastPriceName).getAttribute("data-last").replace(/,/g, '') : i.querySelector(lastPriceName).innerText.replace(/,/g, ''));
+                //             }
+                //         }
+                //     }
+                // }
             }
             if(document.getElementById("squadTotal")){
                 events.squadTotal(cntlr.current()._squad.getFieldPlayers().map(function (i) {return i._item.definitionId}).filter(i => i > 0));
