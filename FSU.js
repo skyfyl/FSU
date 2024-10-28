@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         【FSU】EAFC FUT WEB 增强器
+// @name         【FSU】EAFC FUT WEB 增强器 Kobe
 // @namespace    https://futcd.com/
-// @version      25.05
+// @version      25.05.02
 // @description  EAFCFUT模式SBC任务便捷操作增强器👍👍👍，模拟开包、额外信息展示、近期低价自动查询、一键挂出球员、跳转FUTBIN、快捷搜索、拍卖行优化等等...👍👍👍
 // @author       Futcd_kcka
 // @match        https://www.ea.com/ea-sports-fc/ultimate-team/web-app/*
@@ -6444,6 +6444,20 @@
                 this._btnSquadBuilder.__root.after(this._fsuMeetsFill.__root);
             }
 
+            // Kobe Add
+            if(!this._fsuRatFill){
+                this._fsuRatFill = events.createButton(
+                    new UTStandardButtonControl(),
+                    "替换同分",
+                    (e) => {
+                        events.SBCSetRatPlayersAll(e);
+                    },
+                    "call-to-action"
+                )
+                this._fsuRatFill.challenge = e;
+                this._btnSquadBuilder.__root.after(this._fsuRatFill.__root);
+            }
+
             //计算所需条件
             let targetRting = 0,needChem = false,gf = [];
 
@@ -9426,6 +9440,59 @@
         unsafeWindow.cntlr = cntlr;
         unsafeWindow.events = events;
         unsafeWindow.fy = fy;
+
+        // Kobe Add
+        // 替换同分
+        events.SBCSetRatPlayersAll = async(e) => {
+            let players = _.cloneDeep(e.challenge.squad.getFieldPlayers().filter(i => i.getItem().concept));
+            let currentSquad = _.cloneDeep(e.challenge.squad._players.map((p) => p._item));
+            events.showLoader();
+            info.run.template = true;
+            for (const player of players) {
+                let playerIndex = player.getIndex();
+                let newplayers = await events.filterRatingPlayersAll(player.getItem().rating, e.challenge.squad.getPlayers());
+                if (newplayers.length > 0) {
+
+                    let currentPlayersId = currentSquad.filter(i => i.definitionId > 0).map((p) => p.definitionId);
+                    let newPlayersId = newplayers.map((p) => p.definitionId);
+                    let difference = _.difference(newPlayersId, currentPlayersId);
+                    if (difference.length > 0) {
+                        let newplayerDiffs =  newplayers.filter(i => difference.indexOf(i.definitionId) !== -1);
+                        let newplayer = newplayerDiffs[0];
+                        currentSquad[playerIndex] = newplayer;
+                    }
+                }
+                events.changeLoadingText("buyplayer.pauseloadingclose");
+                await events.wait(0.2, 1);
+
+            }
+            events.hideLoader();
+            events.saveSquad(e.challenge,  e.challenge.squad, currentSquad, []);
+            events.saveOldSquad(e.challenge.squad, false);
+            events.notice("buyplayer.missplayerbuy.success",0);
+        }
+
+
+        // Kobe Add
+        events.filterRatingPlayersAll = async(r, ps) => {
+            let jq = {"rating":Number(r)};
+            let curP = events.getItemBy(2, jq)
+            let cangP = events.getItemBy(2,{},false,repositories.Item.getStorageItems());
+            let allP = curP;
+            if(cangP.length){
+                cangP = cangP.filter(item => item._rating === r);
+                if(cangP.length){
+                    allP = cangP.concat(curP);
+                }
+            }
+            let p = events.getDedupPlayers(allP, ps);
+            if(!p.length){
+                events.notice("notice.noplayer",2)
+                return [];
+            }
+
+            return p;
+        }
 
         // Kobe Add
         //满足条件球员读取程序 返回列表

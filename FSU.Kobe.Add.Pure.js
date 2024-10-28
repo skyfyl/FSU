@@ -4,7 +4,7 @@ if(!this._fsuMeetsFill){
         new UTStandardButtonControl(),
         "替换满足",
         (e) => {
-            events.SBCSetMeetsPlayersAll(e)
+            events.SBCSetMeetsPlayersAll(e);
         },
         "mini call-to-action"
     )
@@ -21,12 +21,79 @@ if(!this._fsuMeetsFill){
         new UTStandardButtonControl(),
         "替换满足",
         (e) => {
-            events.SBCSetMeetsPlayersAll(e)
+            events.SBCSetMeetsPlayersAll(e);
         },
         "call-to-action"
     )
     this._fsuMeetsFill.challenge = e;
     this._btnSquadBuilder.__root.after(this._fsuMeetsFill.__root);
+}
+
+// Kobe Add
+if(!this._fsuRatFill){
+    this._fsuRatFill = events.createButton(
+        new UTStandardButtonControl(),
+        "替换同分",
+        (e) => {
+            events.SBCSetRatPlayersAll(e);
+        },
+        "call-to-action"
+    )
+    this._fsuRatFill.challenge = e;
+    this._btnSquadBuilder.__root.after(this._fsuRatFill.__root);
+}
+
+// Kobe Add
+// 优先筛选sbc仓库
+events.filterRatingPlayersAll = async(r, ps) => {
+    let jq = {"rating":Number(r)};
+    let curP = events.getItemBy(2, jq)
+    let cangP = events.getItemBy(2,{},false,repositories.Item.getStorageItems());
+    let allP = curP;
+    if(cangP.length){
+        cangP = cangP.filter(item => item._rating === r);
+        if(cangP.length){
+            allP = cangP.concat(curP);
+        }
+    }
+    let p = events.getDedupPlayers(allP, ps);
+    if(!p.length){
+        events.notice("notice.noplayer",2)
+        return [];
+    }
+
+    return p;
+}
+
+// Kobe Add
+// 替换同分
+events.SBCSetRatPlayersAll = async(e) => {
+    let players = _.cloneDeep(e.challenge.squad.getFieldPlayers().filter(i => i.getItem().concept));
+    let currentSquad = _.cloneDeep(e.challenge.squad._players.map((p) => p._item));
+    events.showLoader();
+    info.run.template = true;
+    for (const player of players) {
+        let playerIndex = player.getIndex();
+        let newplayers = await events.filterRatingPlayersAll(player.getItem().rating, e.challenge.squad.getPlayers());
+        if (newplayers.length > 0) {
+
+            let currentPlayersId = currentSquad.filter(i => i.definitionId > 0).map((p) => p.definitionId);
+            let newPlayersId = newplayers.map((p) => p.definitionId);
+            let difference = _.difference(newPlayersId, currentPlayersId);
+            if (difference.length > 0) {
+                let newplayerDiffs =  newplayers.filter(i => difference.indexOf(i.definitionId) !== -1);
+                let newplayer = newplayerDiffs[0];
+                currentSquad[playerIndex] = newplayer;
+            }
+        }
+        events.changeLoadingText("buyplayer.pauseloadingclose");
+        await events.wait(0.2, 1);
+
+    }
+    events.hideLoader();
+    events.saveSquad(e.challenge,  e.challenge.squad, currentSquad, []);
+    events.saveOldSquad(e.challenge.squad, false);
+    events.notice("buyplayer.missplayerbuy.success",0);
 }
 
 // Kobe Add
