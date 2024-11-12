@@ -150,7 +150,9 @@ events.SBCSetMeetsPlayersList = async(e, p) => {
         currentList[playerIndex] = player;
         newChallenge.squad.setPlayers(currentList);
         if(newChallenge.meetsRequirements()){
-            resultList.push(player)
+            if (player.academy == null){
+                resultList.push(player)
+            }
         }
     }
 

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         【FSU】EAFC FUT WEB 增强器 Kobe
 // @namespace    https://futcd.com/
-// @version      25.05.02
+// @version      25.05.03
 // @description  EAFCFUT模式SBC任务便捷操作增强器👍👍👍，模拟开包、额外信息展示、近期低价自动查询、一键挂出球员、跳转FUTBIN、快捷搜索、拍卖行优化等等...👍👍👍
 // @author       Futcd_kcka
 // @match        https://www.ea.com/ea-sports-fc/ultimate-team/web-app/*
@@ -9548,7 +9548,9 @@
                 currentList[playerIndex] = player;
                 newChallenge.squad.setPlayers(currentList);
                 if(newChallenge.meetsRequirements()){
-                    resultList.push(player)
+                    if (player.academy == null){
+                        resultList.push(player)
+                    }
                 }
             }
 
