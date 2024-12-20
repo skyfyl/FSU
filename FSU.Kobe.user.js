@@ -6624,7 +6624,8 @@
                 this._fsuBIB.__root.style.marginLeft = '1rem';
                 this._fsuBIB.__root.style.marginRight = '1rem';
                 this._fsuBIB.challenge = e;
-                this._challengeDetails.__root.insertBefore(this._fsuBIB.__root, this._challengeDetails.__description.nextSibling);
+                //this._challengeDetails.__root.insertBefore(this._fsuBIB.__root, this._challengeDetails.__description.nextSibling);
+                this._challengeDetails._requirements.__root.appendChild(this._fsuBIB.__root);
             }
             this._fsuBIB.hide()
             if(e.squad){
