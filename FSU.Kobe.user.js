@@ -6729,39 +6729,7 @@
         UTSBCSquadDetailPanelView.prototype.render = function(e, t, i, o) {
             call.panel.sbc.call(this,e, t, i, o)
 
-            //24.18 批量购买假想球员：生成按钮
-            if(!this._fsuBIB){
-                this._fsuBIB = events.createButton(
-                    new UTStandardButtonControl(),
-                    fy("bibconcept.btntext"),
-                    (e) => {
-                        let conceptPlayers = _.map(_.filter(e.challenge.squad.getPlayers(), slot => {
-                            return slot.item.concept;
-                        }),"item");
-                        if(isPhone() && cntlr.current().className !== "UTSBCSquadOverviewViewController"){
-                            cntlr.current().parentViewController._eBackButtonTapped();
-                        }
-                        setTimeout(() => {
-                            events.buyConceptPlayer(conceptPlayers);
-                        },500);
-                    },
-                    "mini call-to-action"
-                )
-                this._fsuBIB.__root.style.width = 'calc(100% - 2rem)';
-                this._fsuBIB.__root.style.marginLeft = '1rem';
-                this._fsuBIB.__root.style.marginRight = '1rem';
-                this._fsuBIB.challenge = e;
-                this._challengeDetails.__root.insertBefore(this._fsuBIB.__root, this._challengeDetails.__description.nextSibling);
-            }
-            this._fsuBIB.hide()
-            if(e.squad){
-                let conceptList = _.filter(e.squad.getPlayers(), slot => {
-                    return slot.item.concept;
-                });
-                if(conceptList.length){
-                    this._fsuBIB.show()
-                }
-            }
+
 
 
 
@@ -6869,6 +6837,40 @@
                 this._fsuIgnore.__root.style.width = '100%';
                 this._challengeDetails._requirements.__root.appendChild(this._fsuIgnore.__root);
                 this._fsuIgnore.hide()
+            }
+            //24.18 批量购买假想球员：生成按钮
+            if(!this._fsuBIB){
+                this._fsuBIB = events.createButton(
+                    new UTStandardButtonControl(),
+                    fy("bibconcept.btntext"),
+                    (e) => {
+                        let conceptPlayers = _.map(_.filter(e.challenge.squad.getPlayers(), slot => {
+                            return slot.item.concept;
+                        }),"item");
+                        if(isPhone() && cntlr.current().className !== "UTSBCSquadOverviewViewController"){
+                            cntlr.current().parentViewController._eBackButtonTapped();
+                        }
+                        setTimeout(() => {
+                            events.buyConceptPlayer(conceptPlayers);
+                        },500);
+                    },
+                    "mini call-to-action"
+                )
+                this._fsuBIB.__root.style.width = 'calc(100% - 2rem)';
+                this._fsuBIB.__root.style.marginLeft = '1rem';
+                this._fsuBIB.__root.style.marginRight = '1rem';
+                this._fsuBIB.challenge = e;
+                // this._challengeDetails.__root.insertBefore(this._fsuBIB.__root, this._challengeDetails.__description.nextSibling);
+                this._challengeDetails._requirements.__root.appendChild(this._fsuBIB.__root);
+            }
+            this._fsuBIB.hide()
+            if(e.squad){
+                let conceptList = _.filter(e.squad.getPlayers(), slot => {
+                    return slot.item.concept;
+                });
+                if(conceptList.length){
+                    this._fsuBIB.show()
+                }
             }
             if(Object.keys(gf).length){
 
