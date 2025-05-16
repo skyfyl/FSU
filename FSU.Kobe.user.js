@@ -7419,7 +7419,7 @@
                 if(list && list.length == 0){
                     return;
                 }
-                refePlan = list.slice(0, 5).map(item => item.id);
+                refePlan = list.slice(0, 1).map(item => item.id);
             }else{
                 refePlan.push(sId);
             }
